@@ -21,6 +21,7 @@ F 0 "CONN1" H 2204 2196 50  0000 L CNN
 F 1 "GamePort" H 2204 2105 50  0000 L CNN
 F 2 "Connector_Dsub:DSUB-15_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm" H 2050 2150 50  0001 C CNN
 F 3 " ~" H 2050 2150 50  0001 C CNN
+F 4 "C77837" H 2050 2150 50  0001 C CNN "LCSC Part"
 	1    2050 2150
 	1    0    0    -1  
 $EndComp
