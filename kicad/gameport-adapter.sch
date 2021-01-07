@@ -55,82 +55,79 @@ Text GLabel 1750 2450 0    50   Input ~ 0
 AxisY_1
 Text GLabel 1750 2350 0    50   Input ~ 0
 AxisY_2
+Text GLabel 4200 2700 2    50   Input ~ 0
+Button_1
+Text GLabel 4200 2600 2    50   Input ~ 0
+Button_3
+Text GLabel 3100 2600 0    50   Input ~ 0
+Button_2
+Text GLabel 3100 2500 0    50   Input ~ 0
+Button_4
+Text GLabel 4200 1900 2    50   Input ~ 0
+VCC
+Text GLabel 4200 2100 2    50   Input ~ 0
+MIDI_TXD
+Text GLabel 3100 2700 0    50   Input ~ 0
+MIDI_RXD
+Text GLabel 4200 2300 2    50   Input ~ 0
+AxisX_1
+Text GLabel 4200 2200 2    50   Input ~ 0
+AxisX_2
+Text GLabel 3100 2200 0    50   Input ~ 0
+AxisY_2
+Text GLabel 3100 2400 0    50   Input ~ 0
+AxisY_1
+Text GLabel 4200 1700 2    50   Input ~ 0
+GND
+Text GLabel 3100 1800 0    50   Input ~ 0
+GND
+Text GLabel 3100 1900 0    50   Input ~ 0
+GND
+NoConn ~ 4200 1800
+NoConn ~ 4200 1600
+NoConn ~ 3100 1600
+NoConn ~ 3100 1700
 $Comp
-L MCU_Module:Arduino_Nano_Every A1
-U 1 1 5FB6A14E
-P 3500 2100
-F 0 "A1" H 3200 3100 50  0000 C CNN
-F 1 "Arduino Nano" V 3500 2150 50  0000 C CNN
-F 2 "Module:Arduino_Nano" H 3500 2100 50  0001 C CIN
-F 3 "https://content.arduino.cc/assets/NANOEveryV3.0_sch.pdf" H 3500 2100 50  0001 C CNN
-	1    3500 2100
+L Switch:SW_DIP_x03 SW1
+U 1 1 5FF7E601
+P 3650 3350
+F 0 "SW1" H 3650 3817 50  0000 C CNN
+F 1 "SW_DIP_x03" H 3650 3726 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_DIP_SPSTx03_Slide_9.78x9.8mm_W7.62mm_P2.54mm" H 3650 3350 50  0001 C CNN
+F 3 "~" H 3650 3350 50  0001 C CNN
+	1    3650 3350
 	1    0    0    -1  
 $EndComp
-Text GLabel 3000 1600 0    50   Input ~ 0
-Button_1
-Text GLabel 3000 1700 0    50   Input ~ 0
-Button_3
-Text GLabel 3000 2000 0    50   Input ~ 0
-Button_2
-Text GLabel 3000 1900 0    50   Input ~ 0
-Button_4
-Text GLabel 3500 3100 3    50   Input ~ 0
+Text GLabel 3950 3150 2    50   Input ~ 0
 GND
-Text GLabel 4150 900  0    50   Input ~ 0
-VCC
-Text GLabel 4300 1900 2    50   Input ~ 0
+Text GLabel 3950 3250 2    50   Input ~ 0
 GND
-Text GLabel 3000 1800 0    50   Input ~ 0
-MIDI_TXD
-Text GLabel 3000 2100 0    50   Input ~ 0
-MIDI_RXD
-Text GLabel 4000 2100 2    50   Input ~ 0
-AxisX_1
-Text GLabel 4000 2200 2    50   Input ~ 0
-AxisX_2
-Text GLabel 4000 2300 2    50   Input ~ 0
-AxisY_2
-Text GLabel 4000 2400 2    50   Input ~ 0
-AxisY_1
-Wire Wire Line
-	3700 1100 3700 1000
-Wire Wire Line
-	3600 1100 3600 800 
+Text GLabel 3950 3350 2    50   Input ~ 0
+GND
 $Comp
-L Device:CP C1
-U 1 1 5FB812A2
-P 4150 1900
-F 0 "C1" V 4405 1900 50  0000 C CNN
-F 1 "10u" V 4314 1900 50  0000 C CNN
-F 2 "Capacitor_THT:CP_Radial_D5.0mm_P2.00mm" H 4188 1750 50  0001 C CNN
-F 3 "~" H 4150 1900 50  0001 C CNN
-	1    4150 1900
-	0    -1   -1   0   
+L Necroware:Arduino_Pro_Micro U1
+U 1 1 5FF74419
+P 3100 1400
+F 0 "U1" H 3650 1465 50  0000 C CNN
+F 1 "Arduino_Pro_Micro" H 3650 1374 50  0000 C CNN
+F 2 "Package_DIP:DIP-24_W15.24mm_Socket" H 3100 1400 50  0001 C CNN
+F 3 "" H 3100 1400 50  0001 C CNN
+	1    3100 1400
+	1    0    0    -1  
 $EndComp
-$Comp
-L Device:R R1
-U 1 1 5FB853B7
-P 4300 900
-F 0 "R1" V 4200 850 50  0000 C CNN
-F 1 "100" V 4300 900 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 4230 900 50  0001 C CNN
-F 3 "~" H 4300 900 50  0001 C CNN
-	1    4300 900 
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	3600 800  4450 800 
-Wire Wire Line
-	3700 1000 4450 1000
-$Comp
-L Connector_Generic:Conn_01x03 JP1
-U 1 1 5FB850AD
-P 4650 900
-F 0 "JP1" H 4800 850 50  0000 C CNN
-F 1 "Conn_01x03" H 4950 950 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 4650 900 50  0001 C CNN
-F 3 "~" H 4650 900 50  0001 C CNN
-	1    4650 900 
-	1    0    0    1   
-$EndComp
+Text GLabel 3350 3150 0    50   Input ~ 0
+SW1
+Text GLabel 3350 3250 0    50   Input ~ 0
+SW2
+Text GLabel 3350 3350 0    50   Input ~ 0
+SW3
+NoConn ~ 3100 2000
+NoConn ~ 3100 2100
+NoConn ~ 3100 2300
+Text GLabel 4200 2000 2    50   Input ~ 0
+SW3
+Text GLabel 4200 2400 2    50   Input ~ 0
+SW2
+Text GLabel 4200 2500 2    50   Input ~ 0
+SW1
 $EndSCHEMATC
