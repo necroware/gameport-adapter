@@ -13,24 +13,16 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text GLabel 4200 2700 2    50   Input ~ 0
-Button_1
-Text GLabel 4200 2600 2    50   Input ~ 0
-Button_3
 Text GLabel 3100 2600 0    50   Input ~ 0
 Button_2
 Text GLabel 3100 2500 0    50   Input ~ 0
 Button_4
 Text GLabel 4200 1900 2    50   Input ~ 0
 VCC
-Text GLabel 4200 2100 2    50   Input ~ 0
+Text GLabel 3100 2300 0    50   Input ~ 0
 MIDI_TXD
 Text GLabel 3100 2700 0    50   Input ~ 0
 MIDI_RXD
-Text GLabel 4200 2300 2    50   Input ~ 0
-AxisX_1
-Text GLabel 4200 2200 2    50   Input ~ 0
-AxisX_2
 Text GLabel 3100 2200 0    50   Input ~ 0
 AxisY_2
 Text GLabel 3100 2400 0    50   Input ~ 0
@@ -47,12 +39,11 @@ F 0 "U1" H 3650 1465 50  0000 C CNN
 F 1 "Arduino_Pro_Micro" H 3650 1374 50  0000 C CNN
 F 2 "Package_DIP:DIP-24_W15.24mm_Socket" H 3100 1400 50  0001 C CNN
 F 3 "" H 3100 1400 50  0001 C CNN
+F 4 "C72120" H 3100 1400 50  0001 C CNN "LCSC"
 	1    3100 1400
 	1    0    0    -1  
 $EndComp
-NoConn ~ 3100 2000
 NoConn ~ 3100 2100
-NoConn ~ 3100 2300
 $Comp
 L Connector:DB15_Female_MountingHoles CONN1
 U 1 1 5FB67AC2
@@ -101,12 +92,6 @@ Text GLabel 3100 1900 0    50   Input ~ 0
 GND
 Text GLabel 3100 1800 0    50   Input ~ 0
 GND
-Text GLabel 4200 2500 2    50   Input ~ 0
-SW1
-Text GLabel 4200 2400 2    50   Input ~ 0
-SW2
-Text GLabel 4200 2000 2    50   Input ~ 0
-SW3
 Text GLabel 3350 3350 0    50   Input ~ 0
 SW3
 Text GLabel 3350 3250 0    50   Input ~ 0
@@ -120,14 +105,14 @@ GND
 Text GLabel 3950 3150 2    50   Input ~ 0
 GND
 $Comp
-L Switch:SW_DIP_x03 SW1
+L Switch:SW_DIP_x04 SW1
 U 1 1 5FF7E601
 P 3650 3350
 F 0 "SW1" H 3650 3817 50  0000 C CNN
-F 1 "SW_DIP_x03" H 3650 3726 50  0000 C CNN
-F 2 "Button_Switch_THT:SW_DIP_SPSTx03_Slide_9.78x9.8mm_W7.62mm_P2.54mm" H 3650 3350 50  0001 C CNN
+F 1 "SW_DIP_x04" H 3650 3726 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_DIP_SPSTx04_Slide_9.78x12.34mm_W7.62mm_P2.54mm" H 3650 3350 50  0001 C CNN
 F 3 "~" H 3650 3350 50  0001 C CNN
-F 4 "C52148" H 3650 3350 50  0001 C CNN "LCSC"
+F 4 "C15781" H 3650 3350 50  0001 C CNN "LCSC"
 	1    3650 3350
 	1    0    0    -1  
 $EndComp
@@ -138,9 +123,10 @@ L Device:R R1
 U 1 1 604BCFE5
 P 5450 1600
 F 0 "R1" V 5550 1650 50  0000 R CNN
-F 1 "50k" V 5450 1650 50  0000 R CNN
+F 1 "100k" V 5450 1700 50  0000 R CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 5380 1600 50  0001 C CNN
 F 3 "~" H 5450 1600 50  0001 C CNN
+F 4 "C172965" V 5450 1600 50  0001 C CNN "LCSC"
 	1    5450 1600
 	0    -1   -1   0   
 $EndComp
@@ -149,9 +135,10 @@ L Device:R R2
 U 1 1 604BE4D6
 P 5450 1800
 F 0 "R2" V 5350 1850 50  0000 R CNN
-F 1 "50k" V 5450 1900 50  0000 R CNN
+F 1 "100k" V 5450 1900 50  0000 R CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 5380 1800 50  0001 C CNN
 F 3 "~" H 5450 1800 50  0001 C CNN
+F 4 "C172965" V 5450 1800 50  0001 C CNN "LCSC"
 	1    5450 1800
 	0    1    1    0   
 $EndComp
@@ -168,9 +155,10 @@ L Device:R R3
 U 1 1 604C20F3
 P 5450 2000
 F 0 "R3" V 5550 2050 50  0000 R CNN
-F 1 "50k" V 5450 2050 50  0000 R CNN
+F 1 "100k" V 5450 2100 50  0000 R CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 5380 2000 50  0001 C CNN
 F 3 "~" H 5450 2000 50  0001 C CNN
+F 4 "C172965" V 5450 2000 50  0001 C CNN "LCSC"
 	1    5450 2000
 	0    -1   -1   0   
 $EndComp
@@ -179,9 +167,10 @@ L Device:R R4
 U 1 1 604C282A
 P 5450 2200
 F 0 "R4" V 5350 2250 50  0000 R CNN
-F 1 "50k" V 5450 2300 50  0000 R CNN
+F 1 "100k" V 5450 2300 50  0000 R CNN
 F 2 "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 5380 2200 50  0001 C CNN
 F 3 "~" H 5450 2200 50  0001 C CNN
+F 4 "C172965" V 5450 2200 50  0001 C CNN "LCSC"
 	1    5450 2200
 	0    1    1    0   
 $EndComp
@@ -193,4 +182,25 @@ Text GLabel 5300 2000 0    50   Input ~ 0
 AxisY_1
 Text GLabel 5300 2200 0    50   Input ~ 0
 AxisY_2
+Text GLabel 3350 3450 0    50   Input ~ 0
+SW4
+Text GLabel 3950 3450 2    50   Input ~ 0
+GND
+Text GLabel 4200 2500 2    50   Input ~ 0
+SW4
+Text GLabel 4200 2400 2    50   Input ~ 0
+SW3
+Text GLabel 4200 2700 2    50   Input ~ 0
+Button_1
+Text GLabel 4200 2600 2    50   Input ~ 0
+Button_3
+Text GLabel 4200 2000 2    50   Input ~ 0
+SW1
+Text GLabel 4200 2100 2    50   Input ~ 0
+SW2
+Text GLabel 4200 2300 2    50   Input ~ 0
+AxisX_1
+Text GLabel 4200 2200 2    50   Input ~ 0
+AxisX_2
+NoConn ~ 3100 2000
 $EndSCHEMATC
