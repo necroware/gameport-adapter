@@ -98,24 +98,6 @@ Text GLabel 3350 3250 0    50   Input ~ 0
 SW2
 Text GLabel 3350 3150 0    50   Input ~ 0
 SW1
-Text GLabel 3950 3350 2    50   Input ~ 0
-GND
-Text GLabel 3950 3250 2    50   Input ~ 0
-GND
-Text GLabel 3950 3150 2    50   Input ~ 0
-GND
-$Comp
-L Switch:SW_DIP_x04 SW1
-U 1 1 5FF7E601
-P 3650 3350
-F 0 "SW1" H 3650 3817 50  0000 C CNN
-F 1 "SW_DIP_x04" H 3650 3726 50  0000 C CNN
-F 2 "Button_Switch_THT:SW_DIP_SPSTx04_Slide_9.78x12.34mm_W7.62mm_P2.54mm" H 3650 3350 50  0001 C CNN
-F 3 "~" H 3650 3350 50  0001 C CNN
-F 4 "C15781" H 3650 3350 50  0001 C CNN "LCSC"
-	1    3650 3350
-	1    0    0    -1  
-$EndComp
 Text GLabel 2050 3050 3    50   Input ~ 0
 GND
 $Comp
@@ -184,23 +166,41 @@ Text GLabel 5300 2200 0    50   Input ~ 0
 AxisY_2
 Text GLabel 3350 3450 0    50   Input ~ 0
 SW4
-Text GLabel 3950 3450 2    50   Input ~ 0
-GND
-Text GLabel 4200 2500 2    50   Input ~ 0
+Text GLabel 4200 2000 2    50   Input ~ 0
 SW4
-Text GLabel 4200 2400 2    50   Input ~ 0
+Text GLabel 4200 2100 2    50   Input ~ 0
 SW3
 Text GLabel 4200 2700 2    50   Input ~ 0
 Button_1
 Text GLabel 4200 2600 2    50   Input ~ 0
 Button_3
-Text GLabel 4200 2000 2    50   Input ~ 0
+Text GLabel 4200 2500 2    50   Input ~ 0
 SW1
-Text GLabel 4200 2100 2    50   Input ~ 0
+Text GLabel 4200 2400 2    50   Input ~ 0
 SW2
 Text GLabel 4200 2300 2    50   Input ~ 0
 AxisX_1
 Text GLabel 4200 2200 2    50   Input ~ 0
 AxisX_2
 NoConn ~ 3100 2000
+Text GLabel 3950 3450 2    50   Input ~ 0
+GND
+Text GLabel 3950 3150 2    50   Input ~ 0
+GND
+Text GLabel 3950 3250 2    50   Input ~ 0
+GND
+Text GLabel 3950 3350 2    50   Input ~ 0
+GND
+$Comp
+L Switch:SW_DIP_x04 SW1
+U 1 1 5FF7E601
+P 3650 3350
+F 0 "SW1" H 3650 3817 50  0000 C CNN
+F 1 "SW_DIP_x04" H 3650 3726 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_DIP_SPSTx04_Slide_9.78x12.34mm_W7.62mm_P2.54mm" H 3650 3350 50  0001 C CNN
+F 3 "~" H 3650 3350 50  0001 C CNN
+F 4 "C15781" H 3650 3350 50  0001 C CNN "LCSC"
+	1    3650 3350
+	-1   0    0    -1  
+$EndComp
 $EndSCHEMATC
