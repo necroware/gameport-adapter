@@ -1,3 +1,4 @@
+#include "CHFlightstickPro.h"
 #include "GenericJoystickB2A2.h"
 #include "GenericJoystickB4A2.h"
 #include "GenericJoystickB4A4.h"
@@ -10,7 +11,8 @@ static Joystick* create(int sw) {
     switch(sw) {
         case 0b0001: return new GenericJoystickB4A2;
         case 0b0010: return new GenericJoystickB4A4;
-        case 0b0011: return new SidewinderGPPro;
+        case 0b0011: return new CHFlightstickPro;
+        case 0b1000: return new SidewinderGPPro;
         default: return new GenericJoystickB2A2;
     }
 }
