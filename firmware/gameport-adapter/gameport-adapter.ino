@@ -3,6 +3,7 @@
 #include "GenericJoystickB4A2.h"
 #include "GenericJoystickB4A4.h"
 #include "SidewinderGPPro.h"
+#include "ThrustMaster.h"
 #include "DigitalPin.h"
 
 static Joystick* joystick;
@@ -12,6 +13,7 @@ static Joystick* create(int sw) {
         case 0b0001: return new GenericJoystickB4A2;
         case 0b0010: return new GenericJoystickB4A4;
         case 0b0011: return new CHFlightstickPro;
+        case 0b0100: return new ThrustMaster;
         case 0b1000: return new SidewinderGPPro;
         default: return new GenericJoystickB2A2;
     }
