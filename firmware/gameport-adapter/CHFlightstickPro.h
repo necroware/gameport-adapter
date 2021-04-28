@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "Joystick.h"
 #include "GamePort.h"
@@ -13,7 +13,7 @@ public:
    void init() override {
        HidDeviceType::activate();
    }
-   
+
    void update() override {
 
        DigitalInput button1{GamePort<2>::pin};
@@ -24,39 +24,42 @@ public:
        AnalogInput axis2{GamePort<6>::pin};
        AnalogInput axis3{GamePort<11>::pin};
 
-       const auto axis = [](int value) {
+       const auto axis = [](AnalogInput& input) -> byte {
            static const int upper = 1023;
-           static const int lower =  upper / 2;
-           const auto constrained = constrain(value, lower, upper);
-           return static_cast<uint8_t>(map(constrained, lower, upper, 255, 0));
+           static const int lower = 430;
+           static const int centr = 600;
+           const auto constrained = constrain(input.get(), lower, upper);
+           if (constrained < centr) {
+               return map(constrained, lower, 600, 255, 127);
+           }
+           return map(constrained, 600, upper, 126, 0);
        };
 
-       auto buttons = [](byte code) {
+       auto buttons = [](byte code) -> byte {
            static const byte table[16] = {
                0, 1, 2, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0
            };
            return (code < sizeof(table)) ? table[code] : byte{0};
        };
 
-       auto hat = [](byte code) {
+       auto hat = [](byte code) -> byte {
            static const byte table[16] = {
-               15, 15, 15, 6, 15, 5, 15, 4, 15, 3, 15, 2, 15, 1, 15, 0           
+               15, 15, 15, 6, 15, 5, 15, 4, 15, 3, 15, 2, 15, 1, 15, 0
            };
            return (code < sizeof(table)) ? table[code] : byte{0};
        };
 
-       const byte code = 
-           button1.isLow() 
-           | button2.isLow() << 1 
-           | button3.isLow() << 2 
+       const byte code =
+           button1.isLow()
+           | button2.isLow() << 1
+           | button3.isLow() << 2
            | button4.isLow() << 3;
 
-       const byte data[5] = {
-           buttons(code),
-           axis(axis1.get()),
-           axis(axis2.get()),
-           axis(axis3.get()),
-           hat(code)
+       const byte data[4] = {
+           axis(axis1),
+           axis(axis2),
+           axis(axis3),
+           static_cast<byte>(buttons(code) << 4 | hat(code))
        };
 
        HidDeviceType::send(&data, sizeof(data));
@@ -65,43 +68,34 @@ public:
 
 template <>
 const byte CHFlightstickPro::HidDeviceType::description[] = {
-  0x05, 0x01, // USAGE_PAGE (Generic Desktop)
-  0x09, 0x04, // USAGE (Joystick)
-  0xa1, 0x01, // COLLECTION (Application)
-  0x85, id,   //   REPORT_ID (DEVICE_ID)  
-  0x05, 0x09, //   USAGE_PAGE (Button)
-  0x19, 0x01, //   USAGE_MINIMUM (Button 1)
-  0x29, 0x04, //   USAGE_MAXIMUM (Button 4)
-  0x15, 0x00, //   LOGICAL_MINIMUM (0)
-  0x25, 0x01, //   LOGICAL_MAXIMUM (1)
-  0x75, 0x01, //   REPORT_SIZE (1)  
-  0x95, 0x04, //   REPORT_COUNT (4)
-  0x81, 0x02, //   INPUT (Data,Var,Abs)
-  0x75, 0x04, //   REPORT_SIZE (4)  
-  0x95, 0x01, //   REPORT_COUNT (1)
-  0x81, 0x03, //   INPUT (Cnst,Var,Abs) 
-  0x05, 0x01, //   USAGE_PAGE (Generic Desktop)
-  0x09, 0x01, //   USAGE (Pointer)
-  0x15, 0x00, //   LOGICAL_MINIMUM (0)
-  0x25, 0xff, //   LOGICAL_MAXIMUM (255)
-  0x75, 0x08, //   REPORT_SIZE (8)
-  0x95, 0x03, //   REPORT_COUNT (3)
-  0xa1, 0x00, //   COLLECTION (Physical)
-  0x09, 0x30, //     USAGE (X)
-  0x09, 0x31, //     USAGE (Y)
-  0x09, 0x32, //     USAGE (Z)
-  0x81, 0x02, //     INPUT (Data,Var,Abs)
-  0xc0,       //   END_COLLECTION
-  0x09, 0x39, //   USAGE (Hat Switch)
-  0x15, 0x00, //   LOGICAL_MINIMUM (0)
-  0x25, 0x07, //   LOGICAL_MAXIMUM (7)
-  0x65, 0x14,  //  UNIT (Ent Rot: Angular Pos)
-  0x75, 0x04, //   REPORT_SIZE (4)
-  0x95, 0x01, //   REPORT_COUNT (1) 
-  0x81, 0x02, //   INPUT (Data,Var,Abs)
-  0x75, 0x04, //   REPORT_SIZE (4)  
-  0x95, 0x01, //   REPORT_COUNT (1)
-  0x81, 0x03, //   INPUT (Cnst,Var,Abs) 
-  0xc0,       // END_COLLECTION
+    0x05, 0x01,       // Usage Page (Generic Desktop)
+    0x09, 0x04,       // Usage (Joystick)
+    0xa1, 0x01,       // Collection (Application)
+    0x85, id,         //   Report ID (id)
+    0x05, 0x01,       //   Usage Page (Generic Desktop)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0xff,       //   Logical Maximum (255)
+    0x75, 0x08,       //   Report Size (8)
+    0x95, 0x03,       //   Report Count (3)
+    0x09, 0x30,       //   Usage (X)
+    0x09, 0x31,       //   Usage (Y)
+    0x09, 0x32,       //   Usage (Z)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x09, 0x39,       //   Usage (Hat switch)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0x07,       //   Logical Maximum (7)
+    0x65, 0x14,       //   Unit (Degrees, EngRotation)
+    0x75, 0x04,       //   Report Size (4)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x42,       //   Input (Data,Var,Abs)
+    0x05, 0x09,       //   Usage Page (Button)
+    0x19, 0x01,       //   Usage Minimum (1)
+    0x29, 0x04,       //   Usage Maximum (4)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0x01,       //   Logical Maximum (1)
+    0x75, 0x01,       //   Report Size (1)
+    0x95, 0x04,       //   Report Count (4)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0xc0,             // End Collection
 };
 

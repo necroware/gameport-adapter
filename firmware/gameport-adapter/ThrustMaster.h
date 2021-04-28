@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include "Joystick.h"
 #include "GamePort.h"
@@ -13,7 +13,7 @@ public:
    void init() override {
        HidDeviceType::activate();
    }
-   
+
    void update() override {
 
        DigitalInput button1{GamePort<2>::pin};
@@ -28,7 +28,7 @@ public:
        const auto axis = [](AnalogInput& input) -> byte {
            static const int upper = 1023;
            static const int lower = 430;
-           static const int centr = 600; 
+           static const int centr = 600;
            const auto constrained = constrain(input.get(), lower, upper);
            if (constrained < centr) {
                return map(constrained, lower, 600, 255, 127);
@@ -37,25 +37,25 @@ public:
        };
 
        auto hat = [](int value) -> byte {
-           if (value < 25) {
+           if (value < 20) {
                return 0;
            }
-           if (value < 70) {
+           if (value < 60) {
                return 2;
            }
-           if (value < 110) {
+           if (value < 100) {
                return 4;
            }
-           if (value < 145) {
+           if (value < 140) {
                return 6;
            }
            return 15;
        };
 
-       const byte buttons = 
-           button1.isLow() 
-           | button2.isLow() << 1 
-           | button3.isLow() << 2 
+       const byte buttons =
+           button1.isLow()
+           | button2.isLow() << 1
+           | button3.isLow() << 2
            | button4.isLow() << 3;
 
        const byte data[4] = {
@@ -73,34 +73,34 @@ public:
 
 template <>
 const byte ThrustMaster::HidDeviceType::description[] = {
-    0x05, 0x01,       // Usage Page (Generic Desktop)        
-    0x09, 0x04,       // Usage (Joystick)                    
-    0xa1, 0x01,       // Collection (Application)            
+    0x05, 0x01,       // Usage Page (Generic Desktop)
+    0x09, 0x04,       // Usage (Joystick)
+    0xa1, 0x01,       // Collection (Application)
     0x85, id,         //   Report ID (id)
-    0x05, 0x01,       //   Usage Page (Generic Desktop)        
-    0x15, 0x00,       //   Logical Minimum (0)               
-    0x25, 0xff,       //   Logical Maximum (255)     
-    0x75, 0x08,       //   Report Size (8)                   
-    0x95, 0x03,       //   Report Count (3)                  
-    0x09, 0x30,       //   Usage (X)                         
-    0x09, 0x31,       //   Usage (Y)                         
-    0x09, 0x32,       //   Usage (Z)                         
-    0x81, 0x02,       //   Input (Data,Var,Abs)              
+    0x05, 0x01,       //   Usage Page (Generic Desktop)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0xff,       //   Logical Maximum (255)
+    0x75, 0x08,       //   Report Size (8)
+    0x95, 0x03,       //   Report Count (3)
+    0x09, 0x30,       //   Usage (X)
+    0x09, 0x31,       //   Usage (Y)
+    0x09, 0x32,       //   Usage (Z)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
     0x09, 0x39,       //   Usage (Hat switch)
-    0x15, 0x00,       //   Logical Minimum (0)               
-    0x25, 0x07,       //   Logical Maximum (7)               
-    0x65, 0x14,       //   Unit (Degrees, EngRotation)        
-    0x75, 0x04,       //   Report Size (4)                   
-    0x95, 0x01,       //   Report Count (1)                  
-    0x81, 0x42,       //   Input (Data,Var,Abs)         
-    0x05, 0x09,       //   Usage Page (Button)               
-    0x19, 0x01,       //   Usage Minimum (1)                 
-    0x29, 0x04,       //   Usage Maximum (4)                
-    0x15, 0x00,       //   Logical Minimum (0)               
-    0x25, 0x01,       //   Logical Maximum (1)               
-    0x75, 0x01,       //   Report Size (1)                   
-    0x95, 0x04,       //   Report Count (4)                 
-    0x81, 0x02,       //   Input (Data,Var,Abs)              
-    0xc0,             // End Collection                      
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0x07,       //   Logical Maximum (7)
+    0x65, 0x14,       //   Unit (Degrees, EngRotation)
+    0x75, 0x04,       //   Report Size (4)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x42,       //   Input (Data,Var,Abs)
+    0x05, 0x09,       //   Usage Page (Button)
+    0x19, 0x01,       //   Usage Minimum (1)
+    0x29, 0x04,       //   Usage Maximum (4)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0x01,       //   Logical Maximum (1)
+    0x75, 0x01,       //   Report Size (1)
+    0x95, 0x04,       //   Report Count (4)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0xc0,             // End Collection
 };
 
