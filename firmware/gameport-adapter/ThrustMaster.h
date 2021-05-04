@@ -15,29 +15,12 @@ public:
    void update() override {
 
        auto hat = [](int value) -> byte {
-           if (value < 20) {
-               return 0;
-           }
-           if (value < 60) {
-               return 2;
-           }
-           if (value < 100) {
-               return 4;
-           }
-           if (value < 140) {
-               return 6;
-           }
-           return 15;
+           return value > 128 ? 15 : value / 32 * 2;
        };
 
        AnalogJoystick joystick;
 
-       const byte buttons =
-           hat(joystick.getAxis(3))
-           | joystick.isPressed(0) << 4
-           | joystick.isPressed(1) << 5
-           | joystick.isPressed(2) << 6
-           | joystick.isPressed(3) << 7;
+       const byte buttons = joystick.getButtons() << 4 | hat(joystick.getAxis(3));
 
        const byte data[4] = {
            joystick.getAxis(0),

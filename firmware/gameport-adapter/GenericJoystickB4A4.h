@@ -13,57 +13,42 @@ public:
    }
    
    void update() override {
-
        AnalogJoystick joystick;
-
-       const byte buttons =
-           joystick.isPressed(0) 
-           | joystick.isPressed(1) << 1
-           | joystick.isPressed(2) << 2
-           | joystick.isPressed(3) << 3;
-
        const byte data[5] = {
-           buttons, 
            joystick.getAxis(0), 
            joystick.getAxis(1), 
            joystick.getAxis(2), 
            joystick.getAxis(3),
+           joystick.getButtons(),
        };
-
        HidDeviceType::send(&data, sizeof(data));
    }
 };
 
 template <>
 const byte GenericJoystickB4A4::HidDeviceType::description[] = {
-  0x05, 0x01, // USAGE_PAGE (Generic Desktop)
-  0x09, 0x04, // USAGE (Joystick)
-  0xa1, 0x01, // COLLECTION (Application)
-  0x85, id,   //   REPORT_ID (DEVICE_ID)  
-  0x05, 0x09, //   USAGE_PAGE (Button)
-  0x19, 0x01, //   USAGE_MINIMUM (Button 1)
-  0x29, 0x04, //   USAGE_MAXIMUM (Button 4)
-  0x15, 0x00, //   LOGICAL_MINIMUM (0)
-  0x25, 0x01, //   LOGICAL_MAXIMUM (1)
-  0x75, 0x01, //   REPORT_SIZE (1)  
-  0x95, 0x04, //   REPORT_COUNT (4)
-  0x81, 0x02, //   INPUT (Data,Var,Abs)
-  0x75, 0x04, //   REPORT_SIZE (4)  
-  0x95, 0x01, //   REPORT_COUNT (1)
-  0x81, 0x03, //   INPUT (Cnst,Var,Abs) 
-  0x05, 0x01, //   USAGE_PAGE (Generic Desktop)
-  0x09, 0x01, //   USAGE (Pointer)
-  0xa1, 0x00, //   COLLECTION (Physical)
-  0x09, 0x30, //     USAGE (X)
-  0x09, 0x31, //     USAGE (Y)
-  0x09, 0x33, //     USAGE (Rx)
-  0x09, 0x34, //     USAGE (Ry)
-  0x15, 0x00, //     LOGICAL_MINIMUM (0)
-  0x25, 0xff, //     LOGICAL_MAXIMUM (255)
-  0x75, 0x08, //     REPORT_SIZE (8)
-  0x95, 0x04, //     REPORT_COUNT (4)
-  0x81, 0x02, //     INPUT (Data,Var,Abs)
-  0xc0,       //   END_COLLECTION
-  0xc0,       // END_COLLECTION
+    0x05, 0x01,       // Usage Page (Generic Desktop)
+    0x09, 0x04,       // Usage (Joystick)
+    0xa1, 0x01,       // Collection (Application)
+    0x85, id,         //   Report ID (id)
+    0x05, 0x01,       //   Usage Page (Generic Desktop)
+    0x09, 0x30,       //   Usage (X)
+    0x09, 0x31,       //   Usage (Y)
+    0x09, 0x34,       //   Usage (Rx)
+    0x09, 0x35,       //   Usage (Ry)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0xff,       //   Logical Maximum (255)
+    0x75, 0x08,       //   Report Size (8)
+    0x95, 0x04,       //   Report Count (4)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x05, 0x09,       //   Usage Page (Button)
+    0x19, 0x01,       //   Usage Minimum (1)
+    0x29, 0x04,       //   Usage Maximum (4)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0x01,       //   Logical Maximum (1)
+    0x75, 0x01,       //   Report Size (1)
+    0x95, 0x04,       //   Report Count (4)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0xc0,             // End Collection
 };
 
