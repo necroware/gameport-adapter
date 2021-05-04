@@ -1,12 +1,12 @@
 #pragma once 
 
-#include "Joystick.h"
+#include "Driver.h"
 #include "GamePort.h"
 #include "DigitalPin.h"
 #include "AnalogPin.h"
 #include "HidDevice.h"
 
-class SidewinderGPPro : public Joystick {
+class SidewinderGPPro : public Driver {
 public:
    using HidDeviceType = HidDevice<SidewinderGPPro>;
 
@@ -38,9 +38,9 @@ private:
    }
 
    uint16_t readBits(size_t count) const {
-       DigitalInput clock(GamePort<2>::pin, true);
-       DigitalOutput trigger(GamePort<3>::pin);
-       DigitalInput data(GamePort<7>::pin, true);
+       DigitalOutput<GamePort<3>::pin> trigger;
+       DigitalInput<GamePort<2>::pin, true> clock;
+       DigitalInput<GamePort<7>::pin, true> data;
        trigger.setLow();
        delayMicroseconds(250);
        while(clock.isLow());

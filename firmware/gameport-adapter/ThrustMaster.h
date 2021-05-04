@@ -1,12 +1,10 @@
 #pragma once
 
-#include "Joystick.h"
-#include "GamePort.h"
-#include "DigitalPin.h"
-#include "AnalogPin.h"
+#include "AnalogJoystick.h"
+#include "Driver.h"
 #include "HidDevice.h"
 
-class ThrustMaster : public Joystick {
+class ThrustMaster : public Driver {
 public:
    using HidDeviceType = HidDevice<ThrustMaster>;
 
@@ -15,26 +13,6 @@ public:
    }
 
    void update() override {
-
-       DigitalInput button1{GamePort<2>::pin};
-       DigitalInput button2{GamePort<7>::pin};
-       DigitalInput button3{GamePort<10>::pin};
-       DigitalInput button4{GamePort<14>::pin};
-       AnalogInput axis1{GamePort<3>::pin};
-       AnalogInput axis2{GamePort<6>::pin};
-       AnalogInput axis3{GamePort<11>::pin};
-       AnalogInput axis4{GamePort<13>::pin};
-
-       const auto axis = [](AnalogInput& input) -> byte {
-           static const int upper = 1023;
-           static const int lower = 430;
-           static const int centr = 600;
-           const auto constrained = constrain(input.get(), lower, upper);
-           if (constrained < centr) {
-               return map(constrained, lower, 600, 255, 127);
-           }
-           return map(constrained, 600, upper, 126, 0);
-       };
 
        auto hat = [](int value) -> byte {
            if (value < 20) {
@@ -52,22 +30,23 @@ public:
            return 15;
        };
 
+       AnalogJoystick joystick;
+
        const byte buttons =
-           button1.isLow()
-           | button2.isLow() << 1
-           | button3.isLow() << 2
-           | button4.isLow() << 3;
+           hat(joystick.getAxis(3))
+           | joystick.isPressed(0) << 4
+           | joystick.isPressed(1) << 5
+           | joystick.isPressed(2) << 6
+           | joystick.isPressed(3) << 7;
 
        const byte data[4] = {
-           axis(axis1),
-           axis(axis2),
-           axis(axis3),
-           static_cast<byte>(buttons << 4 | hat(axis(axis4))),
+           joystick.getAxis(0),
+           joystick.getAxis(1),
+           joystick.getAxis(2),
+           buttons
        };
 
        HidDeviceType::send(&data, sizeof(data));
-       Serial.println(axis4.get());
-       Serial.println(axis(axis4));
    }
 };
 

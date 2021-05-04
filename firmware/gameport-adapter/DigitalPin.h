@@ -2,47 +2,67 @@
 
 #include <Arduino.h>
 
+template <int ID>
+struct DigitalPin {
+    using RegType = uint8_t;
+    const RegType mask;
+    const RegType port;
+    DigitalPin()
+    : mask(digitalPinToBitMask(ID))
+    , port(digitalPinToPort(ID))
+    {}
+};
+
+template <int ID>
 class DigitalOutput {
 public:
-    explicit DigitalOutput(byte id)
-    : m_mask(digitalPinToBitMask(id))
-    , m_output(*portOutputRegister(digitalPinToPort(id)))
-    {
-        *portModeRegister(digitalPinToPort(id)) |= m_mask;
+    DigitalOutput()
+    : m_output(*portOutputRegister(m_pin.port)) {
+        *portModeRegister(m_pin.port) |= m_pin.mask;
     }
 
     void setHigh() {
-      m_output |= m_mask;
+      m_output |= m_pin.mask;
     }
 
     void setLow() {
-      m_output &= ~m_mask;
+      m_output &= ~m_pin.mask;
     }
 
     void set(bool value) {
       value ? setHigh() : setLow();
     }
 
+    void toggle() {
+        m_output ^= m_pin.mask;
+    }
+
+    void pulse(size_t microseconds = 0) {
+        toggle();
+        if (microseconds) {
+            delayMicroseconds(microseconds);
+        }
+        toggle();
+    }
+
 private:
-    const uint8_t m_mask;
-    volatile uint8_t& m_output;
+    const DigitalPin<ID> m_pin;
+    volatile typename DigitalPin<ID>::RegType& m_output;
 };
 
+template <int ID, bool pullup = true>
 class DigitalInput {
 public:
-    explicit DigitalInput(byte id, bool pullup = true)
-    : m_mask(digitalPinToBitMask(id))
-    , m_input(*portInputRegister(digitalPinToPort(id)))
-    {
-        const auto pinPort = digitalPinToPort(id);
-        *portModeRegister(pinPort) &= ~m_mask;
+    DigitalInput()
+    : m_input(*portInputRegister(m_pin.port)) {
+        *portModeRegister(m_pin.port) &= ~m_pin.mask;
         if (pullup) {            
-          *portOutputRegister(pinPort) |= m_mask;
+          *portOutputRegister(m_pin.port) |= m_pin.mask;
         }
     }
 
     bool get() const {
-      return m_input & m_mask;
+      return m_input & m_pin.mask;
     }
 
     bool isHigh() const {
@@ -54,7 +74,7 @@ public:
     }
 
 private:
-    const uint8_t m_mask;
-    volatile uint8_t& m_input;
+    DigitalPin<ID> m_pin;
+    volatile typename DigitalPin<ID>::RegType& m_input;
 };
 

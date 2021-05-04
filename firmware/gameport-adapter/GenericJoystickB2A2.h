@@ -1,12 +1,10 @@
 #pragma once 
 
-#include "Joystick.h"
-#include "GamePort.h"
-#include "DigitalPin.h"
-#include "AnalogPin.h"
+#include "AnalogJoystick.h"
+#include "Driver.h"
 #include "HidDevice.h"
 
-class GenericJoystickB2A2 : public Joystick {
+class GenericJoystickB2A2 : public Driver {
 public:
    using HidDeviceType = HidDevice<GenericJoystickB2A2>;
 
@@ -16,22 +14,15 @@ public:
    
    void update() override {
 
-       DigitalInput button1{GamePort<2>::pin};
-       DigitalInput button2{GamePort<7>::pin};
-       AnalogInput axis1{GamePort<3>::pin};
-       AnalogInput axis2{GamePort<6>::pin};
+       AnalogJoystick joystick;
 
-       const auto convert = [](int value) {
-           static const int upper = 1023;
-           static const int lower =  upper / 2;
-           const auto constrained = constrain(value, lower, upper);
-           return static_cast<uint8_t>(map(constrained, lower, upper, 255, 0));
-       };
+       const byte buttons =
+           joystick.isPressed(0) | joystick.isPressed(1) << 1;
 
        const byte data[3] = {
-           static_cast<byte>(button1.isLow() | button2.isLow() << 1),
-           convert(axis1.get()),
-           convert(axis2.get())
+           buttons, 
+           joystick.getAxis(0), 
+           joystick.getAxis(1)
        };
 
        HidDeviceType::send(&data, sizeof(data));

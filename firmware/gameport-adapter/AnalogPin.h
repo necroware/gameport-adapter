@@ -2,32 +2,26 @@
 
 #include <Arduino.h>
 
+template <int ID>
 class AnalogInput {
 public:
-    explicit AnalogInput(int id)
-    : m_id(id) {
-        pinMode(id, INPUT);
+    AnalogInput() {
+        pinMode(ID, INPUT);
     }
 
     int get() const {
-        return analogRead(m_id);
+        return analogRead(ID);
     }
-
-private:
-    int m_id;
 };
 
+template <int ID>
 class AnalogOutput {
 public:
-    explicit AnalogOutput(int id)
-    : m_id(id) {
-        pinMode(m_id, OUTPUT);
+    AnalogOutput() {
+        pinMode(ID, OUTPUT);
     }
 
     void set(int value) const {
-        analogWrite(m_id, value);
+        analogWrite(ID, value);
     }
-
-private:
-    int m_id;
 };

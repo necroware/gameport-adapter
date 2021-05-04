@@ -1,39 +1,19 @@
 #pragma once
 
-#include "Joystick.h"
-#include "GamePort.h"
-#include "DigitalPin.h"
-#include "AnalogPin.h"
+#include "AnalogJoystick.h"
+#include "Driver.h"
 #include "HidDevice.h"
 
-class CHFlightstickPro : public Joystick {
+class CHFlightstickPro : public Driver {
 public:
-   using HidDeviceType = HidDevice<CHFlightstickPro>;
+
+   using HidType = HidDevice<CHFlightstickPro>;
 
    void init() override {
-       HidDeviceType::activate();
+       HidType::activate();
    }
 
    void update() override {
-
-       DigitalInput button1{GamePort<2>::pin};
-       DigitalInput button2{GamePort<7>::pin};
-       DigitalInput button3{GamePort<10>::pin};
-       DigitalInput button4{GamePort<14>::pin};
-       AnalogInput axis1{GamePort<3>::pin};
-       AnalogInput axis2{GamePort<6>::pin};
-       AnalogInput axis3{GamePort<11>::pin};
-
-       const auto axis = [](AnalogInput& input) -> byte {
-           static const int upper = 1023;
-           static const int lower = 430;
-           static const int centr = 600;
-           const auto constrained = constrain(input.get(), lower, upper);
-           if (constrained < centr) {
-               return map(constrained, lower, 600, 255, 127);
-           }
-           return map(constrained, 600, upper, 126, 0);
-       };
 
        auto buttons = [](byte code) -> byte {
            static const byte table[16] = {
@@ -49,38 +29,43 @@ public:
            return (code < sizeof(table)) ? table[code] : byte{0};
        };
 
-       const byte code =
-           button1.isLow()
-           | button2.isLow() << 1
-           | button3.isLow() << 2
-           | button4.isLow() << 3;
-
-       const byte data[4] = {
-           axis(axis1),
-           axis(axis2),
-           axis(axis3),
+       AnalogJoystick joystick;
+       const byte code = joystick.getButtons();
+       const byte data[5] = {
+           joystick.getAxis(0), 
+           joystick.getAxis(1), 
+           joystick.getAxis(2), 
+           joystick.getAxis(3),
            static_cast<byte>(buttons(code) << 4 | hat(code))
        };
 
-       HidDeviceType::send(&data, sizeof(data));
+       HidType::send(&data, sizeof(data));
    }
 };
 
 template <>
-const byte CHFlightstickPro::HidDeviceType::description[] = {
+const byte HidDevice<CHFlightstickPro>::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)
     0x85, id,         //   Report ID (id)
     0x05, 0x01,       //   Usage Page (Generic Desktop)
+    0x09, 0x30,       //   Usage (X)
+    0x09, 0x31,       //   Usage (Y)
+    0x09, 0x33,       //   Usage (Z)
     0x15, 0x00,       //   Logical Minimum (0)
     0x25, 0xff,       //   Logical Maximum (255)
     0x75, 0x08,       //   Report Size (8)
     0x95, 0x03,       //   Report Count (3)
-    0x09, 0x30,       //   Usage (X)
-    0x09, 0x31,       //   Usage (Y)
-    0x09, 0x32,       //   Usage (Z)
     0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x05, 0x02,       //   Usage Page (Simulation Controls)
+    0x09, 0xBB,       //   Usage (Throttle)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0xff,       //   Logical Maximum (255)
+    0x75, 0x08,       //   Report Size (8)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x05, 0x01,       //   Usage Page (Generic Desktop)
     0x09, 0x39,       //   Usage (Hat switch)
     0x15, 0x00,       //   Logical Minimum (0)
     0x25, 0x07,       //   Logical Maximum (7)
