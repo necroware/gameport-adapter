@@ -1,9 +1,8 @@
 #pragma once 
 
+#include "DigitalPin.h"
 #include "Driver.h"
 #include "GamePort.h"
-#include "DigitalPin.h"
-#include "AnalogPin.h"
 #include "HidDevice.h"
 
 class SidewinderGPPro : public Driver {

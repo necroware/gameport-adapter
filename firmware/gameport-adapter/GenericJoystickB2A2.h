@@ -13,14 +13,16 @@ public:
    }
    
    void update() override {
-       AnalogJoystick joystick;
        const byte data[3] = {
-           joystick.getAxis(0), 
-           joystick.getAxis(1),
-           joystick.getButtons(),
+           m_joystick.getAxis(0), 
+           m_joystick.getAxis(1),
+           m_joystick.getButtons(),
        };
        HidDeviceType::send(&data, sizeof(data));
    }
+
+private:
+   AnalogJoystick m_joystick;
 };
 
 template <>

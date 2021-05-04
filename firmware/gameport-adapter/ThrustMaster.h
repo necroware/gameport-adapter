@@ -15,22 +15,24 @@ public:
    void update() override {
 
        auto hat = [](int value) -> byte {
-           return value > 128 ? 15 : value / 32 * 2;
+           return value > 120 ? 15 : value / 32 * 2;
        };
 
-       AnalogJoystick joystick;
-
-       const byte buttons = joystick.getButtons() << 4 | hat(joystick.getAxis(3));
+       const byte buttons = 
+           m_joystick.getButtons() << 4 
+           | hat(m_joystick.getAxis(3));
 
        const byte data[4] = {
-           joystick.getAxis(0),
-           joystick.getAxis(1),
-           joystick.getAxis(2),
+           m_joystick.getAxis(0),
+           m_joystick.getAxis(1),
+           m_joystick.getAxis(2),
            buttons
        };
 
        HidDeviceType::send(&data, sizeof(data));
    }
+private:
+   AnalogJoystick m_joystick;
 };
 
 template <>

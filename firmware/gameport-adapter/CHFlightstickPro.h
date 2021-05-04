@@ -29,18 +29,20 @@ public:
            return (code < sizeof(table)) ? table[code] : byte{0};
        };
 
-       AnalogJoystick joystick;
-       const byte code = joystick.getButtons();
+       const byte code = m_joystick.getButtons();
        const byte data[5] = {
-           joystick.getAxis(0), 
-           joystick.getAxis(1), 
-           joystick.getAxis(2), 
-           joystick.getAxis(3),
+           m_joystick.getAxis(0), 
+           m_joystick.getAxis(1), 
+           m_joystick.getAxis(2), 
+           m_joystick.getAxis(3),
            static_cast<byte>(buttons(code) << 4 | hat(code))
        };
 
        HidType::send(&data, sizeof(data));
    }
+
+private:
+    AnalogJoystick m_joystick;
 };
 
 template <>
