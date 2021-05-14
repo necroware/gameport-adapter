@@ -2,8 +2,7 @@
 #include "GenericJoystickB2A2.h"
 #include "GenericJoystickB4A2.h"
 #include "GenericJoystickB4A4.h"
-#include "SidewinderGPPro.h"
-#include "Sidewinder3DPro.h"
+#include "SidewinderDriver.h"
 #include "ThrustMaster.h"
 #include "DigitalPin.h"
 
@@ -15,8 +14,7 @@ static Driver* createDriver(int sw) {
         case 0b0010: return new GenericJoystickB4A4;
         case 0b0011: return new CHFlightstickPro;
         case 0b0100: return new ThrustMaster;
-        case 0b1000: return new SidewinderGPPro;
-        case 0b1001: return new Sidewinder3DPro;
+        case 0b1000: return new SidewinderDriver;
         default: return new GenericJoystickB2A2;
     }
 }
