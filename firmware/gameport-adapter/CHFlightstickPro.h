@@ -24,7 +24,7 @@ public:
 
        auto hat = [](byte code) -> byte {
            static const byte table[16] = {
-               15, 15, 15, 6, 15, 5, 15, 4, 15, 3, 15, 2, 15, 1, 15, 0
+               0, 0, 0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1
            };
            return (code < sizeof(table)) ? table[code] : byte{0};
        };
@@ -69,9 +69,8 @@ const byte HidDevice<CHFlightstickPro>::description[] = {
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0x05, 0x01,       //   Usage Page (Generic Desktop)
     0x09, 0x39,       //   Usage (Hat switch)
-    0x15, 0x00,       //   Logical Minimum (0)
-    0x25, 0x07,       //   Logical Maximum (7)
-    0x65, 0x14,       //   Unit (Degrees, EngRotation)
+    0x15, 0x01,       //   Logical Minimum (1)
+    0x25, 0x08,       //   Logical Maximum (8)
     0x75, 0x04,       //   Report Size (4)
     0x95, 0x01,       //   Report Count (1)
     0x81, 0x42,       //   Input (Data,Var,Abs)

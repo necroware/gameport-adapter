@@ -14,8 +14,8 @@ public:
 
    void update() override {
 
-       auto hat = [](int value) -> byte {
-           return value > 120 ? 15 : value / 32 * 2;
+       const auto hat = [](int value) -> byte {
+           return value > 120 ? 0 : (1 + value / 32 * 2);
        };
 
        const byte buttons = 
@@ -51,9 +51,8 @@ const byte ThrustMaster::HidDeviceType::description[] = {
     0x09, 0x32,       //   Usage (Z)
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0x09, 0x39,       //   Usage (Hat switch)
-    0x15, 0x00,       //   Logical Minimum (0)
-    0x25, 0x07,       //   Logical Maximum (7)
-    0x65, 0x14,       //   Unit (Degrees, EngRotation)
+    0x15, 0x01,       //   Logical Minimum (1)
+    0x25, 0x08,       //   Logical Maximum (8)
     0x75, 0x04,       //   Report Size (4)
     0x95, 0x01,       //   Report Count (1)
     0x81, 0x42,       //   Input (Data,Var,Abs)
