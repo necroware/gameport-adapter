@@ -4,12 +4,12 @@
 #include "Driver.h"
 #include "HidDevice.h"
 
-class ThrustMaster : public Driver {
+class HidThrustMaster : public Driver {
 public:
-   using HidDeviceType = HidDevice<ThrustMaster>;
+   using Device = HidDevice<HidThrustMaster>;
 
    void init() override {
-       HidDeviceType::activate();
+       Device::activate();
    }
 
    void update() override {
@@ -29,14 +29,14 @@ public:
            buttons
        };
 
-       HidDeviceType::send(&data, sizeof(data));
+       Device::send(&data, sizeof(data));
    }
 private:
    AnalogJoystick m_joystick;
 };
 
 template <>
-const byte ThrustMaster::HidDeviceType::description[] = {
+const byte HidThrustMaster::Device::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)

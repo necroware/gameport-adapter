@@ -6,7 +6,7 @@
 #include "HidDevice.h"
 #include "Sidewinder.h"
 
-class SidewinderDriver : public Driver {
+class HidSidewinder : public Driver {
 public:
 
    template <Sidewinder::Model M> struct HidType;
@@ -70,7 +70,7 @@ private:
 };
 
 template <>
-const byte SidewinderDriver::HidGamePad::description[] = {
+const byte HidSidewinder::HidGamePad::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)
@@ -95,7 +95,7 @@ const byte SidewinderDriver::HidGamePad::description[] = {
 };
 
 template <>
-const byte SidewinderDriver::Hid3DPro::description[] = {
+const byte HidSidewinder::Hid3DPro::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)

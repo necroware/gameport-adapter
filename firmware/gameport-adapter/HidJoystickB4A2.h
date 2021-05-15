@@ -4,12 +4,12 @@
 #include "Driver.h"
 #include "HidDevice.h"
 
-class GenericJoystickB2A2 : public Driver {
+class HidJoystickB4A2 : public Driver {
 public:
-   using HidDeviceType = HidDevice<GenericJoystickB2A2>;
+   using Device = HidDevice<HidJoystickB4A2>;
 
    void init() override {
-       HidDeviceType::activate();
+       Device::activate();
    }
    
    void update() override {
@@ -18,7 +18,7 @@ public:
            m_joystick.getAxis(1),
            m_joystick.getButtons(),
        };
-       HidDeviceType::send(&data, sizeof(data));
+       Device::send(&data, sizeof(data));
    }
 
 private:
@@ -26,7 +26,7 @@ private:
 };
 
 template <>
-const byte GenericJoystickB2A2::HidDeviceType::description[] = {
+const byte HidJoystickB4A2::Device::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)
@@ -41,11 +41,11 @@ const byte GenericJoystickB2A2::HidDeviceType::description[] = {
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0x05, 0x09,       //   Usage Page (Button)
     0x19, 0x01,       //   Usage Minimum (1)
-    0x29, 0x02,       //   Usage Maximum (2)
+    0x29, 0x04,       //   Usage Maximum (4)
     0x15, 0x00,       //   Logical Minimum (0)
     0x25, 0x01,       //   Logical Maximum (1)
     0x75, 0x01,       //   Report Size (1)
-    0x95, 0x02,       //   Report Count (2)
+    0x95, 0x04,       //   Report Count (4)
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0xc0,             // End Collection
 };

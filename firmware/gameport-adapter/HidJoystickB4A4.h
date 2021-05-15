@@ -4,12 +4,12 @@
 #include "Driver.h"
 #include "HidDevice.h"
 
-class GenericJoystickB4A4 : public Driver {
+class HidJoystickB4A4 : public Driver {
 public:
-   using HidDeviceType = HidDevice<GenericJoystickB4A4>;
+   using Device = HidDevice<HidJoystickB4A4>;
 
    void init() override {
-       HidDeviceType::activate();
+       Device::activate();
    }
    
    void update() override {
@@ -20,7 +20,7 @@ public:
            m_joystick.getAxis(3),
            m_joystick.getButtons(),
        };
-       HidDeviceType::send(&data, sizeof(data));
+       Device::send(&data, sizeof(data));
    }
 
 private:
@@ -28,7 +28,7 @@ private:
 };
 
 template <>
-const byte GenericJoystickB4A4::HidDeviceType::description[] = {
+const byte HidJoystickB4A4::Device::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)

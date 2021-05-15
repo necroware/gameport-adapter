@@ -4,13 +4,13 @@
 #include "Driver.h"
 #include "HidDevice.h"
 
-class CHFlightstickPro : public Driver {
+class HidCHFlightstickPro : public Driver {
 public:
 
-   using HidType = HidDevice<CHFlightstickPro>;
+   using Device = HidDevice<HidCHFlightstickPro>;
 
    void init() override {
-       HidType::activate();
+       Device::activate();
    }
 
    void update() override {
@@ -38,7 +38,7 @@ public:
            static_cast<byte>(buttons(code) << 4 | hat(code))
        };
 
-       HidType::send(&data, sizeof(data));
+       Device::send(&data, sizeof(data));
    }
 
 private:
@@ -46,7 +46,7 @@ private:
 };
 
 template <>
-const byte HidDevice<CHFlightstickPro>::description[] = {
+const byte HidCHFlightstickPro::Device::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x04,       // Usage (Joystick)
     0xa1, 0x01,       // Collection (Application)
