@@ -36,12 +36,11 @@ static Driver* createDriver(int sw) {
 }
 
 void setup() {
+  //Serial.begin(9600);
   const auto sw1 = DigitalInput<14, true>{}.isLow();
   const auto sw2 = DigitalInput<15, true>{}.isLow();
   const auto sw3 = DigitalInput<20, true>{}.isLow(); 
   const auto sw4 = DigitalInput<21, true>{}.isLow();  
-  Serial.begin(9600);
-  while(!Serial);
   driver = createDriver(sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1);
   driver->init();
 }
