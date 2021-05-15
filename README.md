@@ -1,27 +1,26 @@
 # Necroware's GamePort Adapter
 
 Many people from the retro community still have their beloved joysticks and
-gamepads from early days. This devices often live their lives somewhere in the
-dark corners of our basements and we don't dare to throw them away, because of
-nostalgic reasons. They remind us so much on our childhood, where we played our
-Wing Commanders, X-Wings, Descents and many other games. This old joysticks
-were all made to be connected to the game port, usually on a sound card.
-Unfortunately in the end of 90's and beginning of 2000's game ports vanished
-from our computers and were replaced by USB and our old joysticks disappeared in
-the past. Today not everybody has a full retro PC and many people are using
-their modern computer with a DosBox to play the old games. If needed with a
-modern USB joystick. But wouldn't it be great to play the games with the same
+gamepads from the early days. This devices often live their lives somewhere in
+the dark corners of our basements and we don't dare to throw them away, because
+of nostalgic reasons. They remind us so much on our childhood, where we played
+our Wing Commanders, X-Wings, Descents and many other games. This old joysticks
+were all made to be connected to the game port, usually on a sound card. But
+in the end of 90's and beginning of 2000's game ports vanished from our
+computers and were replaced by USB and our old joysticks disappeared in the
+past. Today not everybody has a full retro PC and many people are using their
+modern computer with a DosBox to play the old games. If needed with a modern
+USB joystick. But wouldn't it be great to play the old games with the same
 joystick, which we used back then? And this is where this adapter comes into
-play. It is a gameport to USB converter, if you want so, which can be used to
-connect gameport joysticks to USB.
+play. It can be used to connect gameport joysticks to an USB port.
 
 ## How does it work?
 
 The adapter is built around Arduino Pro Micro, which uses the same ATmega32U4
 microcontroller as Leonardo. This microcontroller has built-in USB HID
-capabilities and can be used to build HID input devices, like Joysticks. The
+capabilities and can be used to build HID input devices, like joysticks. The
 adapter itself is super simple, the main brainwork was invested into the
-software. Very much simplified, it reads the joystick state and sends the data
+software. Very much simplified, it reads the joystick states and sends the data
 via the USB to the computer, which in the end thinks, that it communicates with
 an USB joystick.
 
@@ -121,6 +120,11 @@ to read the data with speed, which a Sidewinder joystick requires. The best is,
 that the code is written in pure C++. It is very simple to read and to use.
 There are no macros, no assembler or any dirty hacks, just a lot of
 optimization.
+
+## How to help the project?
+
+The best way is to implement more drivers. Since I have only the joysticks
+mentioned above, I can't contribute more, than what is currently included.
 
 ## Special thanks
 
