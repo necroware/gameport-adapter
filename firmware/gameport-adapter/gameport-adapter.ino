@@ -48,5 +48,7 @@ void setup() {
 }
 
 void loop() {
-  driver->update();
+  if (driver) {
+    driver->update();
+  }
 }
