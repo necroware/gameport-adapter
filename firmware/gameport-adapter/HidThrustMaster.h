@@ -30,6 +30,13 @@ public:
 
    void update() override {
 
+       // Unfortunately I had no real ThrustMaster joystick to test, but
+       // Sidewinder 3D Pro has an emulation for ThrustMaster. So, this
+       // implementation was made using that emulation and could be wrong.
+       // However the ThrustMaster seem to have a strange hat switch. It is
+       // encoded using the 3rd axis with values between 0 and 128, where
+       // 0-31 is up, 32-63 is right, 64-95 is down and 96-120 is left.
+       // Everything above 120 considered to be middle.
        const auto hat = [](int value) -> byte {
            return value > 120 ? 0 : (1 + value / 32 * 2);
        };

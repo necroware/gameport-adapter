@@ -18,9 +18,19 @@
 
 #include <Arduino.h>
 
+/// Digital signal edge types.
 enum class Edge {
     any, falling, rising
 };
+
+/// Digital pin base constants.
+///
+/// This implementation was born out of the need for faster digital I/O. The
+/// original digitalRead(...) function of Arduino suite needs about 2.7us per
+/// call on a 16MHz MCU. Which makes it impossible to poll 5us pulses, not
+/// talking about doing with the data something in between. This was a hard
+/// requirement for this project, so following solution is up to 50% faster
+/// and needs about 1.6us per call on the same hardware. 
 
 template <int Id>
 struct DigitalPin {
@@ -33,34 +43,42 @@ struct DigitalPin {
     {}
 };
 
+/// Digital Output class.
 template <int Id>
 class DigitalOutput {
 public:
+    /// Constructor.
     DigitalOutput()
     : m_output(*portOutputRegister(m_pin.port)) {
         *portModeRegister(m_pin.port) |= m_pin.mask;
     }
 
+    /// Sets output high.
     void setHigh() const {
       m_output |= m_pin.mask;
     }
 
+    /// Sets output low.
     void setLow() const {
       m_output &= ~m_pin.mask;
     }
 
+    /// Sets output to the given value.
     void set(bool value) const {
       value ? setHigh() : setLow();
     }
 
+    /// Toggles the output.
     void toggle() const {
         m_output ^= m_pin.mask;
     }
 
-    void pulse(uint32_t microseconds = 0) const {
+    /// Triggers a pulse of given duration.
+    /// @param[in] duration is the duration in microseconds
+    void pulse(uint32_t duration = 0) const {
         toggle();
-        if (microseconds) {
-            delayMicroseconds(microseconds);
+        if (duration) {
+            delayMicroseconds(duration);
         }
         toggle();
     }
@@ -70,9 +88,11 @@ private:
     volatile typename DigitalPin<Id>::RegType& m_output;
 };
 
+/// Digital input class.
 template <int Id, bool Pullup = true>
 class DigitalInput {
 public:
+    /// Constructor.
     DigitalInput()
     : m_input(*portInputRegister(m_pin.port)) {
         *portModeRegister(m_pin.port) &= ~m_pin.mask;
@@ -81,18 +101,24 @@ public:
         }
     }
 
+    /// Gets the value of the input.
     bool get() const {
       return m_input & m_pin.mask;
     }
 
+    /// Checks if the input is high. 
     bool isHigh() const {
       return get();
     }
 
+    /// Checks if the input is low
     bool isLow() const {
       return !get();
     }
 
+    /// Waits for an edge with given timeout.
+    /// @param[in] edge is the type of edge to wait for
+    /// @param[in] timeount is the timeout in microseconds
     uint32_t wait(Edge edge, uint32_t timeout) const {
       auto last = get();
       for (; timeout; timeout--) {
@@ -119,6 +145,9 @@ public:
       return 0u;
     }
 
+    /// Waits for a state with given timeout.
+    /// @param[in] state is the state to wait for
+    /// @param[in] timeount is the timeout in microseconds
     uint32_t wait(bool state, uint32_t timeout) const {
         for (; state != get() && timeout; timeout--);
         return timeout;

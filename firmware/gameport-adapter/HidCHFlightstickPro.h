@@ -31,6 +31,15 @@ public:
 
    void update() override {
 
+       // Unfortunately I had no real CHFlighstickPro joystick to test, but
+       // Sidewinder 3D Pro has an emulation for CHFlighstickPro. So, this
+       // implementation was made using that emulation and could be wrong.
+       // CHFlighstickPro seems to be a very interesting joystick. It doesn't
+       // allow the user to press multiple buttons simultaneously and uses
+       // combined buttons invocations as hat switch codes instead. So, every
+       // time a multiple buttons seem to be pressed, means that the user is
+       // actually using the hat switch.
+       
        auto buttons = [](byte code) -> byte {
            static const byte table[16] = {
                0, 1, 2, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0

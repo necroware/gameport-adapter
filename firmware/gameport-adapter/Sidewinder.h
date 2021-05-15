@@ -19,25 +19,39 @@
 #include "DigitalPin.h"
 #include "Log.h"
 
+/// Class to for communication with Sidewinder joysticks.
+/// @remark This is a green field implementation, but it was heavily
+///         inspired by Linux Sidewinder driver implementation. See
+//          https://github.com/torvalds/linux/blob/master/drivers/input/joystick/sidewinder.c
 class Sidewinder {
 public:
 
+   /// Supported Sidewinder model types.
    enum class Model {
+       /// Unknown model.
        SW_UNKNOWN,
+
+       /// Sidewinder GamePad
        SW_GAMEPAD,
+
+       /// Sidewinder 3D Pro
        SW_3DPRO
    };
 
+   /// Joystick state.
    struct State {
        uint16_t buttons{0};
        uint8_t axis[5]{0};
        uint8_t hat;
    };
 
+   /// Gets the detected model.
+   /// @returns the detected joystick model
    Model getModel() const {
        return m_model;
    }
 
+   /// Resets the joystick and tries to detect the model.
    void reset() {
        log("Resetting...");
        cooldown();       
@@ -52,6 +66,10 @@ public:
        log("Detected model %d", m_model);          
    }
 
+   /// Reads joystick state.
+   /// @returns the state of axis, buttons etc.
+   /// @remark if reading the state fails, the last known state is
+   ///         returned and the joystick reset is executed.
    State readState() {
        const auto packet = readPacket();
        State state;
@@ -63,6 +81,9 @@ public:
        return m_state;
    }
 
+   /// Joystick cool down timeout.
+   /// 
+   /// This is need to settle the signals between the reads.
    void cooldown() const {
        m_trigger.setLow();
        delayMicroseconds(6000);
@@ -74,21 +95,29 @@ private:
       PULSE_DURATION = 60,
    };
 
+   /// Interrupt guard (RAII).
+   ///
+   /// This class is used to deactivate the interrupts in performance
+   /// critical sections. The interrupt is reactivated as soon as this
+   /// guard runs out of scope.
    struct InterruptStopper {
        InterruptStopper() { noInterrupts(); }
        ~InterruptStopper() { interrupts();}
    };
 
+   /// Internal bit structure which is filled by reading from the joystick.
    struct Packet {
        byte bits[256];
        uint16_t length{0u};
    };
 
+   /// Model specific status decoder function.
    template <Model M>
    struct Decoder {
        static bool decode(const Packet& packet, State& state);
    };
 
+   /// Guesses joystick model from the size of the packet.
    static Model guessModel(const Packet& packet) {
        switch(packet.length) {
            case 15: return Model::SW_GAMEPAD;
@@ -103,6 +132,11 @@ private:
    Model m_model{Model::SW_UNKNOWN};
    State m_state;
 
+   /// Enables digital mode for 3D Pro.
+   //
+   /// The 3D Pro can work as legacy analog joystick or in digital mode.
+   /// This mode has to be activated explicitly. In this function timing
+   /// is very important. See Patent: US#5628686 (page 19) for details.
    void enableDigitalMode() const {
       static const int magic = 200;
       static const int seq[] = { magic, magic + 725, magic + 300, 0 };
@@ -116,10 +150,22 @@ private:
       m_trigger.pulse(PULSE_DURATION);
    }
 
+   /// Read bits packet from the joystick.
+   ///
+   /// This part is extremely performance and timing critical. Change only, if
+   /// you know, what you are doing. 
    Packet readPacket() const {
+
        InterruptStopper interruptStopper;
        const auto ready = m_clock.isHigh();
        m_trigger.setHigh();
+       // We are reading into a byte array instead of an uint64_t, because of two
+       // reasons. First, bits packets can be larger, than 64 bits. We are actually
+       // not interested in packets, which are larger than that, but may be in the
+       // future we'd need to handle them as well. Second, for reading into an 
+       // uint64_t we would need to shift between the clock impulses, which is 
+       // impossible to do in time. Unfortunately this shift is extremely slow on
+       // an Arduino and it's just faster to write into an array. One bit per byte.
        Packet packet;
        if (ready || m_clock.wait(Edge::rising, PULSE_DURATION * 10)) {
            while(packet.length < sizeof(packet.bits)) { 
@@ -134,9 +180,11 @@ private:
        return packet;
    }
 
+   /// Decodes bit packet into a state.
    bool decode(const Packet& packet, State& state) const;
 };
 
+/// Bit decoder for Sidewinder GamePad.
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_GAMEPAD> {
 public:
@@ -168,6 +216,7 @@ public:
     }    
 };
 
+/// Bit decoder for Sidewinder 3D Pro.
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_3DPRO> {
 public:
@@ -213,10 +262,16 @@ public:
     }
 
 private:
+    /// Checks sync bits.
+    /// 
+    /// This code was taken from Linux driver as is.
     static bool checkSync(uint64_t value) {
         return !((value & 0x8080808080808080ULL) ^ 0x80);
     }
 
+    /// Calculates checksum.
+    /// 
+    /// This code was taken from Linux driver as is.
     static byte checksum(uint64_t value) {
         auto result = 0u;
         while (value) {

@@ -20,10 +20,15 @@
 #include "DigitalPin.h"
 #include "GamePort.h"
 
+/// A common class for all analog joysticks.
 class AnalogJoystick
 {
 public:
 
+    /// Gets axis value.
+    ///
+    /// @param[in] id is the axes ID
+    /// @returns a value between 0 and 255
     byte getAxis(int id) {
         switch(id) {
             case 0: return m_axis1.get();
@@ -34,6 +39,9 @@ public:
         }
     }
 
+    /// Gets the buttons state as one byte.
+    ///
+    /// @returns a byte every bit represents a button
     byte getButtons() {
         return m_button1.isLow() 
             | m_button2.isLow() << 1
@@ -41,6 +49,10 @@ public:
             | m_button4.isLow() << 3;
     }
 
+    /// Checks if a button is pressed.
+    ///
+    /// @param[in] id is the button id
+    /// @returns true if button is pressed, or false
     bool isPressed(int id) {
         switch(id) {
             case 0: return m_button1.isLow();

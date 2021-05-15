@@ -16,6 +16,7 @@
 
 #pragma once
 
+/// Simple GamePort pins to Arduino pins mapper.
 template <int I>  
 struct GamePort { enum { pin = -1 }; };
 

@@ -18,9 +18,21 @@
 
 #include <Arduino.h>
 
+/// Class to read analog axis.
+///
+/// Usually PC joystick axes are specified to have 100 Ohm resistance, but
+/// many analog joysticks have old, bad, or just wrong resistors. This ends
+/// up in incorrect positions and is especially bad for games, which don't
+/// have calibration features. This class takes care of this issue and
+/// applies automatic calibration on every read.
 template <int ID>
 class AnalogAxis {
 public:
+
+    /// Constructor.
+    ///
+    /// The initial state of the joystick is considered as middle
+    /// which is used for autocalibration.
     AnalogAxis() {
         pinMode(ID, INPUT);
         m_mid = analogRead(ID);
@@ -28,6 +40,11 @@ public:
         m_max = m_mid + 100;
     }
 
+    /// Gets the axis state.
+    ///
+    /// This function automatically recalculates the outer limits and
+    /// readjusts the position of the joystick.
+    /// @returns a value between 0 and 255
     byte get() {
         const auto value = analogRead(ID);
         if (value < m_min) {
