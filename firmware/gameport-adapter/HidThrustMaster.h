@@ -36,9 +36,21 @@ public:
        // However the ThrustMaster seem to have a strange hat switch. It is
        // encoded using the 3rd axis with values between 0 and 128, where
        // 0-31 is up, 32-63 is right, 64-95 is down and 96-120 is left.
-       // Everything above 120 considered to be middle.
-       const auto hat = [](int value) -> byte {
-           return value > 120 ? 0 : (1 + value / 32 * 2);
+       // Everything above 121 considered to be middle.
+       const auto hat = [](byte value) -> byte {
+           if (value < 32) {
+               return 1;
+           }
+           if (value < 64) {
+               return 3;
+           }
+           if (value < 96) {
+               return 5;
+           }
+           if (value < 121) {
+               return 7;
+           }
+           return 0;
        };
 
        const byte buttons = 

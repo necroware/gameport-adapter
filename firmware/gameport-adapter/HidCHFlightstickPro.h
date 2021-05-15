@@ -40,27 +40,21 @@ public:
        // time a multiple buttons seem to be pressed, means that the user is
        // actually using the hat switch.
        
-       auto buttons = [](byte code) -> byte {
+       const auto decode = [](byte code) -> byte {
+           // upper 4 bits are buttons (16..128)
+           // lower 4 bits are hat codes (1..7)
            static const byte table[16] = {
-               0, 1, 2, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0
+               0, 16, 32, 7, 64, 6, 0, 5, 128, 4, 0, 3, 0, 2, 0, 1
            };
-           return (code < sizeof(table)) ? table[code] : byte{0};
+           return (code < sizeof(table)) ? table[code] : 0u;
        };
 
-       auto hat = [](byte code) -> byte {
-           static const byte table[16] = {
-               0, 0, 0, 7, 0, 6, 0, 5, 0, 4, 0, 3, 0, 2, 0, 1
-           };
-           return (code < sizeof(table)) ? table[code] : byte{0};
-       };
-
-       const byte code = m_joystick.getButtons();
        const byte data[5] = {
            m_joystick.getAxis(0), 
            m_joystick.getAxis(1), 
            m_joystick.getAxis(2), 
            m_joystick.getAxis(3),
-           static_cast<byte>(buttons(code) << 4 | hat(code))
+           decode(m_joystick.getButtons()),
        };
 
        Device::send(&data, sizeof(data));
