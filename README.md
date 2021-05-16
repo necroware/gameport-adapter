@@ -14,6 +14,8 @@ USB joystick. But wouldn't it be great to play the old games with the same
 joystick, which we used back then? And this is where this adapter comes into
 play. It can be used to connect gameport joysticks to an USB port.
 
+![GamePort Adapter](./photo.jpg)
+
 ## How does it work?
 
 The adapter is built around Arduino Pro Micro, which uses the same ATmega32U4
@@ -31,6 +33,12 @@ But as far as I know, there are no adapters which can communicate with more
 sophisticated models, not to mention with digital joysticks, like Microsoft
 Sidewinder series. This adapter implements multiple drivers for various analog
 and digital joysticks with an option to add more in the future.
+
+Features overview:
+* Support for generic analog joysticks with 2/4 buttons and 2/4 axes
+* Four switches to select joystick type
+* Autodetection for digital Microsoft Sidwinder joysticks
+* Auto-Calibration
 
 ## What is the difference between analog and digital joystick?
 
@@ -92,6 +100,24 @@ mode it can emulate ThrustMaster and CH FlightStick. That's why you see them in
 the table above. Unfortunately I don't possess those joysticks in real, so may
 be the implementation is not quite correct with the real ones.
 
+## What is auto calibration?
+
+Old analog joysticks have resistors inside, which is specified to be 100 kOhm.
+Unfortunately this resistors are either worn out, bad quality or were wrong from
+the beginning. Therefore most of the generic analog joysticks had adjustment
+screws to correct the middle point of the joystick. Also many games had
+calibration option in the settings to readjust the joystick. With USB and new
+digital solutions the calibration was not required anymore and was completely
+implemented in the joysticks and/or drivers. So many modern games have no option
+to re-calibrate the joystick anymore. Would we try to play such newer games with
+an old analog joystick through this adapter, the joystick middle point would be
+totally offset. That's why the adapter makes auto calibration internally and
+presents already corrected values to the operation system. 
+
+__ATTENTION__: a hard requirement using the analog joysticks is that during the
+plugging into the USB port all axes must be in their middle state, because all
+the subsequent calibration happens related to the initial state.
+
 ## Technical insights into implementation
 
 The code is well documented, so if you are interested in details, just feel free
@@ -120,6 +146,34 @@ to read the data with speed, which a Sidewinder joystick requires. The best is,
 that the code is written in pure C++. It is very simple to read and to use.
 There are no macros, no assembler or any dirty hacks, just a lot of
 optimization.
+
+## Bill of materials (BOM)
+
+The hardware is super simple. To build an adapter you'll need the PCB from this
+project and following parts:
+
+Part    | Count | LCSC#   | Comment
+--------|-------|---------|------------------------------------------
+CONN1   |   1   | C77835  | DB15 female connector
+R1..R4  |   4   | C172965 | 100 kOhm resistors
+SW1     |   1   | C15781  | DIP-4 switch
+U1      |   1   | C72120  | DIP24 Socket (optional)
+U1      |   1   | ---     | Arduin Pro Micro (ATmega32U4 16MHz, 5V)
+
+## Known issues
+
+* *Some axes on an analog joystick are offset*
+Auto calibration requires all the axes to be in the middle state during the
+initialization. Please see the paragraph about auto calibration.
+
+* *Joystick doesn't work*
+Make sure, that you are using one of supported joysticks or a joystick which can
+work in legacy analog mode
+
+* *Sidewinder is in the list of supported joysticks, but it doesn't work*
+In seldom cases some kind of timing issues seem to happen and the adapter can't
+get synchronized with the joystick. Unplug it from the USB and after 30 seconds
+plug it in again.
 
 ## How to help the project?
 
