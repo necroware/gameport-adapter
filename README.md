@@ -175,6 +175,12 @@ In seldom cases some kind of timing issues seem to happen and the adapter can't
 get synchronized with the joystick. Unplug it from the USB and after 30 seconds
 plug it in again.
 
+* *MicroUSB port on the Arduino is not stable enough*
+This can be a problem indeed, since it is very easy to rip off the USB port
+from the PCB. May be there will be other solution in the future. To use an 
+Arduino Pro Micro was just the cheapest way so far and they all have this
+SMD microUSB ports.
+
 ## How to help the project?
 
 The best way is to implement more drivers. Since I have only the joysticks
