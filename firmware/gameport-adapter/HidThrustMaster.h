@@ -78,7 +78,7 @@ const byte HidThrustMaster::Device::description[] = {
     0x85, id,         //   Report ID (id)
     0x05, 0x01,       //   Usage Page (Generic Desktop)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x25, 0xff,       //   Logical Maximum (255)
+    0x26, 0xff, 0x00, //   Logical Maximum (255)
     0x75, 0x08,       //   Report Size (8)
     0x95, 0x03,       //   Report Count (3)
     0x09, 0x30,       //   Usage (X)

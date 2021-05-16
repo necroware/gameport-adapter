@@ -107,6 +107,9 @@ const byte HidSidewinder::HidGamePad::description[] = {
     0x75, 0x01,       //   Report Size (1)
     0x95, 0x0A,       //   Report Count (10)
     0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x75, 0x02,       //   Report Size (2)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x03,       //   Input (Const,Var,Abs)
     0xc0,             // End Collection
 };
 
@@ -121,14 +124,14 @@ const byte HidSidewinder::Hid3DPro::description[] = {
     0x09, 0x31,       //   Usage (Y)
     0x09, 0x35,       //   Usage (Rz)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x25, 0xff,       //   Logical Maximum (255)
+    0x26, 0xff, 0x00, //   Logical Maximum (255)
     0x75, 0x08,       //   Report Size (8)
     0x95, 0x03,       //   Report Count (3)
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0x05, 0x02,       //   Usage Page (Simulation Controls)
     0x09, 0xBB,       //   Usage (Throttle)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x25, 0xff,       //   Logical Maximum (255)
+    0x26, 0xff, 0x00, //   Logical Maximum (255)
     0x75, 0x08,       //   Report Size (8)
     0x95, 0x01,       //   Report Count (1)
     0x81, 0x02,       //   Input (Data,Var,Abs)

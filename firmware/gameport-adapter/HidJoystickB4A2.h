@@ -51,7 +51,7 @@ const byte HidJoystickB4A2::Device::description[] = {
     0x09, 0x30,       //   Usage (X)
     0x09, 0x31,       //   Usage (Y)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x25, 0xff,       //   Logical Maximum (255)
+    0x26, 0xff, 0x00, //   Logical Maximum (255)
     0x75, 0x08,       //   Report Size (8)
     0x95, 0x02,       //   Report Count (2)
     0x81, 0x02,       //   Input (Data,Var,Abs)
@@ -63,6 +63,9 @@ const byte HidJoystickB4A2::Device::description[] = {
     0x75, 0x01,       //   Report Size (1)
     0x95, 0x04,       //   Report Count (4)
     0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x75, 0x04,       //   Report Size (4)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x03,       //   Input (Const,Var,Abs)
     0xc0,             // End Collection
 };
 
