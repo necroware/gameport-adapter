@@ -17,6 +17,7 @@
 #include "HidCHFlightstickPro.h"
 #include "HidJoystickB2A2.h"
 #include "HidJoystickB4A2.h"
+#include "HidJoystickB4A3.h"
 #include "HidJoystickB4A4.h"
 #include "HidSidewinder.h"
 #include "HidThrustMaster.h"
@@ -24,13 +25,14 @@
 
 static Driver* driver;
 
-static Driver* createDriver(int sw) {
+static Driver* createDriver(byte sw) {
     switch(sw) {
         case 0b0001: return new HidJoystickB4A2;
-        case 0b0010: return new HidJoystickB4A4;
-        case 0b0011: return new HidCHFlightstickPro;
-        case 0b0100: return new HidThrustMaster;
-        case 0b1000: return new HidSidewinder;
+        case 0b0010: return new HidJoystickB4A3;
+        case 0b0011: return new HidJoystickB4A4;
+        case 0b0100: return new HidCHFlightstickPro;
+        case 0b0101: return new HidThrustMaster;
+        case 0b0111: return new HidSidewinder;
         default: return new HidJoystickB2A2;
     }
 }
