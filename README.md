@@ -28,11 +28,12 @@ an USB joystick.
 
 ## What is special about this one?
 
-There are already plenty of gameport to USB adapters for basic analog joysticks.
-But as far as I know, there are no adapters which can communicate with more
-sophisticated models, not to mention with digital joysticks, like Microsoft
-Sidewinder series. This adapter implements multiple drivers for various analog
-and digital joysticks with an option to add more in the future.
+There are already plenty of gameport to USB adapters for basic analog joysticks
+and, as far as I know, there were some efforts to communicate with Sidewinder
+joysticks by Microsoft as well. But there are no universal adapter, which would
+work with different types of joysticks. This adapter implements multiple drivers
+for various analog and digital joysticks with an option to add more in the 
+future.
 
 Features overview:
 * Support for generic analog joysticks with 2/4 buttons and 2/4 axes
