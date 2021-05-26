@@ -86,7 +86,7 @@ public:
    /// This is need to settle the signals between the reads.
    void cooldown() const {
        m_trigger.setLow();
-       delayMicroseconds(6000);
+       delayMicroseconds(2000);
    }
 
 private:
@@ -148,6 +148,7 @@ private:
         delayMicroseconds(seq[i]);
       }      
       m_trigger.pulse(PULSE_DURATION);
+      cooldown();
    }
 
    /// Read bits packet from the joystick.
