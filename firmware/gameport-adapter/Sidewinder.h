@@ -57,7 +57,7 @@ public:
        // Sometimes 3D Pro seems not to switch into the digital
        // mode properly. So, let's try it multiple times, before
        // giving up.
-       for (auto i = 0u; i < 3; i++) {
+       for (auto i = 0u; i < MAX_ERRORS; i++) {
          log("Trying to reset... %d", i);
          cooldown();
          m_model = guessModel(readPacket());
@@ -78,10 +78,15 @@ public:
    State readState() {
        const auto packet = readPacket();
        State state;
-       if (!decode(packet, state)) {
-           reset();
+       if (decode(packet, state)) {
+         m_state = state;
+         m_errors = 0;
        } else {
-           m_state = state;
+         m_errors++;
+         log("Packet decoding failed %d time(s)", m_errors);
+         if (m_errors > MAX_ERRORS) {
+           reset();
+         }
        }
        return m_state;
    }
@@ -98,6 +103,7 @@ private:
 
    enum {
       PULSE_DURATION = 60,
+      MAX_ERRORS = 3,
    };
 
    /// Interrupt guard (RAII).
@@ -136,6 +142,7 @@ private:
    DigitalOutput<GamePort<3>::pin> m_trigger;
    Model m_model{Model::SW_UNKNOWN};
    State m_state;
+   int m_errors{0u};
 
    /// Enables digital mode for 3D Pro.
    //
@@ -242,7 +249,6 @@ public:
         };
 
         if (packet.length != 64 || !checkSync(value) || checksum(value)) {
-            log("decode failed");
             return false;
         }
 
