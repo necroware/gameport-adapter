@@ -53,16 +53,21 @@ public:
 
    /// Resets the joystick and tries to detect the model.
    void reset() {
-       log("Resetting...");
-       cooldown();       
-       m_model = guessModel(readPacket());
-       if (m_model == Model::SW_UNKNOWN) {
-         // No data. 3d Pro analog mode?
-         enableDigitalMode();
+
+       // Sometimes 3D Pro seems not to switch into the digital
+       // mode properly. So, let's try it multiple times, before
+       // giving up.
+       for (auto i = 0u; i < 3; i++) {
+         log("Trying to reset... %d", i);
          cooldown();
          m_model = guessModel(readPacket());
+         if (m_model != Model::SW_UNKNOWN) {
+             break;
+         }
+
+         // No data. 3d Pro analog mode?
+         enableDigitalMode();
        }
-       cooldown();
        log("Detected model %d", m_model);          
    }
 
