@@ -33,15 +33,15 @@ public:
        m_sw.reset();
        switch(m_sw.getModel()) {
            case Sidewinder::Model::SW_GAMEPAD:
-               Serial.println("Detected Sidewinder GamePad");
+               log("Detected Sidewinder GamePad");
                HidGamePad::activate();
                break;
            case Sidewinder::Model::SW_3DPRO:
-               Serial.println("Detected Sidewinder 3D Pro");
+               log("Detected Sidewinder 3D Pro");
                Hid3DPro::activate();
                break;
            case Sidewinder::Model::SW_UNKNOWN:
-               Serial.println("Unknown input device");
+               log("Unknown input device");
                break;
        }
    }
@@ -56,7 +56,7 @@ public:
                send3DPro(state);
                break;
            case Sidewinder::Model::SW_UNKNOWN:
-               Serial.println("Unknown input device");
+               log("Unknown input device");
                break;
        }
        m_sw.cooldown();
