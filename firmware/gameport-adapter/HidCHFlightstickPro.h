@@ -73,7 +73,7 @@ const byte HidCHFlightstickPro::Device::description[] = {
     0x05, 0x01,       //   Usage Page (Generic Desktop)
     0x09, 0x30,       //   Usage (X)
     0x09, 0x31,       //   Usage (Y)
-    0x09, 0x33,       //   Usage (Z)
+    0x09, 0x32,       //   Usage (Z)
     0x15, 0x00,       //   Logical Minimum (0)
     0x26, 0xff, 0x00, //   Logical Maximum (255)
     0x75, 0x08,       //   Report Size (8)
