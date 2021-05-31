@@ -114,7 +114,7 @@ private:
 
    /// Internal bit structure which is filled by reading from the joystick.
    struct Packet {
-       byte bits[64];
+       byte bits[128];
        uint16_t length{0u};
    };
 
