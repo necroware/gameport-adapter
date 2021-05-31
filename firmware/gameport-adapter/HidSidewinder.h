@@ -27,7 +27,7 @@ public:
 
    template <Sidewinder::Model M> struct HidType;
    using HidGamePad = HidDevice<HidType<Sidewinder::Model::SW_GAMEPAD>>;
-   using Hid3DPro = HidDevice<HidType<Sidewinder::Model::SW_3DPRO>>;
+   using Hid3DPro = HidDevice<HidType<Sidewinder::Model::SW_3D_PRO>>;
    using HidPrecisionPro = HidDevice<HidType<Sidewinder::Model::SW_PRECISION_PRO>>;
 
    void init() override {
@@ -37,7 +37,7 @@ public:
                log("Detected Sidewinder GamePad");
                HidGamePad::activate();
                break;
-           case Sidewinder::Model::SW_3DPRO:
+           case Sidewinder::Model::SW_3D_PRO:
                log("Detected Sidewinder 3D Pro");
                Hid3DPro::activate();
                break;
@@ -57,7 +57,7 @@ public:
            case Sidewinder::Model::SW_GAMEPAD:
                sendGamePad(state);
                break;
-           case Sidewinder::Model::SW_3DPRO:
+           case Sidewinder::Model::SW_3D_PRO:
                send3DPro(state);
                break;
            case Sidewinder::Model::SW_PRECISION_PRO:
@@ -78,14 +78,14 @@ private:
 
    static void send3DPro(const Sidewinder::State& state) {
        struct {
-           byte x,y,rz,throttle,hat,buttons;
+           uint8_t x,y,rz,throttle,hat,buttons;
        } data = {
           state.axis[0],
           state.axis[1],
           state.axis[2],
           state.axis[3],
           state.hat,
-          static_cast<byte>(state.buttons)
+          static_cast<uint8_t>(state.buttons)
        };
        Hid3DPro::send(&data, sizeof(data));
    }

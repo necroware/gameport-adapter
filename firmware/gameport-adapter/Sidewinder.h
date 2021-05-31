@@ -35,7 +35,7 @@ public:
        SW_GAMEPAD,
 
        /// Sidewinder 3D Pro
-       SW_3DPRO,
+       SW_3D_PRO,
 
        /// Sidewinder Precision Pro
        SW_PRECISION_PRO
@@ -114,7 +114,7 @@ private:
 
    /// Internal bit structure which is filled by reading from the joystick.
    struct Packet {
-       byte bits[256];
+       byte bits[64];
        uint16_t length{0u};
    };
 
@@ -129,7 +129,7 @@ private:
        switch(packet.length) {
            case 15: return Model::SW_GAMEPAD;
            case 16: return Model::SW_PRECISION_PRO;
-           case 64: return Model::SW_3DPRO;
+           case 64: return Model::SW_3D_PRO;
            default: return Model::SW_UNKNOWN;
        }
    }
@@ -231,7 +231,7 @@ public:
 
 /// Bit decoder for Sidewinder 3D Pro.
 template <>
-class Sidewinder::Decoder<Sidewinder::Model::SW_3DPRO> {
+class Sidewinder::Decoder<Sidewinder::Model::SW_3D_PRO> {
 public:
     static bool decode(const Sidewinder::Packet& packet, Sidewinder::State& state) {
 
@@ -343,8 +343,8 @@ inline bool Sidewinder::decode(const Packet& packet, State& state) const {
     switch(m_model) {
         case Model::SW_GAMEPAD:
            return Decoder<Model::SW_GAMEPAD>::decode(packet, state);
-        case Model::SW_3DPRO:
-           return Decoder<Model::SW_3DPRO>::decode(packet, state);
+        case Model::SW_3D_PRO:
+           return Decoder<Model::SW_3D_PRO>::decode(packet, state);
         case Model::SW_PRECISION_PRO:
            return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
         case Model::SW_UNKNOWN:
