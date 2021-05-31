@@ -35,7 +35,10 @@ public:
        SW_GAMEPAD,
 
        /// Sidewinder 3D Pro
-       SW_3DPRO
+       SW_3DPRO,
+
+       /// Sidewinder Precision Pro
+       SW_PRECISION_PRO
    };
 
    /// Joystick state.
@@ -125,13 +128,16 @@ private:
    static Model guessModel(const Packet& packet) {
        switch(packet.length) {
            case 15: return Model::SW_GAMEPAD;
+           case 16: return Model::SW_PRECISION_PRO;
            case 64: return Model::SW_3DPRO;
            default: return Model::SW_UNKNOWN;
        }
    }
 
    DigitalInput<GamePort<2>::pin, true> m_clock;
-   DigitalInput<GamePort<7>::pin, true> m_data;
+   DigitalInput<GamePort<7>::pin, true> m_data0;
+   DigitalInput<GamePort<10>::pin, true> m_data1;
+   DigitalInput<GamePort<14>::pin, true> m_data2;
    DigitalOutput<GamePort<3>::pin> m_trigger;
    Model m_model{Model::SW_UNKNOWN};
    State m_state;
@@ -178,7 +184,8 @@ private:
                if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
                    break;
                }
-               packet.bits[packet.length++] = m_data.get();
+               packet.bits[packet.length++] = 
+                   m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
            }
        }
        m_trigger.setLow();
@@ -231,7 +238,7 @@ public:
         const auto value = [&]() {
             uint64_t result{0u};
             for (auto i = 0u; i < packet.length; i++) {
-                result |= static_cast<uint64_t>(packet.bits[i]) << i;
+                result |= static_cast<uint64_t>(packet.bits[i] & 1) << i;
             }
             return result;            
         }();
@@ -287,12 +294,59 @@ private:
     }
 };
 
+/// Bit decoder for Sidewinder Precision Pro
+template <>
+class Sidewinder::Decoder<Sidewinder::Model::SW_PRECISION_PRO> {
+public:
+    static bool decode(const Sidewinder::Packet& packet, Sidewinder::State& state) {
+
+        const auto value = [&]() {
+            uint64_t result{0u};
+            for (auto i = 0u; i < packet.length; i++) {
+                result |= static_cast<uint64_t>(packet.bits[i] & 0b111) << (i * 3);
+            }
+            return result;            
+        }();
+
+        // TODO shared code with 3D Pro?
+        const auto bits = [&](uint8_t start, uint8_t length) {
+            const auto mask = (1 << length) - 1;
+            return (value >> start) & mask;
+        };
+
+        // TODO shared code with GP?
+        const auto parity = [](uint64_t t) {
+            uint32_t x = t ^ (t >> 32);
+            x ^= x >> 16;
+            x ^= x >> 8;
+            x ^= x >> 4;
+            x ^= x >> 2;
+            x ^= x >> 1;
+            return x & 1;
+        };
+
+        if (packet.length != 16 || !parity(value)) {
+            return false;
+        }
+
+        state.axis[0] = map(bits(9, 10), 0, 1023, 0, 255);
+        state.axis[1] = map(bits(19, 10), 0, 1023, 0, 255);
+        state.axis[2] = map(bits(36, 6), 0, 63, 0, 255);
+        state.axis[3] = map(bits(29, 7), 0, 127, 0, 255);
+        state.hat = bits(42, 4);
+        state.buttons = ~bits(0, 9);
+        return true;
+    }
+};
+
 inline bool Sidewinder::decode(const Packet& packet, State& state) const {
     switch(m_model) {
         case Model::SW_GAMEPAD:
            return Decoder<Model::SW_GAMEPAD>::decode(packet, state);
         case Model::SW_3DPRO:
            return Decoder<Model::SW_3DPRO>::decode(packet, state);
+        case Model::SW_PRECISION_PRO:
+           return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
         case Model::SW_UNKNOWN:
            break;
     }

@@ -70,22 +70,24 @@ Currently following drivers were implemented. To select the right drivers, you
 have to use four switches, as shown in the table. The switches can be changed or
 extended in the future, so please pay attention to the updates.
 
-Joystick Model      | Buttons | Axes  |  Hat | SW1-4 | Comments
---------------------|---------|-------|------|-------|-----------------------
-Generic Analog      | 2       | 2     | 0    | 0000  | 
-Generic Analog      | 4       | 2     | 0    | 1000  | 
-Generic Analog      | 4       | 3     | 0    | 0100  | 3rd Axis is throttle
-Generic Analog      | 4       | 4     | 0    | 1100  | 
-CH FlightStick      | 4       | 4     | 1    | 0010  | Analog, DOS-compatible
-ThrustMaster        | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
-Sidewinder GamePad  | 10      | 2     | 0    | 1110  | Digital protocol
-Sidewinder 3D Pro   | 8       | 4     | 1    | 1110  | Digital protocol
+Joystick Model           | Buttons | Axes  |  Hat | SW1-4 | Comments
+-------------------------|---------|-------|------|-------|-----------------------
+Generic Analog           | 2       | 2     | 0    | 0000  | 
+Generic Analog           | 4       | 2     | 0    | 1000  | 
+Generic Analog           | 4       | 3     | 0    | 0100  | 3rd Axis is throttle
+Generic Analog           | 4       | 4     | 0    | 1100  | 
+CH FlightStick           | 4       | 4     | 1    | 0010  | Analog, DOS-compatible
+ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
+Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
+Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
+Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
 
 Please pay attention how the same switches are used for different Sidewinder
 devices. This is possible due to fully digital communication. Using this the
 adapter implements autodetection as soon as it at least knows, that it has to be
-a Sidewinder product. Currently only drivers for two Sidewinder devices were
-implemented, since I have no other models at hand.
+a Sidewinder product. Currently only drivers for the listed Sidewinder devices
+were implemented, since I have no other models at hand. The Precision Pro works
+actually natively on USB as well, but was still implemented, because we can.
 
 ## Which joysticks were tested?
 
@@ -95,6 +97,7 @@ Well physically following joysticks were tested so far:
 * Gravis PC GamePad
 * Sidewinder GamePad
 * Sidewinder 3D Pro
+* Sidewinder Precision Pro
 
 Those are joysticks, which I had at hand during the development. However,
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
