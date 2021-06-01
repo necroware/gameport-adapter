@@ -179,12 +179,6 @@ initialization. Please see the paragraph about auto calibration.
 Make sure, that you are using one of supported joysticks or a joystick which can
 work in legacy analog mode
 
-* *Sidewinder is in the list of supported joysticks, but it doesn't work*
-
-In seldom cases some kind of timing issues seem to happen and the adapter can't
-get synchronized with the joystick. Unplug it from the USB and after 30 seconds
-plug it in again.
-
 * *MicroUSB port on the Arduino is not stable enough*
 
 This can be a problem indeed, since it is very easy to rip off the USB port
