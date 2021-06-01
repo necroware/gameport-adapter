@@ -1,5 +1,5 @@
 // This file is part of Necroware's GamePort adapter firmware.
-// Copyright (C) 2021 Necroware 
+// Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -28,39 +28,38 @@
 template <int ID>
 class AnalogAxis {
 public:
+  /// Constructor.
+  ///
+  /// The initial state of the joystick is considered as middle
+  /// which is used for autocalibration.
+  AnalogAxis() {
+    pinMode(ID, INPUT);
+    m_mid = analogRead(ID);
+    m_min = m_mid - 100;
+    m_max = m_mid + 100;
+  }
 
-    /// Constructor.
-    ///
-    /// The initial state of the joystick is considered as middle
-    /// which is used for autocalibration.
-    AnalogAxis() {
-        pinMode(ID, INPUT);
-        m_mid = analogRead(ID);
-        m_min = m_mid - 100;
-        m_max = m_mid + 100;
+  /// Gets the axis state.
+  ///
+  /// This function automatically recalculates the outer limits and
+  /// readjusts the position of the joystick.
+  /// @returns a value between 0 and 255
+  byte get() {
+    const auto value = analogRead(ID);
+    if (value < m_min) {
+      m_min = value;
+    } else if (value > m_max) {
+      m_max = value;
     }
 
-    /// Gets the axis state.
-    ///
-    /// This function automatically recalculates the outer limits and
-    /// readjusts the position of the joystick.
-    /// @returns a value between 0 and 255
-    byte get() {
-        const auto value = analogRead(ID);
-        if (value < m_min) {
-            m_min = value;
-        } else if (value > m_max) {
-            m_max = value;
-        }
-
-        if (value < m_mid) {
-            return map(value, m_min, m_mid, 255, 127);
-        }
-        return map(value, m_mid, m_max, 126, 0);
+    if (value < m_mid) {
+      return map(value, m_min, m_mid, 255, 127);
     }
+    return map(value, m_mid, m_max, 126, 0);
+  }
 
 private:
-    int m_mid;
-    int m_min;
-    int m_max;
+  int m_mid;
+  int m_min;
+  int m_max;
 };

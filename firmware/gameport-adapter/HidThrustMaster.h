@@ -1,5 +1,5 @@
 // This file is part of Necroware's GamePort adapter firmware.
-// Copyright (C) 2021 Necroware 
+// Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -22,52 +22,46 @@
 
 class HidThrustMaster : public Driver {
 public:
-   using Device = HidDevice<HidThrustMaster>;
+  using Device = HidDevice<HidThrustMaster>;
 
-   void init() override {
-       Device::activate();
-   }
+  void init() override { Device::activate(); }
 
-   void update() override {
+  void update() override {
 
-       // Unfortunately I had no real ThrustMaster joystick to test, but
-       // Sidewinder 3D Pro has an emulation for ThrustMaster. So, this
-       // implementation was made using that emulation and could be wrong.
-       // However the ThrustMaster seem to have a strange hat switch. It is
-       // encoded using the 3rd axis with values between 0 and 128, where
-       // 0-31 is up, 32-63 is right, 64-95 is down and 96-120 is left.
-       // Everything above 121 considered to be middle.
-       const auto hat = [](byte value) -> byte {
-           if (value < 32) {
-               return 1;
-           }
-           if (value < 64) {
-               return 3;
-           }
-           if (value < 96) {
-               return 5;
-           }
-           if (value < 121) {
-               return 7;
-           }
-           return 0;
-       };
+    // Unfortunately I had no real ThrustMaster joystick to test, but
+    // Sidewinder 3D Pro has an emulation for ThrustMaster. So, this
+    // implementation was made using that emulation and could be wrong.
+    // However the ThrustMaster seem to have a strange hat switch. It is
+    // encoded using the 3rd axis with values between 0 and 128, where
+    // 0-31 is up, 32-63 is right, 64-95 is down and 96-120 is left.
+    // Everything above 121 considered to be middle.
+    const auto hat = [](byte value) -> byte {
+      if (value < 32) {
+        return 1;
+      }
+      if (value < 64) {
+        return 3;
+      }
+      if (value < 96) {
+        return 5;
+      }
+      if (value < 121) {
+        return 7;
+      }
+      return 0;
+    };
 
-       const byte buttons = 
-           m_joystick.getButtons() << 4 
-           | hat(m_joystick.getAxis(3));
+    const byte buttons =
+        m_joystick.getButtons() << 4 | hat(m_joystick.getAxis(3));
 
-       const byte data[4] = {
-           m_joystick.getAxis(0),
-           m_joystick.getAxis(1),
-           m_joystick.getAxis(2),
-           buttons
-       };
+    const byte data[4] = {m_joystick.getAxis(0), m_joystick.getAxis(1),
+                          m_joystick.getAxis(2), buttons};
 
-       Device::send(&data, sizeof(data));
-   }
+    Device::send(&data, sizeof(data));
+  }
+
 private:
-   AnalogJoystick m_joystick;
+  AnalogJoystick m_joystick;
 };
 
 template <>
@@ -101,4 +95,3 @@ const byte HidThrustMaster::Device::description[] = {
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0xc0,             // End Collection
 };
-

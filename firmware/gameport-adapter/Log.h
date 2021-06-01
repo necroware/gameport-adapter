@@ -1,5 +1,5 @@
 // This file is part of Necroware's GamePort adapter firmware.
-// Copyright (C) 2021 Necroware 
+// Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,15 +17,14 @@
 #pragma once
 
 #include <Arduino.h>
-#include <stdio.h>
 #include <stdarg.h>
+#include <stdio.h>
 
-inline void log(const char* fmt, ...) {
-    va_list args;
-    va_start (args, fmt);
-    char buffer[512];
-    vsnprintf(buffer, sizeof(buffer), fmt, args);
-    Serial.println(buffer);
-    va_end (args);
+inline void log(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  char buffer[512];
+  vsnprintf(buffer, sizeof(buffer), fmt, args);
+  Serial.println(buffer);
+  va_end(args);
 }
-

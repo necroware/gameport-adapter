@@ -1,5 +1,5 @@
 // This file is part of Necroware's GamePort adapter firmware.
-// Copyright (C) 2021 Necroware 
+// Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once 
+#pragma once
 
 #include "AnalogJoystick.h"
 #include "Driver.h"
@@ -22,23 +22,21 @@
 
 class HidJoystickB4A2 : public Driver {
 public:
-   using Device = HidDevice<HidJoystickB4A2>;
+  using Device = HidDevice<HidJoystickB4A2>;
 
-   void init() override {
-       Device::activate();
-   }
-   
-   void update() override {
-       const byte data[3] = {
-           m_joystick.getAxis(0), 
-           m_joystick.getAxis(1),
-           m_joystick.getButtons(),
-       };
-       Device::send(&data, sizeof(data));
-   }
+  void init() override { Device::activate(); }
+
+  void update() override {
+    const byte data[3] = {
+        m_joystick.getAxis(0),
+        m_joystick.getAxis(1),
+        m_joystick.getButtons(),
+    };
+    Device::send(&data, sizeof(data));
+  }
 
 private:
-   AnalogJoystick m_joystick;
+  AnalogJoystick m_joystick;
 };
 
 template <>
@@ -68,4 +66,3 @@ const byte HidJoystickB4A2::Device::description[] = {
     0x81, 0x03,       //   Input (Const,Var,Abs)
     0xc0,             // End Collection
 };
-

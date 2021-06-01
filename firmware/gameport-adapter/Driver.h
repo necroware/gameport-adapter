@@ -1,5 +1,5 @@
 // This file is part of Necroware's GamePort adapter firmware.
-// Copyright (C) 2021 Necroware 
+// Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,14 +18,13 @@
 
 class Driver {
 public:
-    virtual void init() = 0;
-    virtual void update() = 0;
+  virtual void init() = 0;
+  virtual void update() = 0;
 
-    Driver() = default;
-    Driver(const Driver&) = delete;
-    Driver(Driver&&) = delete;
-    virtual ~Driver() = default;   
-    Driver& operator=(const Driver&) = delete;
-    Driver& operator=(Driver&&) = delete;
+  Driver() = default;
+  Driver(const Driver &) = delete;
+  Driver(Driver &&) = delete;
+  virtual ~Driver() = default;
+  Driver &operator=(const Driver &) = delete;
+  Driver &operator=(Driver &&) = delete;
 };
-

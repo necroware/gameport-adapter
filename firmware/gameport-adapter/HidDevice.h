@@ -1,5 +1,5 @@
 // This file is part of Necroware's GamePort adapter firmware.
-// Copyright (C) 2021 Necroware 
+// Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,21 +24,18 @@
 template <typename T>
 class HidDevice {
 public:
-   static void activate() {
-      static HidDevice instance;
-   }
+  static void activate() { static HidDevice instance; }
 
-   static void send(const void* data, size_t size) {
-      HID().SendReport(id, data, size);
-   }
+  static void send(const void *data, size_t size) {
+    HID().SendReport(id, data, size);
+  }
 
 private:
-   static const byte id{0x03};
-   static const byte description[] PROGMEM;
+  static const byte id{0x03};
+  static const byte description[] PROGMEM;
 
-   explicit HidDevice() {
-      static HIDSubDescriptor node(description, sizeof(description));
-      HID().AppendDescriptor(&node);
-   }
+  explicit HidDevice() {
+    static HIDSubDescriptor node(description, sizeof(description));
+    HID().AppendDescriptor(&node);
+  }
 };
-
