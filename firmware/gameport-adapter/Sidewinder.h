@@ -22,7 +22,7 @@
 /// Class to for communication with Sidewinder joysticks.
 /// @remark This is a green field implementation, but it was heavily
 ///         inspired by Linux Sidewinder driver implementation. See
-//          https://github.com/torvalds/linux/blob/master/drivers/input/joystick/sidewinder.c
+///         https://github.com/torvalds/linux/blob/master/drivers/input/joystick/sidewinder.c
 class Sidewinder {
 public:
 
