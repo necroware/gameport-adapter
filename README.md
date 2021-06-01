@@ -81,6 +81,7 @@ ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatib
 Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
 Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
+Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
 
 Please pay attention how the same switches are used for different Sidewinder
 devices. This is possible due to fully digital communication. Using this the
@@ -98,6 +99,7 @@ Well physically following joysticks were tested so far:
 * Sidewinder GamePad
 * Sidewinder 3D Pro
 * Sidewinder Precision Pro
+* Gravis GamePad Pro
 
 Those are joysticks, which I had at hand during the development. However,
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog

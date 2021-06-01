@@ -15,6 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "HidCHFlightstickPro.h"
+#include "HidGrIP.h"
 #include "HidJoystickB2A2.h"
 #include "HidJoystickB4A2.h"
 #include "HidJoystickB4A3.h"
@@ -33,6 +34,7 @@ static Driver* createDriver(byte sw) {
         case 0b0100: return new HidCHFlightstickPro;
         case 0b0101: return new HidThrustMaster;
         case 0b0111: return new HidSidewinder;
+        case 0b1000: return new HidGrIP;
         default: return new HidJoystickB2A2;
     }
 }
