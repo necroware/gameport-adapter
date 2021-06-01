@@ -106,18 +106,18 @@ public:
         continue;
       }
       switch (edge) {
-      case Edge::falling:
-        if (last > next) {
+        case Edge::falling:
+          if (last > next) {
+            return timeout;
+          }
+          break;
+        case Edge::rising:
+          if (last < next) {
+            return timeout;
+          }
+          break;
+        case Edge::any:
           return timeout;
-        }
-        break;
-      case Edge::rising:
-        if (last < next) {
-          return timeout;
-        }
-        break;
-      case Edge::any:
-        return timeout;
       }
       last = next;
     }

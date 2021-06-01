@@ -29,16 +29,16 @@ public:
   /// @returns a value between 0 and 255
   byte getAxis(int id) {
     switch (id) {
-    case 0:
-      return m_axis1.get();
-    case 1:
-      return m_axis2.get();
-    case 2:
-      return m_axis3.get();
-    case 3:
-      return m_axis4.get();
-    default:
-      return 0u;
+      case 0:
+        return m_axis1.get();
+      case 1:
+        return m_axis2.get();
+      case 2:
+        return m_axis3.get();
+      case 3:
+        return m_axis4.get();
+      default:
+        return 0u;
     }
   }
 
@@ -56,16 +56,16 @@ public:
   /// @returns true if button is pressed, or false
   bool isPressed(int id) {
     switch (id) {
-    case 0:
-      return m_button1.isLow();
-    case 1:
-      return m_button2.isLow();
-    case 2:
-      return m_button3.isLow();
-    case 3:
-      return m_button4.isLow();
-    default:
-      return false;
+      case 0:
+        return m_button1.isLow();
+      case 1:
+        return m_button2.isLow();
+      case 2:
+        return m_button3.isLow();
+      case 3:
+        return m_button4.isLow();
+      default:
+        return false;
     }
   }
 

@@ -123,14 +123,14 @@ private:
   /// Guesses joystick model from the size of the packet.
   static Model guessModel(const Packet &packet) {
     switch (packet.length) {
-    case 15:
-      return Model::SW_GAMEPAD;
-    case 16:
-      return Model::SW_PRECISION_PRO;
-    case 64:
-      return Model::SW_3D_PRO;
-    default:
-      return Model::SW_UNKNOWN;
+      case 15:
+        return Model::SW_GAMEPAD;
+      case 16:
+        return Model::SW_PRECISION_PRO;
+      case 64:
+        return Model::SW_3D_PRO;
+      default:
+        return Model::SW_UNKNOWN;
     }
   }
 
@@ -344,14 +344,14 @@ public:
 
 inline bool Sidewinder::decode(const Packet &packet, State &state) const {
   switch (m_model) {
-  case Model::SW_GAMEPAD:
-    return Decoder<Model::SW_GAMEPAD>::decode(packet, state);
-  case Model::SW_3D_PRO:
-    return Decoder<Model::SW_3D_PRO>::decode(packet, state);
-  case Model::SW_PRECISION_PRO:
-    return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
-  case Model::SW_UNKNOWN:
-    break;
+    case Model::SW_GAMEPAD:
+      return Decoder<Model::SW_GAMEPAD>::decode(packet, state);
+    case Model::SW_3D_PRO:
+      return Decoder<Model::SW_3D_PRO>::decode(packet, state);
+    case Model::SW_PRECISION_PRO:
+      return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+    case Model::SW_UNKNOWN:
+      break;
   }
   return false;
 }

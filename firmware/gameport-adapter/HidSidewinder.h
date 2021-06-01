@@ -34,39 +34,39 @@ public:
   void init() override {
     m_sw.reset();
     switch (m_sw.getModel()) {
-    case Sidewinder::Model::SW_GAMEPAD:
-      log("Detected Sidewinder GamePad");
-      HidGamePad::activate();
-      break;
-    case Sidewinder::Model::SW_3D_PRO:
-      log("Detected Sidewinder 3D Pro");
-      Hid3DPro::activate();
-      break;
-    case Sidewinder::Model::SW_PRECISION_PRO:
-      log("Detected Sidewinder Precision Pro");
-      HidPrecisionPro::activate();
-      break;
-    case Sidewinder::Model::SW_UNKNOWN:
-      log("Unknown input device");
-      break;
+      case Sidewinder::Model::SW_GAMEPAD:
+        log("Detected Sidewinder GamePad");
+        HidGamePad::activate();
+        break;
+      case Sidewinder::Model::SW_3D_PRO:
+        log("Detected Sidewinder 3D Pro");
+        Hid3DPro::activate();
+        break;
+      case Sidewinder::Model::SW_PRECISION_PRO:
+        log("Detected Sidewinder Precision Pro");
+        HidPrecisionPro::activate();
+        break;
+      case Sidewinder::Model::SW_UNKNOWN:
+        log("Unknown input device");
+        break;
     }
   }
 
   void update() override {
     const auto state = m_sw.readState();
     switch (m_sw.getModel()) {
-    case Sidewinder::Model::SW_GAMEPAD:
-      sendGamePad(state);
-      break;
-    case Sidewinder::Model::SW_3D_PRO:
-      send3DPro(state);
-      break;
-    case Sidewinder::Model::SW_PRECISION_PRO:
-      sendPrecisionPro(state);
-      break;
-    case Sidewinder::Model::SW_UNKNOWN:
-      log("Unknown input device");
-      break;
+      case Sidewinder::Model::SW_GAMEPAD:
+        sendGamePad(state);
+        break;
+      case Sidewinder::Model::SW_3D_PRO:
+        send3DPro(state);
+        break;
+      case Sidewinder::Model::SW_PRECISION_PRO:
+        sendPrecisionPro(state);
+        break;
+      case Sidewinder::Model::SW_UNKNOWN:
+        log("Unknown input device");
+        break;
     }
     m_sw.cooldown();
   }

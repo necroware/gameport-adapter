@@ -32,25 +32,25 @@ public:
   void init() override {
     m_grip.reset();
     switch (m_grip.getModel()) {
-    case GrIP::Model::GRIP_GAMEPAD_PRO:
-      log("Detected Gravis GamePad Pro");
-      HidGamePadPro::activate();
-      break;
-    case GrIP::Model::GRIP_UNKNOWN:
-      log("Unknown or not GrIP input device");
-      break;
+      case GrIP::Model::GRIP_GAMEPAD_PRO:
+        log("Detected Gravis GamePad Pro");
+        HidGamePadPro::activate();
+        break;
+      case GrIP::Model::GRIP_UNKNOWN:
+        log("Unknown or not GrIP input device");
+        break;
     }
   }
 
   void update() override {
     const auto state = m_grip.readState();
     switch (m_grip.getModel()) {
-    case GrIP::Model::GRIP_GAMEPAD_PRO:
-      sendGamePadPro(state);
-      break;
-    case GrIP::Model::GRIP_UNKNOWN:
-      log("Unknown or not GrIP input device");
-      break;
+      case GrIP::Model::GRIP_GAMEPAD_PRO:
+        sendGamePadPro(state);
+        break;
+      case GrIP::Model::GRIP_UNKNOWN:
+        log("Unknown or not GrIP input device");
+        break;
     }
   }
 

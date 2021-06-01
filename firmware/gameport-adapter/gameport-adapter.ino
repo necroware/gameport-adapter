@@ -28,22 +28,22 @@ static Driver *driver;
 
 static Driver *createDriver(byte sw) {
   switch (sw) {
-  case 0b0001:
-    return new HidJoystickB4A2;
-  case 0b0010:
-    return new HidJoystickB4A3;
-  case 0b0011:
-    return new HidJoystickB4A4;
-  case 0b0100:
-    return new HidCHFlightstickPro;
-  case 0b0101:
-    return new HidThrustMaster;
-  case 0b0111:
-    return new HidSidewinder;
-  case 0b1000:
-    return new HidGrIP;
-  default:
-    return new HidJoystickB2A2;
+    case 0b0001:
+      return new HidJoystickB4A2;
+    case 0b0010:
+      return new HidJoystickB4A3;
+    case 0b0011:
+      return new HidJoystickB4A4;
+    case 0b0100:
+      return new HidCHFlightstickPro;
+    case 0b0101:
+      return new HidThrustMaster;
+    case 0b0111:
+      return new HidSidewinder;
+    case 0b1000:
+      return new HidGrIP;
+    default:
+      return new HidJoystickB2A2;
   }
 }
 
