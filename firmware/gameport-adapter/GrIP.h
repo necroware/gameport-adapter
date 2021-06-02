@@ -68,8 +68,8 @@ public:
 
       const auto getBit = [&](uint8_t pos) { return uint8_t(packet >> pos) & 1; };
 
-      m_state.axis[0] = 1 + getBit(13) - getBit(12);
-      m_state.axis[1] = 1 + getBit(15) - getBit(16);
+      m_state.axis[0] = 1 + getBit(15) - getBit(16);
+      m_state.axis[1] = 1 + getBit(13) - getBit(12);
 
       m_state.buttons = getBit(8);
       m_state.buttons |= getBit(3) << 1;
