@@ -43,8 +43,8 @@ public:
   /// Joystick state.
   struct State {
     uint16_t buttons{0};
-    uint8_t axis[5]{0};
-    uint8_t hat;
+    uint16_t axis[4]{0};
+    uint16_t hat;
   };
 
   /// Gets the detected model.
@@ -240,7 +240,7 @@ public:
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.length; i++) {
-        result |= static_cast<uint64_t>(packet.bits[i] & 1) << i;
+        result |= uint64_t(packet.bits[i] & 1) << i;
       }
       return result;
     }();
@@ -258,16 +258,16 @@ public:
     state.buttons = ~(bits(8, 7) | (bits(38, 1) << 7));
 
     // bit 3-5 + bit 16-22: x-axis (value 0-1023)
-    state.axis[0] = map(bits(3, 3) << 7 | bits(16, 7), 0, 1023, 0, 255);
+    state.axis[0] = bits(3, 3) << 7 | bits(16, 7);
 
     // bit 0-2 + bit 24-30: y-axis (value 0-1023)
-    state.axis[1] = map(bits(0, 3) << 7 | bits(24, 7), 0, 1023, 0, 255);
+    state.axis[1] = bits(0, 3) << 7 | bits(24, 7);
 
-    // bit 35-36 + bit 40-46: rz-axis (value 0-512)
-    state.axis[2] = map(bits(35, 2) << 7 | bits(40, 7), 0, 512, 0, 255);
+    // bit 35-36 + bit 40-46: z-axis (value 0-511)
+    state.axis[2] = bits(35, 2) << 7 | bits(40, 7);
 
     // bit 32-34 + bit 48-54: throttle-axis (value 0-1023)
-    state.axis[3] = map(bits(32, 3) << 7 | bits(48, 7), 0, 1023, 0, 255);
+    state.axis[3] = bits(32, 3) << 7 | bits(48, 7);
 
     // bit 6-7 + bit 60-62 (9 pos, 0 center, 1-8 clockwise)
     state.hat = bits(6, 1) << 3 | bits(60, 3);
@@ -306,7 +306,7 @@ public:
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.length; i++) {
-        result |= static_cast<uint64_t>(packet.bits[i] & 0b111) << (i * 3);
+        result |= uint64_t(packet.bits[i] & 0b111) << (i * 3);
       }
       return result;
     }();
@@ -332,10 +332,10 @@ public:
       return false;
     }
 
-    state.axis[0] = map(bits(9, 10), 0, 1023, 0, 255);
-    state.axis[1] = map(bits(19, 10), 0, 1023, 0, 255);
-    state.axis[2] = map(bits(36, 6), 0, 63, 0, 255);
-    state.axis[3] = map(bits(29, 7), 0, 127, 0, 255);
+    state.axis[0] = bits(9, 10);
+    state.axis[1] = bits(19, 10);
+    state.axis[2] = bits(36, 6);
+    state.axis[3] = bits(29, 7);
     state.hat = bits(42, 4);
     state.buttons = ~bits(0, 9);
     return true;

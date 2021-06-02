@@ -79,21 +79,37 @@ private:
   }
 
   static void send3DPro(const Sidewinder::State &state) {
-    struct {
-      uint8_t x, y, rz, throttle, hat, buttons;
-    } data = {state.axis[0], state.axis[1],
-              state.axis[2], state.axis[3],
-              state.hat,     static_cast<uint8_t>(state.buttons)};
+    const struct {
+      uint32_t x : 10;
+      uint32_t y : 10;
+      uint32_t z : 9;
+      uint16_t throttle;
+      uint8_t hat, buttons;
+    } data = {
+        uint32_t(state.axis[0]),
+        uint32_t(state.axis[1]),
+        uint32_t(state.axis[2]),
+        uint16_t(state.axis[3]),
+        uint8_t(state.hat),
+        uint8_t(state.buttons),
+    };
     Hid3DPro::send(&data, sizeof(data));
   }
 
   static void sendPrecisionPro(const Sidewinder::State &state) {
-    struct {
-      uint8_t x, y, z, throttle, hat;
+    const struct {
+      uint32_t x : 10;
+      uint32_t y : 10;
+      uint32_t z : 6; 
+      uint8_t throttle, hat;
       uint16_t buttons;
     } data = {
-        state.axis[0], state.axis[1], state.axis[2],
-        state.axis[3], state.hat,     state.buttons,
+        uint32_t(state.axis[0]),
+        uint32_t(state.axis[1]),
+        uint32_t(state.axis[2]),
+        uint8_t(state.axis[3]), 
+        uint8_t(state.hat), 
+        uint16_t(state.buttons),
     };
     HidPrecisionPro::send(&data, sizeof(data));
   }
@@ -138,17 +154,25 @@ const byte HidSidewinder::Hid3DPro::description[] = {
     0x05, 0x01,       //   Usage Page (Generic Desktop)
     0x09, 0x30,       //   Usage (X)
     0x09, 0x31,       //   Usage (Y)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x26, 0xff, 0x03, //   Logical Maximum (1023)
+    0x75, 0x0A,       //   Report Size (10)
+    0x95, 0x02,       //   Report Count (2)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
     0x09, 0x32,       //   Usage (Z)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x26, 0xff, 0x00, //   Logical Maximum (255)
-    0x75, 0x08,       //   Report Size (8)
-    0x95, 0x03,       //   Report Count (3)
+    0x26, 0xff, 0x01, //   Logical Maximum (511)
+    0x75, 0x09,       //   Report Size (9)
+    0x95, 0x01,       //   Report Count (1)
     0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x75, 0x03,       //   Report Size (3)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x03,       //   Input (Const,Var,Abs)
     0x05, 0x02,       //   Usage Page (Simulation Controls)
     0x09, 0xBB,       //   Usage (Throttle)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x26, 0xff, 0x00, //   Logical Maximum (255)
-    0x75, 0x08,       //   Report Size (8)
+    0x26, 0xff, 0x03, //   Logical Maximum (1023)
+    0x75, 0x10,       //   Report Size (16)
     0x95, 0x01,       //   Report Count (1)
     0x81, 0x02,       //   Input (Data,Var,Abs)
     0x05, 0x01,       //   Usage Page (Generic Desktop)
@@ -178,16 +202,24 @@ const byte HidSidewinder::HidPrecisionPro::description[] = {
     0x05, 0x01,       //   Usage Page (Generic Desktop)
     0x09, 0x30,       //   Usage (X)
     0x09, 0x31,       //   Usage (Y)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x26, 0xff, 0x03, //   Logical Maximum (1023)
+    0x75, 0x0A,       //   Report Size (10)
+    0x95, 0x02,       //   Report Count (2)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
     0x09, 0x32,       //   Usage (Z)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x26, 0xff, 0x00, //   Logical Maximum (255)
-    0x75, 0x08,       //   Report Size (8)
-    0x95, 0x03,       //   Report Count (3)
+    0x26, 0x3f, 0x00, //   Logical Maximum (63)
+    0x75, 0x06,       //   Report Size (6)
+    0x95, 0x01,       //   Report Count (1)
     0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x75, 0x06,       //   Report Size (6)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x03,       //   Input (Const,Var,Abs)
     0x05, 0x02,       //   Usage Page (Simulation Controls)
     0x09, 0xBB,       //   Usage (Throttle)
     0x15, 0x00,       //   Logical Minimum (0)
-    0x26, 0xff, 0x00, //   Logical Maximum (255)
+    0x26, 0x7f, 0x00, //   Logical Maximum (127)
     0x75, 0x08,       //   Report Size (8)
     0x95, 0x01,       //   Report Count (1)
     0x81, 0x02,       //   Input (Data,Var,Abs)
