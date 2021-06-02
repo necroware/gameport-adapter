@@ -56,8 +56,7 @@ public:
 
 private:
   static void sendGamePadPro(const GrIP::State &state) {
-    const uint16_t data =
-        state.buttons << 4 | state.axis[0] << 2 | state.axis[1];
+    const uint16_t data = state.buttons << 4 | state.axis[0] << 2 | state.axis[1];
     HidGamePadPro::send(&data, sizeof(data));
   }
 

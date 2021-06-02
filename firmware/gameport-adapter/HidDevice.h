@@ -24,7 +24,9 @@
 template <typename T>
 class HidDevice {
 public:
-  static void activate() { static HidDevice instance; }
+  static void activate() {
+    static HidDevice instance;
+  }
 
   static void send(const void *data, size_t size) {
     HID().SendReport(id, data, size);

@@ -24,7 +24,9 @@ class HidThrustMaster : public Driver {
 public:
   using Device = HidDevice<HidThrustMaster>;
 
-  void init() override { Device::activate(); }
+  void init() override {
+    Device::activate();
+  }
 
   void update() override {
 
@@ -51,11 +53,9 @@ public:
       return 0;
     };
 
-    const byte buttons =
-        m_joystick.getButtons() << 4 | hat(m_joystick.getAxis(3));
+    const byte buttons = m_joystick.getButtons() << 4 | hat(m_joystick.getAxis(3));
 
-    const byte data[4] = {m_joystick.getAxis(0), m_joystick.getAxis(1),
-                          m_joystick.getAxis(2), buttons};
+    const byte data[4] = {m_joystick.getAxis(0), m_joystick.getAxis(1), m_joystick.getAxis(2), buttons};
 
     Device::send(&data, sizeof(data));
   }

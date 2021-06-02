@@ -46,8 +46,7 @@ public:
   ///
   /// @returns a byte every bit represents a button
   byte getButtons() {
-    return m_button1.isLow() | m_button2.isLow() << 1 | m_button3.isLow() << 2 |
-           m_button4.isLow() << 3;
+    return m_button1.isLow() | m_button2.isLow() << 1 | m_button3.isLow() << 2 | m_button4.isLow() << 3;
   }
 
   /// Checks if a button is pressed.

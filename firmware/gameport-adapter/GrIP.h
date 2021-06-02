@@ -54,7 +54,9 @@ public:
 
   /// Gets the detected model.
   /// @returns the detected joystick model
-  Model getModel() const { return m_model; }
+  Model getModel() const {
+    return m_model;
+  }
 
   /// Reads the joystick state.
   /// @returns the state of axis, buttons etc.
@@ -64,9 +66,7 @@ public:
     const auto packet = readPacket();
     if (packet) {
 
-      const auto getBit = [&](uint8_t pos) {
-        return uint8_t(packet >> pos) & 1;
-      };
+      const auto getBit = [&](uint8_t pos) { return uint8_t(packet >> pos) & 1; };
 
       m_state.axis[0] = 1 + getBit(13) - getBit(12);
       m_state.axis[1] = 1 + getBit(15) - getBit(16);

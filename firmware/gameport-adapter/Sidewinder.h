@@ -49,7 +49,9 @@ public:
 
   /// Gets the detected model.
   /// @returns the detected joystick model
-  Model getModel() const { return m_model; }
+  Model getModel() const {
+    return m_model;
+  }
 
   /// Resets the joystick and tries to detect the model.
   void reset() {
@@ -104,8 +106,12 @@ private:
   /// critical sections. The interrupt is reactivated as soon as this
   /// guard runs out of scope.
   struct InterruptStopper {
-    InterruptStopper() { noInterrupts(); }
-    ~InterruptStopper() { interrupts(); }
+    InterruptStopper() {
+      noInterrupts();
+    }
+    ~InterruptStopper() {
+      interrupts();
+    }
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
@@ -184,8 +190,7 @@ private:
         if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
           break;
         }
-        packet.bits[packet.length++] =
-            m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
+        packet.bits[packet.length++] = m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
       }
     }
     m_trigger.setLow();
@@ -201,8 +206,7 @@ private:
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_GAMEPAD> {
 public:
-  static bool decode(const Sidewinder::Packet &packet,
-                     Sidewinder::State &state) {
+  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
 
     const auto checksum = [&]() {
       byte result = 0u;
@@ -234,8 +238,7 @@ public:
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_3D_PRO> {
 public:
-  static bool decode(const Sidewinder::Packet &packet,
-                     Sidewinder::State &state) {
+  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
 
     const auto value = [&]() {
       uint64_t result{0u};
@@ -300,8 +303,7 @@ private:
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_PRECISION_PRO> {
 public:
-  static bool decode(const Sidewinder::Packet &packet,
-                     Sidewinder::State &state) {
+  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
 
     const auto value = [&]() {
       uint64_t result{0u};

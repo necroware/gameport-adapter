@@ -24,7 +24,9 @@ class HidCHFlightstickPro : public Driver {
 public:
   using Device = HidDevice<HidCHFlightstickPro>;
 
-  void init() override { Device::activate(); }
+  void init() override {
+    Device::activate();
+  }
 
   void update() override {
 
@@ -40,15 +42,13 @@ public:
     const auto decode = [](byte code) -> byte {
       // upper 4 bits are buttons (16..128)
       // lower 4 bits are hat codes (1..7)
-      static const byte table[16] = {0,   16, 32, 7, 64, 6, 0, 5,
-                                     128, 4,  0,  3, 0,  2, 0, 1};
+      static const byte table[16] = {0, 16, 32, 7, 64, 6, 0, 5, 128, 4, 0, 3, 0, 2, 0, 1};
       return (code < sizeof(table)) ? table[code] : 0u;
     };
 
     const byte data[5] = {
-        m_joystick.getAxis(0),           m_joystick.getAxis(1),
-        m_joystick.getAxis(2),           m_joystick.getAxis(3),
-        decode(m_joystick.getButtons()),
+        m_joystick.getAxis(0), m_joystick.getAxis(1),           m_joystick.getAxis(2),
+        m_joystick.getAxis(3), decode(m_joystick.getButtons()),
     };
 
     Device::send(&data, sizeof(data));

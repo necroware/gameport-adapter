@@ -24,7 +24,9 @@ class HidJoystickB4A4 : public Driver {
 public:
   using Device = HidDevice<HidJoystickB4A4>;
 
-  void init() override { Device::activate(); }
+  void init() override {
+    Device::activate();
+  }
 
   void update() override {
     const byte data[5] = {

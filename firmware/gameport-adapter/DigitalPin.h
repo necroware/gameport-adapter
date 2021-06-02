@@ -35,7 +35,10 @@ struct DigitalPin {
   using RegType = uint8_t;
   const RegType mask;
   const RegType port;
-  DigitalPin() : mask(digitalPinToBitMask(Id)), port(digitalPinToPort(Id)) {}
+  DigitalPin()
+  : mask(digitalPinToBitMask(Id))
+  , port(digitalPinToPort(Id)) {
+  }
 };
 
 /// Digital Output class.
@@ -43,21 +46,30 @@ template <int Id>
 class DigitalOutput {
 public:
   /// Constructor.
-  DigitalOutput() : m_output(*portOutputRegister(m_pin.port)) {
+  DigitalOutput()
+  : m_output(*portOutputRegister(m_pin.port)) {
     *portModeRegister(m_pin.port) |= m_pin.mask;
   }
 
   /// Sets output high.
-  void setHigh() const { m_output |= m_pin.mask; }
+  void setHigh() const {
+    m_output |= m_pin.mask;
+  }
 
   /// Sets output low.
-  void setLow() const { m_output &= ~m_pin.mask; }
+  void setLow() const {
+    m_output &= ~m_pin.mask;
+  }
 
   /// Sets output to the given value.
-  void set(bool value) const { value ? setHigh() : setLow(); }
+  void set(bool value) const {
+    value ? setHigh() : setLow();
+  }
 
   /// Toggles the output.
-  void toggle() const { m_output ^= m_pin.mask; }
+  void toggle() const {
+    m_output ^= m_pin.mask;
+  }
 
   /// Triggers a pulse of given duration.
   /// @param[in] duration is the duration in microseconds
@@ -79,7 +91,8 @@ template <int Id, bool Pullup = true>
 class DigitalInput {
 public:
   /// Constructor.
-  DigitalInput() : m_input(*portInputRegister(m_pin.port)) {
+  DigitalInput()
+  : m_input(*portInputRegister(m_pin.port)) {
     *portModeRegister(m_pin.port) &= ~m_pin.mask;
     if (Pullup) {
       *portOutputRegister(m_pin.port) |= m_pin.mask;
@@ -87,13 +100,19 @@ public:
   }
 
   /// Gets the value of the input.
-  bool get() const { return m_input & m_pin.mask; }
+  bool get() const {
+    return m_input & m_pin.mask;
+  }
 
   /// Checks if the input is high.
-  bool isHigh() const { return get(); }
+  bool isHigh() const {
+    return get();
+  }
 
   /// Checks if the input is low
-  bool isLow() const { return !get(); }
+  bool isLow() const {
+    return !get();
+  }
 
   /// Waits for an edge with given timeout.
   /// @param[in] edge is the type of edge to wait for

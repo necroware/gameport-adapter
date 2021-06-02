@@ -28,8 +28,7 @@ public:
   struct HidType;
   using HidGamePad = HidDevice<HidType<Sidewinder::Model::SW_GAMEPAD>>;
   using Hid3DPro = HidDevice<HidType<Sidewinder::Model::SW_3D_PRO>>;
-  using HidPrecisionPro =
-      HidDevice<HidType<Sidewinder::Model::SW_PRECISION_PRO>>;
+  using HidPrecisionPro = HidDevice<HidType<Sidewinder::Model::SW_PRECISION_PRO>>;
 
   void init() override {
     m_sw.reset();
@@ -73,8 +72,7 @@ public:
 
 private:
   static void sendGamePad(const Sidewinder::State &state) {
-    const uint16_t data =
-        state.buttons << 4 | state.axis[0] << 2 | state.axis[1];
+    const uint16_t data = state.buttons << 4 | state.axis[0] << 2 | state.axis[1];
     HidGamePad::send(&data, sizeof(data));
   }
 
@@ -86,12 +84,8 @@ private:
       uint16_t throttle;
       uint8_t hat, buttons;
     } data = {
-        uint32_t(state.axis[0]),
-        uint32_t(state.axis[1]),
-        uint32_t(state.axis[2]),
-        uint16_t(state.axis[3]),
-        uint8_t(state.hat),
-        uint8_t(state.buttons),
+        uint32_t(state.axis[0]), uint32_t(state.axis[1]), uint32_t(state.axis[2]),
+        uint16_t(state.axis[3]), uint8_t(state.hat),      uint8_t(state.buttons),
     };
     Hid3DPro::send(&data, sizeof(data));
   }
@@ -100,16 +94,12 @@ private:
     const struct {
       uint32_t x : 10;
       uint32_t y : 10;
-      uint32_t z : 6; 
+      uint32_t z : 6;
       uint8_t throttle, hat;
       uint16_t buttons;
     } data = {
-        uint32_t(state.axis[0]),
-        uint32_t(state.axis[1]),
-        uint32_t(state.axis[2]),
-        uint8_t(state.axis[3]), 
-        uint8_t(state.hat), 
-        uint16_t(state.buttons),
+        uint32_t(state.axis[0]), uint32_t(state.axis[1]), uint32_t(state.axis[2]),
+        uint8_t(state.axis[3]),  uint8_t(state.hat),      uint16_t(state.buttons),
     };
     HidPrecisionPro::send(&data, sizeof(data));
   }
