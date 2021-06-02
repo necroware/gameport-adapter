@@ -72,15 +72,13 @@ public:
 
 private:
   static void sendGamePad(const Sidewinder::State &state) {
-    const uint16_t data = state.buttons << 4 | state.axis[0] << 2 | state.axis[1];
+    const struct { uint16_t x : 2, y : 2, buttons : 10; } data = {state.axis[0], state.axis[1], state.buttons};
     HidGamePad::send(&data, sizeof(data));
   }
 
   static void send3DPro(const Sidewinder::State &state) {
     const struct {
-      uint32_t x : 10;
-      uint32_t y : 10;
-      uint32_t z : 9;
+      uint32_t x : 10, y : 10, z : 9;
       uint16_t throttle;
       uint8_t hat, buttons;
     } data = {
@@ -92,9 +90,7 @@ private:
 
   static void sendPrecisionPro(const Sidewinder::State &state) {
     const struct {
-      uint32_t x : 10;
-      uint32_t y : 10;
-      uint32_t z : 6;
+      uint32_t x : 10, y : 10, z : 6;
       uint8_t throttle, hat;
       uint16_t buttons;
     } data = {

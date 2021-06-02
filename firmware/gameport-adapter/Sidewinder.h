@@ -227,8 +227,8 @@ public:
     for (auto i = 0u; i < 10; i++) {
       state.buttons |= (~packet.bits[i + 4] & 1) << i;
     }
-    state.axis[0] = 1 + packet.bits[0] - packet.bits[1];
-    state.axis[1] = 1 + packet.bits[3] - packet.bits[2];
+    state.axis[0] = 1 + packet.bits[3] - packet.bits[2];
+    state.axis[1] = 1 + packet.bits[0] - packet.bits[1];
 
     return true;
   }
