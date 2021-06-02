@@ -96,10 +96,10 @@ Well physically following joysticks were tested so far:
 
 * Gravis Analog Pro
 * Gravis PC GamePad
+* Gravis GamePad Pro
 * Sidewinder GamePad
 * Sidewinder 3D Pro
 * Sidewinder Precision Pro
-* Gravis GamePad Pro
 
 Those are joysticks, which I had at hand during the development. However,
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
