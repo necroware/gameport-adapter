@@ -80,7 +80,7 @@ CH FlightStick           | 4       | 4     | 1    | 0010  | Analog, DOS-compatib
 ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
 Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
 Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
-Sidewinder 3D Pro Plus   | 8       | 4     | 1    | 1110  | First version of Precision Pro
+Sidewinder 3D Pro Plus   | 9       | 4     | 1    | 1110  | First version of Precision Pro
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
 Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
 
