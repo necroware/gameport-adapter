@@ -80,6 +80,7 @@ CH FlightStick           | 4       | 4     | 1    | 0010  | Analog, DOS-compatib
 ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
 Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
 Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
+Sidewinder 3D Pro Plus   | 8       | 4     | 1    | 1110  | First version of Precision Pro
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
 Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
 
@@ -99,9 +100,9 @@ Well physically following joysticks were tested so far:
 * Gravis GamePad Pro
 * Sidewinder GamePad
 * Sidewinder 3D Pro
+* Sidewinder 3D Pro Plus
 * Sidewinder Precision Pro
 
-Those are joysticks, which I had at hand during the development. However,
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
 mode it can emulate ThrustMaster and CH FlightStick. That's why you see them in
 the table above. Unfortunately I don't possess those joysticks in real, so may
