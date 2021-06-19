@@ -49,6 +49,10 @@ static Driver *createDriver(byte sw) {
 
 void setup() {
   // Serial.begin(9600);
+  pinMode(14, INPUT_PULLUP);
+  pinMode(15, INPUT_PULLUP);
+  pinMode(20, INPUT_PULLUP);
+  pinMode(21, INPUT_PULLUP);
   const auto sw1 = DigitalInput<14, true>{}.isLow();
   const auto sw2 = DigitalInput<15, true>{}.isLow();
   const auto sw3 = DigitalInput<20, true>{}.isLow();
