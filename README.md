@@ -98,6 +98,8 @@ Well physically following joysticks were tested so far:
 * Gravis Analog Pro
 * Gravis PC GamePad
 * Gravis GamePad Pro
+* QuickShot QS-201 "Super Warrior"
+* QuickShot QS-203 "Avenger"
 * Sidewinder GamePad
 * Sidewinder 3D Pro
 * Sidewinder 3D Pro Plus
