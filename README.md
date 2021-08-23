@@ -70,6 +70,7 @@ Currently following drivers were implemented. To select the right drivers, you
 have to use four switches, as shown in the table. The switches can be changed or
 extended in the future, so please pay attention to the updates.
 
+```
 Joystick Model           | Buttons | Axes  |  Hat | SW1-4 | Comments
 -------------------------|---------|-------|------|-------|-----------------------
 Generic Analog           | 2       | 2     | 0    | 0000  | 
@@ -83,6 +84,7 @@ Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
 Sidewinder 3D Pro Plus   | 9       | 4     | 1    | 1110  | First version of Precision Pro
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
 Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
+```
 
 Please pay attention how the same switches are used for different Sidewinder
 devices. This is possible due to fully digital communication. Using this the
@@ -162,6 +164,7 @@ optimization.
 The hardware is super simple. To build an adapter you'll need the PCB from this
 project and following parts:
 
+```
 Part    | Count | LCSC#   | Digikey #                | Comment
 --------|-------|---------|--------------------------------------------------------------------
 CONN1   |   1   | C77835  | 609-5371-ND              | DB15 female connector
@@ -169,6 +172,7 @@ R1..R4  |   4   | C172965 | 13-MFR-25FTE52-100KCT-ND | 100 kOhm resistors
 SW1     |   1   | C15781  | 2449-KG04ET-ND           | DIP-4 switch
 U1      |   1   | C72120  | ED3024-ND                | DIP24 Socket (optional)
 U1      |   1   | ---     | 1568-1060-ND             | Arduino Pro Micro (ATmega32U4 16MHz, 5V)
+```
 
 ## Known issues
 
