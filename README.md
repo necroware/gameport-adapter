@@ -162,13 +162,13 @@ optimization.
 The hardware is super simple. To build an adapter you'll need the PCB from this
 project and following parts:
 
-Part    | Count | LCSC#   | Comment
---------|-------|---------|------------------------------------------
-CONN1   |   1   | C77835  | DB15 female connector
-R1..R4  |   4   | C172965 | 100 kOhm resistors
-SW1     |   1   | C15781  | DIP-4 switch
-U1      |   1   | C72120  | DIP24 Socket (optional)
-U1      |   1   | ---     | Arduin Pro Micro (ATmega32U4 16MHz, 5V)
+Part    | Count | LCSC#   | Digikey #                | Comment
+--------|-------|---------|--------------------------------------------------------------------
+CONN1   |   1   | C77835  | 609-5371-ND              | DB15 female connector
+R1..R4  |   4   | C172965 | 13-MFR-25FTE52-100KCT-ND | 100 kOhm resistors
+SW1     |   1   | C15781  | 2449-KG04ET-ND           | DIP-4 switch
+U1      |   1   | C72120  | ED3024-ND                | DIP24 Socket (optional)
+U1      |   1   | ---     | 1568-1060-ND             | Arduino Pro Micro (ATmega32U4 16MHz, 5V)
 
 ## Known issues
 
