@@ -17,6 +17,7 @@
 #pragma once
 
 #include "DigitalPin.h"
+#include "InterruptStopper.h"
 #include "Log.h"
 
 /// Class to for communication with Sidewinder joysticks.
@@ -98,20 +99,6 @@ private:
   enum {
     PULSE_DURATION = 60,
     MAX_ERRORS = 3,
-  };
-
-  /// Interrupt guard (RAII).
-  ///
-  /// This class is used to deactivate the interrupts in performance
-  /// critical sections. The interrupt is reactivated as soon as this
-  /// guard runs out of scope.
-  struct InterruptStopper {
-    InterruptStopper() {
-      noInterrupts();
-    }
-    ~InterruptStopper() {
-      interrupts();
-    }
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
