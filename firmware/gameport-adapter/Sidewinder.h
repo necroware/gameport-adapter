@@ -37,7 +37,10 @@ public:
     SW_3D_PRO,
 
     /// Sidewinder Precision Pro
-    SW_PRECISION_PRO
+    SW_PRECISION_PRO,
+
+    /// Sidewinder Force Feedback Wheel
+    SW_FORCE_FEEDBACK_WHEEL
   };
 
   /// Joystick state.
@@ -57,13 +60,19 @@ public:
   void reset() {
     log("Trying to reset...");
     cooldown();
-    m_model = guessModel(readPacket());
+    Packet packet = readPacket();
+    log("Packet size %d", packet.length);
+    m_model = guessModel(packet);
+    log("Detected model %d", m_model);
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
       enableDigitalMode();
-      m_model = guessModel(readPacket());
+      packet = readPacket();
+      log("Packet size %d", packet.length);
+      m_model = guessModel(packet);
+      log("Detected model %d", m_model);
     }
-    log("Detected model %d", m_model);
+    // log("Detected model %d", m_model);
   }
 
   /// Reads joystick state.
@@ -133,6 +142,8 @@ private:
         return Model::SW_GAMEPAD;
       case 16:
         return Model::SW_PRECISION_PRO;
+      case 32:
+        return Model::SW_FORCE_FEEDBACK_WHEEL;
       case 64:
         return Model::SW_3D_PRO;
       default:
@@ -344,6 +355,56 @@ public:
   }
 };
 
+/// Bit decoder for Sidewinder Force Feedback Wheel.
+template <>
+class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL> {
+public:
+  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
+
+    const auto value = [&]() {
+      uint64_t result{0u};
+      for (auto i = 0u; i < packet.length; i++) {
+        result |= uint64_t(packet.bits[i] & 1) << i;
+      }
+      return result;
+    }();
+
+    const auto parity = [](uint64_t t) {
+      uint32_t x = t ^ (t >> 32);
+      x ^= x >> 16;
+      x ^= x >> 8;
+      x ^= x >> 4;
+      x ^= x >> 2;
+      x ^= x >> 1;
+      return x & 1;
+    };
+
+    const auto bits = [&](uint8_t start, uint8_t length) {
+      const auto mask = (1 << length) - 1;
+      return (value >> start) & mask;
+    };
+
+    if (packet.length != 32 || !parity(value)) {
+      return false;
+    }
+
+    // bit 0-9: RX 
+    state.axis[0] = bits(0, 10);
+
+    // bit 10-16: Rudder
+    state.axis[1] = bits(10, 6);
+
+    // bit 16-21: Throttle
+    state.axis[2] = bits(16, 6);
+
+    // bit 22-29: buttons 1-8
+    state.buttons = ~bits(22, 8);
+
+    return true;
+  }
+};
+
+
 inline bool Sidewinder::decode(const Packet &packet, State &state) const {
   switch (m_model) {
     case Model::SW_GAMEPAD:
@@ -352,6 +413,8 @@ inline bool Sidewinder::decode(const Packet &packet, State &state) const {
       return Decoder<Model::SW_3D_PRO>::decode(packet, state);
     case Model::SW_PRECISION_PRO:
       return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+    case Model::SW_FORCE_FEEDBACK_WHEEL:
+      return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
     case Model::SW_UNKNOWN:
       break;
   }

@@ -21,6 +21,7 @@
 #include "GamePort.h"
 #include "HidDevice.h"
 #include "Sidewinder.h"
+#include "Log.h"
 
 class HidSidewinder : public Driver {
 public:
@@ -29,6 +30,7 @@ public:
   using HidGamePad = HidDevice<HidType<Sidewinder::Model::SW_GAMEPAD>>;
   using Hid3DPro = HidDevice<HidType<Sidewinder::Model::SW_3D_PRO>>;
   using HidPrecisionPro = HidDevice<HidType<Sidewinder::Model::SW_PRECISION_PRO>>;
+  using HidForceFeedbackWheel = HidDevice<HidType<Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL>>;
 
   void init() override {
     m_sw.reset();
@@ -45,6 +47,10 @@ public:
         log("Detected Sidewinder Precision Pro");
         HidPrecisionPro::activate();
         break;
+      case Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL:
+        log("Detected Sidewinder Force Feedback Wheel");
+        HidForceFeedbackWheel::activate();
+        break;
       case Sidewinder::Model::SW_UNKNOWN:
         log("Unknown input device");
         break;
@@ -52,6 +58,7 @@ public:
   }
 
   void update() override {
+    log("Detected model %d", m_sw.getModel());
     const auto state = m_sw.readState();
     switch (m_sw.getModel()) {
       case Sidewinder::Model::SW_GAMEPAD:
@@ -62,6 +69,9 @@ public:
         break;
       case Sidewinder::Model::SW_PRECISION_PRO:
         sendPrecisionPro(state);
+        break;
+      case Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL:
+        sendForceFeedbackWheel(state);        
         break;
       case Sidewinder::Model::SW_UNKNOWN:
         log("Unknown input device");
@@ -99,6 +109,17 @@ private:
     };
     HidPrecisionPro::send(&data, sizeof(data));
   }
+
+  static void sendForceFeedbackWheel(const Sidewinder::State &state) {
+    const struct {
+      uint32_t rx : 10;
+      uint8_t rudder, throttle;
+      uint16_t buttons;
+    } data = {
+        uint32_t(state.axis[0]), uint8_t(state.axis[1]), uint8_t(state.axis[2]), uint16_t(state.buttons),
+    };
+    HidForceFeedbackWheel::send(&data, sizeof(data));
+  } 
 
   Sidewinder m_sw;
 };
@@ -227,5 +248,37 @@ const byte HidSidewinder::HidPrecisionPro::description[] = {
     0x75, 0x07,       //   Report Size (7)
     0x95, 0x01,       //   Report Count (1)
     0x81, 0x03,       //   Input (Const,Var,Abs)
+    0xc0,             // End Collection
+};
+
+template <>
+const byte HidSidewinder::HidForceFeedbackWheel::description[] = {
+    0x05, 0x01,       // Usage Page (Generic Desktop)
+    0x09, 0x04,       // Usage (Joystick)
+    0xa1, 0x01,       // Collection (Application)
+    0x85, id,         //   Report ID (id)
+    0x05, 0x01,       //   Usage Page (Generic Desktop)
+    0x09, 0x33,       //   Usage (RX)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x26, 0xff, 0x03, //   Logical Maximum (1023)
+    0x75, 0x0A,       //   Report Size (10)
+    0x95, 0x01,       //   Report Count (1)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x05, 0x02,       //   Usage Page (Simulation Controls)
+    0x09, 0xBA,       //   Usage (Rudder)
+    0x09, 0xBB,       //   Usage (Throttle)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x26, 0x7f, 0x00, //   Logical Maximum (127)
+    0x75, 0x07,       //   Report Size (7)
+    0x95, 0x02,       //   Report Count (2)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
+    0x05, 0x09,       //   Usage Page (Button)
+    0x19, 0x01,       //   Usage Minimum (1)
+    0x29, 0x08,       //   Usage Maximum (8)
+    0x15, 0x00,       //   Logical Minimum (0)
+    0x25, 0x01,       //   Logical Maximum (1)
+    0x75, 0x01,       //   Report Size (1)
+    0x95, 0x08,       //   Report Count (8)
+    0x81, 0x02,       //   Input (Data,Var,Abs)
     0xc0,             // End Collection
 };
