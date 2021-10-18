@@ -61,6 +61,7 @@ public:
     log("Trying to reset...");
     cooldown();
     Packet packet = readPacket();
+    packet.print();
     log("Packet size %d", packet.length);
     m_model = guessModel(packet);
     log("Detected model %d", m_model);
@@ -68,6 +69,7 @@ public:
       // No data. 3d Pro analog mode?
       enableDigitalMode();
       packet = readPacket();
+      packet.print();
       log("Packet size %d", packet.length);
       m_model = guessModel(packet);
       log("Detected model %d", m_model);
@@ -80,7 +82,8 @@ public:
   /// @remark if reading the state fails, the last known state is
   ///         returned and the joystick reset is executed.
   State readState() {
-    const auto packet = readPacket();
+    Packet packet = readPacket();
+    packet.print();
     State state;
     if (decode(packet, state)) {
       m_state = state;
@@ -125,10 +128,17 @@ private:
 
   /// Internal bit structure which is filled by reading from the joystick.
   struct Packet {
-    byte bits[128];
+    byte bits[128] {0};
     uint16_t length{0u};
-  };
 
+    void print(){
+        for (size_t i = 0; i < length; i++)
+        {
+          log("bit[%d]: 0x", i);
+          Serial.println(bits[i], HEX);
+        }
+    }
+  };
   /// Model specific status decoder function.
   template <Model M>
   struct Decoder {
@@ -142,7 +152,7 @@ private:
         return Model::SW_GAMEPAD;
       case 16:
         return Model::SW_PRECISION_PRO;
-      case 32:
+      case 11:
         return Model::SW_FORCE_FEEDBACK_WHEEL;
       case 64:
         return Model::SW_3D_PRO;
@@ -364,7 +374,7 @@ public:
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 1) << i;
+        result |= uint64_t(packet.bits[i] & 0b111) << (i*3);
       }
       return result;
     }();
@@ -384,7 +394,7 @@ public:
       return (value >> start) & mask;
     };
 
-    if (packet.length != 32 || !parity(value)) {
+    if (packet.length != 11 || !parity(value)) {
       return false;
     }
 
