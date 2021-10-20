@@ -59,7 +59,6 @@ public:
 
   void update() override {
     log("Detected model %d", m_sw.getModel());
-    delay(100);
     const auto state = m_sw.readState();
     switch (m_sw.getModel()) {
       case Sidewinder::Model::SW_GAMEPAD:
@@ -72,6 +71,7 @@ public:
         sendPrecisionPro(state);
         break;
       case Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL:
+        delay(50); 
         sendForceFeedbackWheel(state);        
         break;
       case Sidewinder::Model::SW_UNKNOWN:
@@ -252,38 +252,6 @@ const byte HidSidewinder::HidPrecisionPro::description[] = {
     0xc0,             // End Collection
 };
 
-// template <>
-// const byte HidSidewinder::HidForceFeedbackWheel::description[] = {
-//     0x05, 0x01,       // Usage Page (Generic Desktop)
-//     0x09, 0x04,       // Usage (Joystick)
-//     0xa1, 0x01,       // Collection (Application)
-//     0x85, id,         //   Report ID (id)
-//     0x05, 0x01,       //   Usage Page (Generic Desktop)
-//     0x09, 0x33,       //   Usage (RX)
-//     0x15, 0x00,       //   Logical Minimum (0)
-//     0x26, 0xff, 0x03, //   Logical Maximum (1023)
-//     0x75, 0x0A,       //   Report Size (10)
-//     0x95, 0x01,       //   Report Count (1)
-//     0x81, 0x02,       //   Input (Data,Var,Abs)
-//     0x05, 0x02,       //   Usage Page (Simulation Controls)
-//     0x09, 0xBA,       //   Usage (Rudder)
-//     0x09, 0xBB,       //   Usage (Throttle)
-//     0x15, 0x00,       //   Logical Minimum (0)
-//     0x26, 0x7f, 0x00, //   Logical Maximum (127)
-//     0x75, 0x07,       //   Report Size (7)
-//     0x95, 0x02,       //   Report Count (2)
-//     0x81, 0x02,       //   Input (Data,Var,Abs)
-//     0x05, 0x09,       //   Usage Page (Button)
-//     0x19, 0x01,       //   Usage Minimum (1)
-//     0x29, 0x08,       //   Usage Maximum (8)
-//     0x15, 0x00,       //   Logical Minimum (0)
-//     0x25, 0x01,       //   Logical Maximum (1)
-//     0x75, 0x01,       //   Report Size (1)
-//     0x95, 0x08,       //   Report Count (8)
-//     0x81, 0x02,       //   Input (Data,Var,Abs)
-//     0xc0,             // End Collection
-// };
-
 template <>
 const byte HidSidewinder::HidForceFeedbackWheel::description[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)  
@@ -291,10 +259,12 @@ const byte HidSidewinder::HidForceFeedbackWheel::description[] = {
     0xA1, 0x01,       // Collection (Application)  
     0x85, id,           // Report ID (1)  
     0x09, 0x30,         // Usage (X)  
-    0x16, 0x00, 0xFE,   // Logical Minimum (-512)  
-    0x26, 0xFF, 0x01,   // Logical Maximum (511)  
+    // 0x16, 0x00, 0xFE,   // Logical Minimum (-512)  // Original 
+    // 0x26, 0xFF, 0x01,   // Logical Maximum (511)  // Original
+    0x15, 0x00,         // Logical Minimum (0)  
+    0x26, 0xFF, 0x03,   // Logical Maximum (1023)      
     0x35, 0x00,         // Physical Minimum (0)  
-    0x46, 0xFF, 0x03,   // Physical Maximum (1023)  
+    0x46, 0xFF, 0x03,   // Physical Maximum (1023)
     0x75, 0x0A,         // Report Size (10)  
     0x95, 0x01,         // Report Count (1)  
     0x81, 0x02,         // Input (Data,Var,Abs,NWrp,Lin,Pref,NNul,Bit)  
