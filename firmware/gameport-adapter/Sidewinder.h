@@ -62,19 +62,15 @@ public:
     cooldown();
     Packet packet = readPacket();
     packet.print();
-    log("Packet size %d", packet.length);
     m_model = guessModel(packet);
-    log("Detected model %d", m_model);
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
       enableDigitalMode();
       packet = readPacket();
       packet.print();
-      log("Packet size %d", packet.length);
       m_model = guessModel(packet);
-      log("Detected model %d", m_model);
     }
-    // log("Detected model %d", m_model);
+    log("Detected model %d", m_model);
   }
 
   /// Reads joystick state.
@@ -131,12 +127,17 @@ private:
     byte bits[128] {0};
     uint16_t length{0u};
 
-    void print(){
-        for (size_t i = 0; i < length; i++)
-        {
-          log("bit[%d]: 0x", i);
-          Serial.println(bits[i], HEX);
-        }
+    // Prints the 64 bits of the packet data 
+    // Used mainly for debugging
+    void print() {
+      uint64_t result{0};
+      for (auto i = 0u; i < length; i++) {
+        result |= uint64_t(bits[i] & 0b111) << (i * 3);
+      }
+      
+      Serial.print("Data Packet: "); 
+      Serial.print(String(uint32_t((result & 0xFFFFFFFF00000000) >> 32), BIN));
+      Serial.println(String(uint32_t((result & 0x00000000FFFFFFFF)), BIN));
     }
   };
   /// Model specific status decoder function.
