@@ -61,13 +61,11 @@ public:
     log("Trying to reset...");
     cooldown();
     Packet packet = readPacket();
-    packet.print();
     m_model = guessModel(packet);
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
       enableDigitalMode();
       packet = readPacket();
-      packet.print();
       m_model = guessModel(packet);
     }
     log("Detected model %d", m_model);
@@ -79,7 +77,6 @@ public:
   ///         returned and the joystick reset is executed.
   State readState() {
     Packet packet = readPacket();
-    packet.print();
     State state;
     if (decode(packet, state)) {
       m_state = state;

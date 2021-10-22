@@ -58,7 +58,6 @@ public:
   }
 
   void update() override {
-    log("Detected model %d", m_sw.getModel());
     const auto state = m_sw.readState();
     switch (m_sw.getModel()) {
       case Sidewinder::Model::SW_GAMEPAD:
@@ -71,7 +70,6 @@ public:
         sendPrecisionPro(state);
         break;
       case Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL:
-        delay(50); 
         sendForceFeedbackWheel(state);        
         break;
       case Sidewinder::Model::SW_UNKNOWN:
