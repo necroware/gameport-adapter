@@ -119,7 +119,7 @@ private:
 
   /// Internal bit structure which is filled by reading from the joystick.
   struct Packet {
-    byte bits[128] {0};
+    byte bits[128] {0u};
     uint16_t length{0u};
 
     // Prints the 64 bits of the packet data
@@ -191,6 +191,13 @@ private:
   /// you know, what you are doing.
   Packet readPacket() const {
 
+    // Packet instantiation is a very expensive call, which zeros the memory.
+    // The instantiation should therefore happen outside of the interrupt stopper
+    // and before triggering the device. Otherwise the clock will come before
+    // the packet was zeroed/instantiated.
+    Packet packet;
+
+    // WARNING: Here starts the timing critical section
     InterruptStopper interruptStopper;
     const auto ready = m_clock.isHigh();
     m_trigger.setHigh();
@@ -201,7 +208,6 @@ private:
     // uint64_t we would need to shift between the clock impulses, which is
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
-    Packet packet;
     if (ready || m_clock.wait(Edge::rising, PULSE_DURATION * 10)) {
       while (packet.length < sizeof(packet.bits)) {
         if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
