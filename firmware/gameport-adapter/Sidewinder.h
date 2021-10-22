@@ -60,13 +60,11 @@ public:
   void reset() {
     log("Trying to reset...");
     cooldown();
-    Packet packet = readPacket();
-    m_model = guessModel(packet);
+    m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
       enableDigitalMode();
-      packet = readPacket();
-      m_model = guessModel(packet);
+      m_model = guessModel(readPacket());
     }
     log("Detected model %d", m_model);
   }
@@ -76,7 +74,7 @@ public:
   /// @remark if reading the state fails, the last known state is
   ///         returned and the joystick reset is executed.
   State readState() {
-    Packet packet = readPacket();
+    const auto packet = readPacket();
     State state;
     if (decode(packet, state)) {
       m_state = state;
@@ -124,15 +122,15 @@ private:
     byte bits[128] {0};
     uint16_t length{0u};
 
-    // Prints the 64 bits of the packet data 
+    // Prints the 64 bits of the packet data
     // Used mainly for debugging
-    void print() {
+    void print() const {
       uint64_t result{0};
       for (auto i = 0u; i < length; i++) {
         result |= uint64_t(bits[i] & 0b111) << (i * 3);
       }
-      
-      Serial.print("Data Packet: "); 
+
+      Serial.print("Data Packet: ");
       Serial.print(String(uint32_t((result & 0xFFFFFFFF00000000) >> 32), BIN));
       Serial.println(String(uint32_t((result & 0x00000000FFFFFFFF)), BIN));
     }
@@ -396,7 +394,7 @@ public:
       return false;
     }
 
-    // bit 0-9: RX 
+    // bit 0-9: RX
     state.axis[0] = bits(0, 10);
 
     // bit 10-16: Rudder
