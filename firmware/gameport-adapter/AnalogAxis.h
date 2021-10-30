@@ -43,8 +43,8 @@ public:
   ///
   /// This function automatically recalculates the outer limits and
   /// readjusts the position of the joystick.
-  /// @returns a value between 0 and 255
-  byte get() {
+  /// @returns a value between 0 and 1023
+  uint16_t get() {
     const auto value = analogRead(ID);
     if (value < m_min) {
       m_min = value;
@@ -53,9 +53,9 @@ public:
     }
 
     if (value < m_mid) {
-      return map(value, m_min, m_mid, 255, 127);
+      return map(value, m_min, m_mid, 1023, 512);
     }
-    return map(value, m_mid, m_max, 126, 0);
+    return map(value, m_mid, m_max, 511, 0);
   }
 
 private:
