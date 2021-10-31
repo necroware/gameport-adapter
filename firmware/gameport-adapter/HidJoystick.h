@@ -91,8 +91,8 @@ private:
 
     filler.push(ID::usage_page).push(ID::generic_desktop);
     filler.push(ID::usage).push(ID::joystick);
-    filler.push(ID::report_id).push(uint8_t(DEVICE_ID));
     filler.push(ID::collection).push(ID::application);
+    filler.push(ID::report_id).push(uint8_t(DEVICE_ID));
 
     uint32_t padding = 0u;
 
