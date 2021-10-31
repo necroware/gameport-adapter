@@ -19,6 +19,7 @@
 #include "Buffer.h"
 #include "HidDevice.h"
 #include "Joystick.h"
+#include "Log.h"
 #include <Arduino.h>
 
 class HidJoystick {
@@ -32,6 +33,8 @@ public:
     m_hidDescription = createDescription(*m_joystick);
     m_subDescriptor = new HIDSubDescriptor{m_hidDescription.data, m_hidDescription.size};
     m_hidDevice.AppendDescriptor(m_subDescriptor);
+
+    log("Detected device: %s", joystick->getDescription().name);
     return true;
   }
 
