@@ -18,6 +18,7 @@
 
 #include "Buffer.h"
 #include "HidDevice.h"
+#include "Joystick.h"
 #include <Arduino.h>
 
 class HidJoystick {

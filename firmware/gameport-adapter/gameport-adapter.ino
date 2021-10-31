@@ -14,13 +14,11 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "DigitalPin.h"
-/*
-#include "HidGrIP.h"
-*/
+#include "HidJoystick.h"
 
 #include "CHFlightstickPro.h"
 #include "GenericJoystick.h"
-#include "HidJoystick.h"
+#include "GrIP.h"
 #include "Sidewinder.h"
 #include "ThrustMaster.h"
 
@@ -38,8 +36,8 @@ static Joystick *createJoystick(byte sw) {
       return new ThrustMaster;
     case 0b0111:
       return new Sidewinder;
-//    case 0b1000:
-//      return new HidGrIP;
+    case 0b1000:
+      return new GrIP;
     default:
       return new GenericJoystick<2,2>;
   }
