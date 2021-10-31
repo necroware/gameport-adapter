@@ -64,25 +64,19 @@ private:
         BufferType buffer;
         auto filler = BufferFiller(buffer);
 
-        auto pushData = [&filler](uint8_t size, uint8_t count) {
-            if (size == 0 || count == 0) {
-                return;
-            }
+        auto pushData = [&filler](uint8_t size, uint8_t count) -> uint32_t{
             filler.push(ID::report_size).push(size);
             filler.push(ID::report_count).push(count);
             filler.push(ID::input).push(ID::input_data);
-            const auto padding = (size * count) % 8;
-            if (padding) {
-                filler.push(ID::report_size).push(uint8_t(8 - padding));
-                filler.push(ID::report_count).push(uint8_t(1));
-                filler.push(ID::input).push(ID::input_const);
-            }
+            return size * count;
         };
 
         filler.push(ID::usage_page).push(ID::generic_desktop);
         filler.push(ID::usage).push(ID::joystick);
         filler.push(ID::report_id).push(uint8_t(DEVICE_ID));
         filler.push(ID::collection).push(ID::application);
+
+        uint32_t padding = 0u;
 
         // Push axes
         if (desc.numAxes > 0) {
@@ -93,7 +87,7 @@ private:
             }
             filler.push(ID::logical_min).push(uint8_t(0));
             filler.push(ID::logical_max).push(uint16_t(1023));
-            pushData(10, desc.numAxes);
+            padding += pushData(10, desc.numAxes);
         }
 
         // Push hats    
@@ -102,7 +96,7 @@ private:
             filler.push(ID::usage).push(ID::hat_switch);
             filler.push(ID::logical_min).push(uint8_t(1));
             filler.push(ID::logical_max).push(uint16_t(8));
-            pushData(4, desc.numHats);
+            padding += pushData(4, desc.numHats);
         }
 
         // Push buttons
@@ -112,7 +106,16 @@ private:
             filler.push(ID::usage_max).push(uint8_t(desc.numButtons));
             filler.push(ID::logical_min).push(uint8_t(0));
             filler.push(ID::logical_max).push(uint16_t(1));
-            pushData(1, desc.numButtons);
+            padding += pushData(1, desc.numButtons);
+        }
+
+        // Push padding
+        static const auto bitsPerByte = 8u;
+        padding %= bitsPerByte;
+        if (padding) {
+           filler.push(ID::report_size).push(uint8_t(bitsPerByte - padding));
+           filler.push(ID::report_count).push(uint8_t(1));
+           filler.push(ID::input).push(ID::input_const);
         }
 
         filler.push(ID::end_collection);       
@@ -130,21 +133,19 @@ private:
             for (auto i = 0u; i < description.numAxes; i++) {
                 filler.push(state.axes[i], 10);
             }
-            filler.allign();
         }
 
         if (description.numHats > 0) {
             for (auto i = 0u; i < description.numHats; i++) {
                 filler.push(state.hats[i], 4);
             }
-            filler.allign();
         }
 
         if (description.numButtons > 0) {
             filler.push(state.buttons, description.numButtons);
-            filler.allign();        
         }
 
+        filler.allign();
         return buffer;
     }
 
