@@ -17,14 +17,63 @@
 #pragma once
 
 #include "DigitalPin.h"
+#include "Joystick.h"
 #include "Log.h"
+#include "Utilities.h"
 
 /// Class to for communication with Sidewinder joysticks.
 /// @remark This is a green field implementation, but it was heavily
 ///         inspired by Linux Sidewinder driver implementation. See
 ///         https://github.com/torvalds/linux/blob/master/drivers/input/joystick/sidewinder.c
-class Sidewinder {
+class Sidewinder : public Joystick {
 public:
+  /// Resets the joystick and tries to detect the model.
+  bool init() override {
+    log("Trying to reset...");
+    cooldown();
+    m_model = guessModel(readPacket());
+    while (m_model == Model::SW_UNKNOWN) {
+      // No data. 3d Pro analog mode?
+      enableDigitalMode();
+      m_model = guessModel(readPacket());
+    }
+    log("Detected model %d", m_model);
+
+    return true;
+  }
+
+  bool update() override {
+    const auto packet = readPacket();
+    State state;
+    if (decode(packet, state)) {
+      m_state = state;
+      m_errors = 0;
+      return true;
+    }
+
+    m_errors++;
+    log("Packet decoding failed %d time(s)", m_errors);
+    if (m_errors > MAX_ERRORS) {
+      return init();
+    }
+    return false;
+  }
+
+  const State &getState() const override {
+    return m_state;
+  }
+
+  const Description &getDescription() const override;
+
+  /// Joystick cool down timeout.
+  ///
+  /// This is need to settle the signals between the reads.
+  void cooldown() const {
+    m_trigger.setLow();
+    delayMicroseconds(2000);
+  }
+
+private:
   /// Supported Sidewinder model types.
   enum class Model {
     /// Unknown model.
@@ -43,83 +92,14 @@ public:
     SW_FORCE_FEEDBACK_WHEEL
   };
 
-  /// Joystick state.
-  struct State {
-    uint16_t buttons{0};
-    uint16_t axis[4]{0};
-    uint16_t hat;
-  };
-
-  /// Gets the detected model.
-  /// @returns the detected joystick model
-  Model getModel() const {
-    return m_model;
-  }
-
-  /// Resets the joystick and tries to detect the model.
-  void reset() {
-    log("Trying to reset...");
-    cooldown();
-    m_model = guessModel(readPacket());
-    while (m_model == Model::SW_UNKNOWN) {
-      // No data. 3d Pro analog mode?
-      enableDigitalMode();
-      m_model = guessModel(readPacket());
-    }
-    log("Detected model %d", m_model);
-  }
-
-  /// Reads joystick state.
-  /// @returns the state of axis, buttons etc.
-  /// @remark if reading the state fails, the last known state is
-  ///         returned and the joystick reset is executed.
-  State readState() {
-    const auto packet = readPacket();
-    State state;
-    if (decode(packet, state)) {
-      m_state = state;
-      m_errors = 0;
-    } else {
-      m_errors++;
-      log("Packet decoding failed %d time(s)", m_errors);
-      if (m_errors > MAX_ERRORS) {
-        reset();
-      }
-    }
-    return m_state;
-  }
-
-  /// Joystick cool down timeout.
-  ///
-  /// This is need to settle the signals between the reads.
-  void cooldown() const {
-    m_trigger.setLow();
-    delayMicroseconds(2000);
-  }
-
-private:
-  enum {
+  enum Constants {
     PULSE_DURATION = 60,
     MAX_ERRORS = 3,
   };
 
-  /// Interrupt guard (RAII).
-  ///
-  /// This class is used to deactivate the interrupts in performance
-  /// critical sections. The interrupt is reactivated as soon as this
-  /// guard runs out of scope.
-  struct InterruptStopper {
-    InterruptStopper() {
-      noInterrupts();
-    }
-    ~InterruptStopper() {
-      interrupts();
-    }
-  };
-
   /// Internal bit structure which is filled by reading from the joystick.
   struct Packet {
-    byte bits[128] {0u};
+    byte bits[128]{0u};
     uint16_t length{0u};
 
     // Prints the 64 bits of the packet data
@@ -135,9 +115,11 @@ private:
       Serial.println(String(uint32_t((result & 0x00000000FFFFFFFF)), BIN));
     }
   };
+
   /// Model specific status decoder function.
   template <Model M>
   struct Decoder {
+    static const Description &getDescription();
     static bool decode(const Packet &packet, State &state);
   };
 
@@ -225,11 +207,30 @@ private:
   bool decode(const Packet &packet, State &state) const;
 };
 
+/// Placeholder for Unknown Device
+template <>
+class Sidewinder::Decoder<Sidewinder::Model::SW_UNKNOWN> {
+public:
+  static const Description &getDescription() {
+    static const Description desc{"Unknown", 0, 0, 0};
+    return desc;
+  }
+
+  static bool decode(const Sidewinder::Packet &, State &) {
+    return false;
+  }
+};
+
 /// Bit decoder for Sidewinder GamePad.
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_GAMEPAD> {
 public:
-  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
+  static const Description &getDescription() {
+    static const Description desc{"MS Sidewinder GamePad", 2, 10, 0};
+    return desc;
+  }
+
+  static bool decode(const Sidewinder::Packet &packet, State &state) {
 
     const auto checksum = [&]() {
       byte result = 0u;
@@ -250,8 +251,8 @@ public:
     for (auto i = 0u; i < 10; i++) {
       state.buttons |= (~packet.bits[i + 4] & 1) << i;
     }
-    state.axis[0] = 1 + packet.bits[3] - packet.bits[2];
-    state.axis[1] = 1 + packet.bits[0] - packet.bits[1];
+    state.axes[0] = map(1 + packet.bits[3] - packet.bits[2], 0, 2, 0, 1023);
+    state.axes[1] = map(1 + packet.bits[0] - packet.bits[1], 0, 2, 0, 1023);
 
     return true;
   }
@@ -261,8 +262,12 @@ public:
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_3D_PRO> {
 public:
-  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
+  static const Description &getDescription() {
+    static const Description desc{"MS Sidewinder 3D Pro", 4, 8, 1};
+    return desc;
+  }
 
+  static bool decode(const Sidewinder::Packet &packet, State &state) {
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.length; i++) {
@@ -284,19 +289,19 @@ public:
     state.buttons = ~(bits(8, 7) | (bits(38, 1) << 7));
 
     // bit 3-5 + bit 16-22: x-axis (value 0-1023)
-    state.axis[0] = bits(3, 3) << 7 | bits(16, 7);
+    state.axes[0] = bits(3, 3) << 7 | bits(16, 7);
 
     // bit 0-2 + bit 24-30: y-axis (value 0-1023)
-    state.axis[1] = bits(0, 3) << 7 | bits(24, 7);
+    state.axes[1] = bits(0, 3) << 7 | bits(24, 7);
 
     // bit 35-36 + bit 40-46: z-axis (value 0-511)
-    state.axis[2] = bits(35, 2) << 7 | bits(40, 7);
+    state.axes[2] = map(bits(35, 2) << 7 | bits(40, 7), 0, 511, 0, 1023);
 
     // bit 32-34 + bit 48-54: throttle-axis (value 0-1023)
-    state.axis[3] = bits(32, 3) << 7 | bits(48, 7);
+    state.axes[3] = bits(32, 3) << 7 | bits(48, 7);
 
     // bit 6-7 + bit 60-62 (9 pos, 0 center, 1-8 clockwise)
-    state.hat = bits(6, 1) << 3 | bits(60, 3);
+    state.hats[0] = bits(6, 1) << 3 | bits(60, 3);
 
     return true;
   }
@@ -326,7 +331,12 @@ private:
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_PRECISION_PRO> {
 public:
-  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
+  static const Description &getDescription() {
+    static const Description desc{"MS Sidewinder Precision Pro", 4, 9, 1};
+    return desc;
+  }
+
+  static bool decode(const Sidewinder::Packet &packet, State &state) {
 
     const auto value = [&]() {
       uint64_t result{0u};
@@ -357,12 +367,13 @@ public:
       return false;
     }
 
-    state.axis[0] = bits(9, 10);
-    state.axis[1] = bits(19, 10);
-    state.axis[2] = bits(36, 6);
-    state.axis[3] = bits(29, 7);
-    state.hat = bits(42, 4);
+    state.axes[0] = bits(9, 10);
+    state.axes[1] = bits(19, 10);
+    state.axes[2] = map(bits(36, 6), 0, 63, 0, 1023);
+    state.axes[3] = map(bits(29, 7), 0, 127, 0, 1023);
+    state.hats[0] = bits(42, 4);
     state.buttons = ~bits(0, 9);
+
     return true;
   }
 };
@@ -371,12 +382,17 @@ public:
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL> {
 public:
-  static bool decode(const Sidewinder::Packet &packet, Sidewinder::State &state) {
+  static const Description &getDescription() {
+    static const Description desc{"MS ForceFeedBack Wheel", 3, 8, 0};
+    return desc;
+  }
+
+  static bool decode(const Sidewinder::Packet &packet, State &state) {
 
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 0b111) << (i*3);
+        result |= uint64_t(packet.bits[i] & 0b111) << (i * 3);
       }
       return result;
     }();
@@ -401,13 +417,13 @@ public:
     }
 
     // bit 0-9: RX
-    state.axis[0] = bits(0, 10);
+    state.axes[0] = bits(0, 10);
 
     // bit 10-16: Rudder
-    state.axis[1] = bits(10, 6);
+    state.axes[1] = map(bits(10, 6), 0, 63, 0, 1023);
 
     // bit 16-21: Throttle
-    state.axis[2] = bits(16, 6);
+    state.axes[2] = map(bits(16, 6), 0, 63, 0, 1023);
 
     // bit 22-29: buttons 1-8
     state.buttons = ~bits(22, 8);
@@ -416,6 +432,20 @@ public:
   }
 };
 
+inline const Joystick::Description &Sidewinder::getDescription() const {
+  switch (m_model) {
+    case Model::SW_GAMEPAD:
+      return Decoder<Model::SW_GAMEPAD>::getDescription();
+    case Model::SW_3D_PRO:
+      return Decoder<Model::SW_3D_PRO>::getDescription();
+    case Model::SW_PRECISION_PRO:
+      return Decoder<Model::SW_PRECISION_PRO>::getDescription();
+    case Model::SW_FORCE_FEEDBACK_WHEEL:
+      return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::getDescription();
+    default:
+      return Decoder<Model::SW_UNKNOWN>::getDescription();
+  }
+}
 
 inline bool Sidewinder::decode(const Packet &packet, State &state) const {
   switch (m_model) {
@@ -427,8 +457,7 @@ inline bool Sidewinder::decode(const Packet &packet, State &state) const {
       return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
-    case Model::SW_UNKNOWN:
-      break;
+    default:
+      return Decoder<Model::SW_UNKNOWN>::decode(packet, state);
   }
-  return false;
 }

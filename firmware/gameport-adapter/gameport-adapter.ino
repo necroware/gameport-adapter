@@ -16,13 +16,13 @@
 #include "DigitalPin.h"
 /*
 #include "HidGrIP.h"
-#include "HidSidewinder.h"
 */
 
-#include "GenericJoystick.h"
 #include "CHFlightstickPro.h"
-#include "ThrustMaster.h"
+#include "GenericJoystick.h"
 #include "HidJoystick.h"
+#include "Sidewinder.h"
+#include "ThrustMaster.h"
 
 static Joystick *createJoystick(byte sw) {
   switch (sw) {
@@ -36,8 +36,8 @@ static Joystick *createJoystick(byte sw) {
       return new CHFlightstickPro;
     case 0b0101:
       return new ThrustMaster;
-//    case 0b0111:
-//      return new HidSidewinder;
+    case 0b0111:
+      return new Sidewinder;
 //    case 0b1000:
 //      return new HidGrIP;
     default:
