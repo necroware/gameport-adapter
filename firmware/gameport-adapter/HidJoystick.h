@@ -147,19 +147,15 @@ private:
     BufferType buffer;
     auto filler = BufferFiller(buffer);
 
-    if (description.numAxes) {
-      for (auto i = 0u; i < description.numAxes; i++) {
-        filler.push(state.axes[i], 10);
-      }
+    for (auto i = 0u; i < description.numAxes; i++) {
+      filler.push(state.axes[i], 10);
     }
 
-    if (description.numHats > 0) {
-      for (auto i = 0u; i < description.numHats; i++) {
-        filler.push(state.hats[i], 4);
-      }
+    for (auto i = 0u; i < description.numHats; i++) {
+      filler.push(state.hats[i], 4);
     }
 
-    if (description.numButtons > 0) {
+    if (description.numButtons) {
       filler.push(state.buttons, description.numButtons);
     }
 
