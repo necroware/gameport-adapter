@@ -216,7 +216,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Sidewinder::Packet &, State &) {
+  static bool decode(const Packet &, State &) {
     return false;
   }
 };
@@ -230,7 +230,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Sidewinder::Packet &packet, State &state) {
+  static bool decode(const Packet &packet, State &state) {
 
     const auto checksum = [&]() {
       byte result = 0u;
@@ -267,7 +267,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Sidewinder::Packet &packet, State &state) {
+  static bool decode(const Packet &packet, State &state) {
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.length; i++) {
@@ -336,7 +336,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Sidewinder::Packet &packet, State &state) {
+  static bool decode(const Packet &packet, State &state) {
 
     const auto value = [&]() {
       uint64_t result{0u};
@@ -387,7 +387,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Sidewinder::Packet &packet, State &state) {
+  static bool decode(const Packet &packet, State &state) {
 
     const auto value = [&]() {
       uint64_t result{0u};
