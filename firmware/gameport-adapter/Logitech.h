@@ -30,9 +30,9 @@ public:
 
     // Create joystick description
     m_description.name = m_metaData.deviceName;
-    m_description.numAxes = m_metaData.num10bitAxes + m_metaData.num8bitAxes;
+    m_description.numAxes = min(Joystick::MAX_AXES, m_metaData.num10bitAxes + m_metaData.num8bitAxes);
     m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
-    m_description.numHats =  m_metaData.numHats;
+    m_description.numHats = min(Joystick::MAX_HATS, m_metaData.numHats);
 
     // Initialize axes centers
     for (auto i = 0u; i < m_description.numAxes; i++) {
@@ -95,7 +95,7 @@ public:
         return result;
     }(m_metaData.numHatDirections);
 
-    for (auto i = 0u; i < m_metaData.numHats; i++) {
+    for (auto i = 0u; i < m_description.numHats; i++) {
         const auto value = packet.getBits(offset, hatResolution);
         state.hats[i] = map(value, 0, m_metaData.numHatDirections, 0, 8);
         offset += hatResolution;
@@ -142,9 +142,10 @@ private:
 
     uint32_t getBits(uint8_t offset, uint8_t count) const {
       uint32_t result = 0u;
-      // TODO: check limits
-      for (auto i = 0u; i < count; i++) {
-        result = (result << 1) | bits[offset + i];
+      if (offset < length && count <= (length - offset)) {
+        for (auto i = 0u; i < count; i++) {
+          result = (result << 1) | bits[offset + i];
+        }
       }
       return result;
     }
