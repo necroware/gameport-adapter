@@ -20,6 +20,9 @@
 
 class Joystick {
 public:
+  static const auto MAX_AXES{8u};
+  static const auto MAX_HATS{1u};
+
   struct Description {
     const char* name;
     uint8_t numAxes;
@@ -28,9 +31,6 @@ public:
   };
 
   struct State {
-    static const auto MAX_AXES{8u};
-    static const auto MAX_HATS{1u};
-
     uint16_t axes[MAX_AXES]{};
     uint8_t hats[MAX_HATS]{};
     uint16_t buttons{};
