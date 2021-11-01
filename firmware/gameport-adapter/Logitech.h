@@ -240,7 +240,7 @@ private:
     }
 
     // Create joystick description
-    snprintf(m_description.name, sizeof(m_description.name), m_metaData.deviceName);
+    m_description.name = m_metaData.deviceName;
     m_description.numAxes = m_metaData.num10bitAxes + m_metaData.num8bitAxes;
     m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
     m_description.numHats =  m_metaData.numHats;
