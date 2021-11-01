@@ -18,30 +18,72 @@
 
 #include <Arduino.h>
 
+/// Base class for all joysticks.
 class Joystick {
 public:
   static const auto MAX_AXES{6u};
   static const auto MAX_HATS{2u};
 
+  /// Device description.
+  ///
+  /// This structure is used to generate the HID description
+  /// and USB data packages
   struct Description {
+
+    /// Human readable name.
     const char* name;
+
+    /// Number of supported axes.
     uint8_t numAxes;
+
+    /// Number of supported buttons.
     uint8_t numButtons;
+
+    /// Number of supported HATs.
     uint8_t numHats;
   };
 
+  /// Joystick state.
   struct State {
+
+    /// Axes.
+    ///
+    /// To keep it simple all axes are unified to 10 bits
+    /// resolution. Every joystick has to map it's values
+    /// to the values 0..1023 independent from the internal
+    /// resolution of the device.
     uint16_t axes[MAX_AXES]{};
+
+    /// Hats.
+    ///
+    /// All hats are represented through values 0..8
+    /// 1 is up, 2 is 45° clockwise, 3 is right etc.
+    /// Center is represented with zero.
     uint8_t hats[MAX_HATS]{};
+
+    /// Buttons.
+    ///
+    /// Every bit is a button. 1 is pressed, 0 is released
     uint16_t buttons{};
   };
 
+  /// Initialize joystick.
+  ///
+  /// @returns True on successful initialization
   virtual bool init() = 0;
 
+  /// Update state.
+  ///
+  /// This function is called every time the joystick
+  /// state has to be updated.
+  ///
+  /// @returns True on successful initialization
   virtual bool update() = 0;
 
+  /// Gets the State of the Joystick.
   virtual const State &getState() const = 0;
 
+  /// Gets the Description of the Joystick.
   virtual const Description &getDescription() const = 0;
 
   Joystick() = default;
