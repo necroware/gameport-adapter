@@ -21,7 +21,7 @@
 class Joystick {
 public:
   struct Description {
-    char name[32];
+    const char* name;
     uint8_t numAxes;
     uint8_t numButtons;
     uint8_t numHats;
