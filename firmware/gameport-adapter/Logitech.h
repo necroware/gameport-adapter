@@ -29,6 +29,13 @@ public:
         return false;
     }
 
+    // Create joystick description
+    m_description.name = m_metaData.deviceName;
+    m_description.numAxes = m_metaData.num10bitAxes + m_metaData.num8bitAxes;
+    m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
+    m_description.numHats =  m_metaData.numHats;
+
+    // Initialize axes centers
     for (auto i = 0u; i < m_description.numAxes; i++) {
         const auto mid = (i < m_metaData.num10bitAxes) ? 512 : 128;
         m_limits[i].min = mid - 50;
@@ -93,6 +100,10 @@ public:
         const auto value = packet.getBits(offset, hatResolution);
         state.hats[i] = map(value, 0, m_metaData.numHatDirections, 0, 8);
         offset += hatResolution;
+    }
+
+    for (auto i = 0u; i < m_metaData.numSecondaryButtons; i++) {
+        state.buttons |= packet.getBits(offset++, 1) << button++; 
     }
 
     m_state = state;
@@ -249,12 +260,6 @@ private:
     for (auto i = 0u; i < cnameLength; i++) {
       m_metaData.deviceName[i] = packet.getBits(66 + 8 * i, 8);
     }
-
-    // Create joystick description
-    m_description.name = m_metaData.deviceName;
-    m_description.numAxes = m_metaData.num10bitAxes + m_metaData.num8bitAxes;
-    m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
-    m_description.numHats =  m_metaData.numHats;
 
     return true;
   }
