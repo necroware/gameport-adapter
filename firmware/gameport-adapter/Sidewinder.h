@@ -18,7 +18,6 @@
 
 #include "DigitalPin.h"
 #include "Joystick.h"
-#include "Log.h"
 #include "Utilities.h"
 
 /// Class to for communication with Sidewinder joysticks.

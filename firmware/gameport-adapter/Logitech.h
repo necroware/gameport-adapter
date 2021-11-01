@@ -17,9 +17,8 @@
 #pragma once
 
 #include "DigitalPin.h"
-#include "Utilities.h"
 #include "Joystick.h"
-#include "Log.h"
+#include "Utilities.h"
 
 class Logitech : public Joystick {
 public:
