@@ -25,7 +25,7 @@ public:
   bool init() override {
     enableDigitalMode();
     if (!readMetaData()) {
-        return false;
+      return false;
     }
 
     // Create joystick description
@@ -36,12 +36,12 @@ public:
 
     // Initialize axes centers
     for (auto i = 0u; i < m_description.numAxes; i++) {
-        const auto mid = (i < m_metaData.num10bitAxes) ? 512 : 128;
-        m_limits[i].min = mid - 50;
-        m_limits[i].max = mid + 50;
+      const auto mid = (i < m_metaData.num10bitAxes) ? 512 : 128;
+      m_limits[i].min = mid - 50;
+      m_limits[i].max = mid + 50;
     }
 
-    return true;   
+    return true;
   }
 
   bool update() override {
@@ -60,49 +60,52 @@ public:
 
     const auto packet = readPacket();
 
-    if (packet.length != m_metaData.packageSize) {        
-        return false;
+    if (packet.length != m_metaData.packageSize) {
+      return false;
     }
 
     const auto packetID = packet.getBits(0, 4) | packet.getBits(4, 4) << 4;
     if (packetID != m_metaData.deviceID) {
-        return false;
+      return false;
     }
 
     State state;
     uint32_t offset = 8u;
 
     for (auto i = 0u; i < m_description.numAxes; i++) {
-        const auto bits = (i < m_metaData.num10bitAxes) ? 10 : 8;
-        const uint16_t value = packet.getBits(offset, bits);
-        if (value < m_limits[i].min) {
-            m_limits[i].min = value;
-        } else if (value > m_limits[i].max) {
-            m_limits[i].max = value;
-        }
-        state.axes[i] = map(value, m_limits[i].min, m_limits[i].max, 0, 1023);        
-        offset += bits;
+      const auto bits = (i < m_metaData.num10bitAxes) ? 10 : 8;
+      const uint16_t value = packet.getBits(offset, bits);
+      if (value < m_limits[i].min) {
+        m_limits[i].min = value;
+      } else if (value > m_limits[i].max) {
+        m_limits[i].max = value;
+      }
+      state.axes[i] = map(value, m_limits[i].min, m_limits[i].max, 0, 1023);
+      offset += bits;
     }
 
     uint32_t button = 0u;
     for (auto i = 0u; i < m_metaData.numPrimaryButtons; i++) {
-        state.buttons |= packet.getBits(offset++, 1) << button++; 
+      state.buttons |= packet.getBits(offset++, 1) << button++;
     }
 
     auto hatResolution = [](uint32_t value) -> uint8_t {
-        uint8_t result = 0u;
-        while(value) {value >>= 1; result++;}
-        return result;
+      uint8_t result = 0u;
+      while (value) {
+        value >>= 1;
+        result++;
+      }
+      return result;
     }(m_metaData.numHatDirections);
 
     for (auto i = 0u; i < m_description.numHats; i++) {
-        const auto value = packet.getBits(offset, hatResolution);
-        state.hats[i] = map(value, 0, m_metaData.numHatDirections, 0, 8);
-        offset += hatResolution;
+      const auto value = packet.getBits(offset, hatResolution);
+      state.hats[i] = map(value, 0, m_metaData.numHatDirections, 0, 8);
+      offset += hatResolution;
     }
 
     for (auto i = 0u; i < m_metaData.numSecondaryButtons; i++) {
-        state.buttons |= packet.getBits(offset++, 1) << button++; 
+      state.buttons |= packet.getBits(offset++, 1) << button++;
     }
 
     m_state = state;
@@ -118,7 +121,6 @@ public:
   }
 
 private:
-
   struct MetaData {
     char deviceName[32]{};
     uint8_t deviceID{};
@@ -132,7 +134,7 @@ private:
   };
 
   struct Limits {
-      uint16_t min, max;
+    uint16_t min, max;
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
@@ -229,7 +231,7 @@ private:
     // 2   Reserved
     // 3   Has Hat
     // 4   Has 10-bit axes
-    
+
     const auto packet = readPacket();
 
     const auto metaSize = packet.getBits(0, 10);
