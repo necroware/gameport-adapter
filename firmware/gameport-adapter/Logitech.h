@@ -70,7 +70,7 @@ public:
     }
 
     State state;
-    uint32_t offset = 8u;
+    uint16_t offset = 8u;
 
     for (auto i = 0u; i < m_description.numAxes; i++) {
       const auto bits = (i < m_metaData.num10bitAxes) ? 10 : 8;
@@ -84,12 +84,12 @@ public:
       offset += bits;
     }
 
-    uint32_t button = 0u;
+    uint16_t button = 0u;
     for (auto i = 0u; i < m_metaData.numPrimaryButtons; i++) {
       state.buttons |= packet.getBits(offset++, 1) << button++;
     }
 
-    auto hatResolution = [](uint32_t value) -> uint8_t {
+    auto hatResolution = [](uint16_t value) {
       uint8_t result = 0u;
       while (value) {
         value >>= 1;
@@ -142,8 +142,8 @@ private:
     byte bits[256]{};
     uint16_t length{0u};
 
-    uint32_t getBits(uint8_t offset, uint8_t count) const {
-      uint32_t result = 0u;
+    uint16_t getBits(uint8_t offset, uint8_t count) const {
+      uint16_t result = 0u;
       if (offset < length && count <= (length - offset)) {
         for (auto i = 0u; i < count; i++) {
           result = (result << 1) | bits[offset + i];
@@ -162,7 +162,7 @@ private:
   Limits m_limits[Joystick::MAX_AXES];
 
   void enableDigitalMode() const {
-    static const uint32_t seq[] = {4, 2, 3, 10, 6, 11, 7, 9, 11, 0};
+    static const uint16_t seq[] = {4, 2, 3, 10, 6, 11, 7, 9, 11, 0};
     const InterruptStopper noirq;
     for (auto i = 0u; seq[i]; i++) {
       m_trigger.pulse(10u);
