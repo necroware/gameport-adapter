@@ -29,7 +29,7 @@ class Sidewinder : public Joystick {
 public:
   /// Resets the joystick and tries to detect the model.
   bool init() override {
-    log("Trying to reset...");
+    log("Sidewinder init...");
     cooldown();
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
@@ -99,8 +99,8 @@ private:
 
   /// Internal bit structure which is filled by reading from the joystick.
   struct Packet {
-    byte bits[128]{0u};
-    uint16_t length{0u};
+    uint8_t bits[128];
+    uint8_t length{0u};
 
     // Prints the 64 bits of the packet data
     // Used mainly for debugging
@@ -154,8 +154,8 @@ private:
   /// This mode has to be activated explicitly. In this function timing
   /// is very important. See Patent: US#5628686 (page 19) for details.
   void enableDigitalMode() const {
-    static const int magic = 200;
-    static const int seq[] = {magic, magic + 725, magic + 300, 0};
+    static const uint16_t magic = 200;
+    static const uint16_t seq[] = {magic, magic + 725, magic + 300, 0};
     log("Trying to enable digital mode");
     cooldown();
     InterruptStopper interruptStopper;
