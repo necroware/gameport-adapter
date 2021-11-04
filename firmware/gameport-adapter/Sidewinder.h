@@ -42,7 +42,6 @@ public:
 
   bool update() override {
     const auto packet = readPacket();
-    cooldown();
     State state;
     if (decode(packet, state)) {
       m_state = state;
@@ -112,7 +111,7 @@ private:
  
   void cooldown() const {
     m_trigger.setLow();
-    delayMicroseconds(500);
+    delayMicroseconds(1000);
   }
 
   DigitalInput<GamePort<2>::pin, true> m_clock;
@@ -134,6 +133,7 @@ private:
     static const uint16_t seq[] = {magic, magic + 725, magic + 300, magic, 0};
     log("Trying to enable digital mode");
     cooldown();
+    const InterruptStopper interruptStopper;
     for (auto i = 0u; seq[i]; i++) {
       m_trigger.pulse(10);
       delayMicroseconds(seq[i]);
@@ -151,6 +151,8 @@ private:
     // and before triggering the device. Otherwise the clock will come before
     // the packet was zeroed/instantiated.
     Packet packet;
+
+    cooldown();
 
     // WARNING: Here starts the timing critical section
     const InterruptStopper interruptStopper;
