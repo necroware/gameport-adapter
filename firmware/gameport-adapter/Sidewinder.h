@@ -39,7 +39,6 @@ public:
       m_model = guessModel(readPacket());
     }
     log("Detected model %d", m_model);
-
     return true;
   }
 
@@ -71,7 +70,7 @@ public:
   /// This is need to settle the signals between the reads.
   void cooldown() const {
     m_trigger.setLow();
-    delayMicroseconds(2000);
+    delay(250);
   }
 
 private:
@@ -94,8 +93,8 @@ private:
   };
 
   enum Constants {
-    PULSE_DURATION = 60,
-    MAX_ERRORS = 3,
+    PULSE_DURATION = 100,
+    MAX_ERRORS = 5,
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
@@ -110,6 +109,7 @@ private:
 
   /// Guesses joystick model from the size of the packet.
   static Model guessModel(const Packet &packet) {
+    log("Guessing model by packet size of %d", packet.size);
     switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
@@ -143,7 +143,6 @@ private:
     static const uint16_t seq[] = {magic, magic + 725, magic + 300, 0};
     log("Trying to enable digital mode");
     cooldown();
-    InterruptStopper interruptStopper;
     for (auto i = 0u; seq[i]; i++) {
       m_trigger.pulse(PULSE_DURATION);
       delayMicroseconds(seq[i]);
@@ -175,7 +174,7 @@ private:
     // uint64_t we would need to shift between the clock impulses, which is
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
-    if (ready || m_clock.wait(Edge::rising, PULSE_DURATION * 10)) {
+    if (ready || m_clock.wait(Edge::rising, PULSE_DURATION)) {
       while (packet.size < Packet::MAX_SIZE) {
         if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
           break;
