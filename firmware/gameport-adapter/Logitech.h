@@ -17,6 +17,7 @@
 #pragma once
 
 #include "DigitalPin.h"
+#include "GamePort.h"
 #include "Joystick.h"
 #include "Utilities.h"
 
@@ -60,11 +61,11 @@ public:
 
     const auto packet = readPacket();
 
-    if (packet.length != m_metaData.packageSize) {
+    if (packet.size != m_metaData.packageSize) {
       return false;
     }
 
-    const auto packetID = packet.getBits(0, 4) | packet.getBits(4, 4) << 4;
+    const auto packetID = getBits(packet, 0, 4) | getBits(packet, 4, 4) << 4;
     if (packetID != m_metaData.deviceID) {
       return false;
     }
@@ -74,7 +75,7 @@ public:
 
     for (auto i = 0u; i < m_description.numAxes; i++) {
       const auto bits = (i < m_metaData.num10bitAxes) ? 10 : 8;
-      const uint16_t value = packet.getBits(offset, bits);
+      const uint16_t value = getBits(packet, offset, bits);
       if (value < m_limits[i].min) {
         m_limits[i].min = value;
       } else if (value > m_limits[i].max) {
@@ -86,7 +87,7 @@ public:
 
     uint16_t button = 0u;
     for (auto i = 0u; i < m_metaData.numPrimaryButtons; i++) {
-      state.buttons |= packet.getBits(offset++, 1) << button++;
+      state.buttons |= getBits(packet, offset++, 1) << button++;
     }
 
     auto hatResolution = [](uint16_t value) {
@@ -99,13 +100,13 @@ public:
     }(m_metaData.numHatDirections);
 
     for (auto i = 0u; i < m_description.numHats; i++) {
-      const auto value = packet.getBits(offset, hatResolution);
+      const auto value = getBits(packet, offset, hatResolution);
       state.hats[i] = map(value, 0, m_metaData.numHatDirections, 0, 8);
       offset += hatResolution;
     }
 
     for (auto i = 0u; i < m_metaData.numSecondaryButtons; i++) {
-      state.buttons |= packet.getBits(offset++, 1) << button++;
+      state.buttons |= getBits(packet, offset++, 1) << button++;
     }
 
     m_state = state;
@@ -138,20 +139,17 @@ private:
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
-  struct Packet {
-    byte bits[256]{};
-    uint16_t length{0u};
+  using Packet = Buffer<128>;
 
-    uint16_t getBits(uint8_t offset, uint8_t count) const {
-      uint16_t result = 0u;
-      if (offset < length && count <= (length - offset)) {
-        for (auto i = 0u; i < count; i++) {
-          result = (result << 1) | bits[offset + i];
-        }
+  static uint16_t getBits(const Packet& packet, uint8_t offset, uint8_t count) {
+    uint16_t result = 0u;
+    if (offset < packet.size && count <= (packet.size - offset)) {
+      for (auto i = 0u; i < count; i++) {
+        result = (result << 1) | packet.data[offset + i];
       }
-      return result;
     }
-  };
+    return result;
+  }
 
   DigitalOutput<GamePort<3>::pin> m_trigger;
   DigitalInput<GamePort<2>::pin, true> m_data0;
@@ -182,7 +180,7 @@ private:
     const InterruptStopper noirq;
     auto last = readData();
     m_trigger.setHigh();
-    while (timeout-- && packet.length < sizeof(packet.bits)) {
+    while (timeout-- && packet.size < Packet::MAX_SIZE) {
       const auto next = readData();
       const auto edge = last ^ next;
       if (edge) {
@@ -193,7 +191,7 @@ private:
           // We should get either 10, when data1 has flipped, or 01,
           // when data0 has flipped. So if we just shift the edge to
           // the right once, we will get the needed 1 or 0 bit value.
-          packet.bits[packet.length++] = edge >> 1;
+          packet.data[packet.size++] = edge >> 1;
         }
         last = next;
         timeout = TIMEOUT;
@@ -234,22 +232,22 @@ private:
 
     const auto packet = readPacket();
 
-    const auto metaSize = packet.getBits(0, 10);
-    if (metaSize != packet.length) {
-      log("Meta data package size mismatch, expected %d but got %d", packet.length, metaSize);
+    const auto metaSize = getBits(packet, 0, 10);
+    if (metaSize != packet.size) {
+      log("Meta data package size mismatch, expected %d but got %d", packet.size, metaSize);
       return false;
     }
 
-    m_metaData.deviceID = packet.getBits(10, 4) | packet.getBits(14, 4) << 4;
-    const auto flags = packet.getBits(18, 4);
+    m_metaData.deviceID = getBits(packet, 10, 4) | getBits(packet, 14, 4) << 4;
+    const auto flags = getBits(packet, 18, 4);
     m_metaData.numHats = (flags & 4) ? 1 : 0;
-    m_metaData.packageSize = packet.getBits(22, 10);
-    const auto numTotalAxes = packet.getBits(32, 4);
-    m_metaData.numPrimaryButtons = packet.getBits(36, 6);
-    m_metaData.numHatDirections = packet.getBits(42, 6);
-    m_metaData.numSecondaryButtons = packet.getBits(48, 6);
-    m_metaData.numHats += packet.getBits(54, 4);
-    const auto num8bitAxes = packet.getBits(58, 4);
+    m_metaData.packageSize = getBits(packet, 22, 10);
+    const auto numTotalAxes = getBits(packet, 32, 4);
+    m_metaData.numPrimaryButtons = getBits(packet, 36, 6);
+    m_metaData.numHatDirections = getBits(packet, 42, 6);
+    m_metaData.numSecondaryButtons = getBits(packet, 48, 6);
+    m_metaData.numHats += getBits(packet, 54, 4);
+    const auto num8bitAxes = getBits(packet, 58, 4);
     if (flags & 8) {
       m_metaData.num10bitAxes = numTotalAxes - num8bitAxes;
       m_metaData.num8bitAxes = num8bitAxes;
@@ -257,10 +255,10 @@ private:
       m_metaData.num8bitAxes = numTotalAxes;
       m_metaData.num10bitAxes = 0u;
     }
-    const auto cnameLength = packet.getBits(62, 4);
+    const auto cnameLength = getBits(packet, 62, 4);
     m_metaData.deviceName[cnameLength] = 0;
     for (auto i = 0u; i < cnameLength; i++) {
-      m_metaData.deviceName[i] = packet.getBits(66 + 8 * i, 8);
+      m_metaData.deviceName[i] = getBits(packet, 66 + 8 * i, 8);
     }
 
     return true;
