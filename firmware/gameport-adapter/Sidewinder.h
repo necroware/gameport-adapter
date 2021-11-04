@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "Buffer.h"
 #include "DigitalPin.h"
 #include "Joystick.h"
 #include "Log.h"
@@ -98,23 +99,7 @@ private:
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
-  struct Packet {
-    uint8_t bits[128];
-    uint8_t length{0u};
-
-    // Prints the 64 bits of the packet data
-    // Used mainly for debugging
-    void print() const {
-      uint64_t result{0};
-      for (auto i = 0u; i < length; i++) {
-        result |= uint64_t(bits[i] & 0b111) << (i * 3);
-      }
-
-      Serial.print("Data Packet: ");
-      Serial.print(String(uint32_t((result & 0xFFFFFFFF00000000) >> 32), BIN));
-      Serial.println(String(uint32_t((result & 0x00000000FFFFFFFF)), BIN));
-    }
-  };
+  using Packet = Buffer<128u>;
 
   /// Model specific status decoder function.
   template <Model M>
@@ -125,7 +110,7 @@ private:
 
   /// Guesses joystick model from the size of the packet.
   static Model guessModel(const Packet &packet) {
-    switch (packet.length) {
+    switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
       case 16:
@@ -191,11 +176,11 @@ private:
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
     if (ready || m_clock.wait(Edge::rising, PULSE_DURATION * 10)) {
-      while (packet.length < sizeof(packet.bits)) {
+      while (packet.size < Packet::MAX_SIZE) {
         if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
           break;
         }
-        packet.bits[packet.length++] = m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
+        packet.data[packet.size++] = m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
       }
     }
     m_trigger.setLow();
@@ -234,13 +219,13 @@ public:
 
     const auto checksum = [&]() {
       byte result = 0u;
-      for (auto i = 0u; i < packet.length; i++) {
-        result ^= packet.bits[i] & 1;
+      for (auto i = 0u; i < packet.size; i++) {
+        result ^= packet.data[i] & 1;
       }
       return result;
     };
 
-    if (packet.length != 15 || checksum() != 0) {
+    if (packet.size != 15 || checksum() != 0) {
       return false;
     }
 
@@ -249,10 +234,10 @@ public:
     // Bit 4-13: 10 buttons
     // Bit 14: checksum
     for (auto i = 0u; i < 10; i++) {
-      state.buttons |= (~packet.bits[i + 4] & 1) << i;
+      state.buttons |= (~packet.data[i + 4] & 1) << i;
     }
-    state.axes[0] = map(1 + packet.bits[3] - packet.bits[2], 0, 2, 0, 1023);
-    state.axes[1] = map(1 + packet.bits[0] - packet.bits[1], 0, 2, 0, 1023);
+    state.axes[0] = map(1 + packet.data[3] - packet.data[2], 0, 2, 0, 1023);
+    state.axes[1] = map(1 + packet.data[0] - packet.data[1], 0, 2, 0, 1023);
 
     return true;
   }
@@ -270,8 +255,8 @@ public:
   static bool decode(const Packet &packet, State &state) {
     const auto value = [&]() {
       uint64_t result{0u};
-      for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 1) << i;
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 1) << i;
       }
       return result;
     }();
@@ -281,7 +266,7 @@ public:
       return (value >> start) & mask;
     };
 
-    if (packet.length != 64 || !checkSync(value) || checksum(value)) {
+    if (packet.size != 64 || !checkSync(value) || checksum(value)) {
       return false;
     }
 
@@ -340,8 +325,8 @@ public:
 
     const auto value = [&]() {
       uint64_t result{0u};
-      for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 0b111) << (i * 3);
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 0b111) << (i * 3);
       }
       return result;
     }();
@@ -363,7 +348,7 @@ public:
       return x & 1;
     };
 
-    if (packet.length != 16 || !parity(value)) {
+    if (packet.size != 16 || !parity(value)) {
       return false;
     }
 
@@ -391,8 +376,8 @@ public:
 
     const auto value = [&]() {
       uint64_t result{0u};
-      for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 0b111) << (i * 3);
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 0b111) << (i * 3);
       }
       return result;
     }();
@@ -412,7 +397,7 @@ public:
       return (value >> start) & mask;
     };
 
-    if (packet.length != 11 || !parity(value)) {
+    if (packet.size != 11 || !parity(value)) {
       return false;
     }
 
