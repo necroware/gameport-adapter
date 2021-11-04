@@ -73,7 +73,7 @@ public:
 
   /// Triggers a pulse of given duration.
   /// @param[in] duration is the duration in microseconds
-  void pulse(uint32_t duration = 0) const {
+  void pulse(uint16_t duration = 0) const {
     toggle();
     if (duration) {
       delayMicroseconds(duration);
@@ -117,7 +117,7 @@ public:
   /// Waits for an edge with given timeout.
   /// @param[in] edge is the type of edge to wait for
   /// @param[in] timeount is the timeout in microseconds
-  uint32_t wait(Edge edge, uint32_t timeout) const {
+  uint16_t wait(Edge edge, uint16_t timeout) const {
     auto last = get();
     for (; timeout; timeout--) {
       const auto next = get();
@@ -146,7 +146,7 @@ public:
   /// Waits for a state with given timeout.
   /// @param[in] state is the state to wait for
   /// @param[in] timeount is the timeout in microseconds
-  uint32_t wait(bool state, uint32_t timeout) const {
+  uint16_t wait(bool state, uint16_t timeout) const {
     for (; state != get() && timeout; timeout--)
       ;
     return timeout;

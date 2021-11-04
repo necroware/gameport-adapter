@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "Buffer.h"
 #include "DigitalPin.h"
 #include "Joystick.h"
 #include "Utilities.h"
@@ -28,7 +29,7 @@ class Sidewinder : public Joystick {
 public:
   /// Resets the joystick and tries to detect the model.
   bool init() override {
-    log("Trying to reset...");
+    log("Sidewinder init...");
     cooldown();
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
@@ -37,7 +38,6 @@ public:
       m_model = guessModel(readPacket());
     }
     log("Detected model %d", m_model);
-
     return true;
   }
 
@@ -69,7 +69,7 @@ public:
   /// This is need to settle the signals between the reads.
   void cooldown() const {
     m_trigger.setLow();
-    delayMicroseconds(2000);
+    delay(250);
   }
 
 private:
@@ -92,28 +92,12 @@ private:
   };
 
   enum Constants {
-    PULSE_DURATION = 60,
-    MAX_ERRORS = 3,
+    PULSE_DURATION = 100,
+    MAX_ERRORS = 5,
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
-  struct Packet {
-    byte bits[128]{0u};
-    uint16_t length{0u};
-
-    // Prints the 64 bits of the packet data
-    // Used mainly for debugging
-    void print() const {
-      uint64_t result{0};
-      for (auto i = 0u; i < length; i++) {
-        result |= uint64_t(bits[i] & 0b111) << (i * 3);
-      }
-
-      Serial.print("Data Packet: ");
-      Serial.print(String(uint32_t((result & 0xFFFFFFFF00000000) >> 32), BIN));
-      Serial.println(String(uint32_t((result & 0x00000000FFFFFFFF)), BIN));
-    }
-  };
+  using Packet = Buffer<128u>;
 
   /// Model specific status decoder function.
   template <Model M>
@@ -124,7 +108,8 @@ private:
 
   /// Guesses joystick model from the size of the packet.
   static Model guessModel(const Packet &packet) {
-    switch (packet.length) {
+    log("Guessing model by packet size of %d", packet.size);
+    switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
       case 16:
@@ -153,11 +138,10 @@ private:
   /// This mode has to be activated explicitly. In this function timing
   /// is very important. See Patent: US#5628686 (page 19) for details.
   void enableDigitalMode() const {
-    static const int magic = 200;
-    static const int seq[] = {magic, magic + 725, magic + 300, 0};
+    static const uint16_t magic = 200;
+    static const uint16_t seq[] = {magic, magic + 725, magic + 300, 0};
     log("Trying to enable digital mode");
     cooldown();
-    InterruptStopper interruptStopper;
     for (auto i = 0u; seq[i]; i++) {
       m_trigger.pulse(PULSE_DURATION);
       delayMicroseconds(seq[i]);
@@ -189,12 +173,12 @@ private:
     // uint64_t we would need to shift between the clock impulses, which is
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
-    if (ready || m_clock.wait(Edge::rising, PULSE_DURATION * 10)) {
-      while (packet.length < sizeof(packet.bits)) {
+    if (ready || m_clock.wait(Edge::rising, PULSE_DURATION)) {
+      while (packet.size < Packet::MAX_SIZE) {
         if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
           break;
         }
-        packet.bits[packet.length++] = m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
+        packet.data[packet.size++] = m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
       }
     }
     m_trigger.setLow();
@@ -233,13 +217,13 @@ public:
 
     const auto checksum = [&]() {
       byte result = 0u;
-      for (auto i = 0u; i < packet.length; i++) {
-        result ^= packet.bits[i] & 1;
+      for (auto i = 0u; i < packet.size; i++) {
+        result ^= packet.data[i] & 1;
       }
       return result;
     };
 
-    if (packet.length != 15 || checksum() != 0) {
+    if (packet.size != 15 || checksum() != 0) {
       return false;
     }
 
@@ -248,10 +232,10 @@ public:
     // Bit 4-13: 10 buttons
     // Bit 14: checksum
     for (auto i = 0u; i < 10; i++) {
-      state.buttons |= (~packet.bits[i + 4] & 1) << i;
+      state.buttons |= (~packet.data[i + 4] & 1) << i;
     }
-    state.axes[0] = map(1 + packet.bits[3] - packet.bits[2], 0, 2, 0, 1023);
-    state.axes[1] = map(1 + packet.bits[0] - packet.bits[1], 0, 2, 0, 1023);
+    state.axes[0] = map(1 + packet.data[3] - packet.data[2], 0, 2, 0, 1023);
+    state.axes[1] = map(1 + packet.data[0] - packet.data[1], 0, 2, 0, 1023);
 
     return true;
   }
@@ -269,8 +253,8 @@ public:
   static bool decode(const Packet &packet, State &state) {
     const auto value = [&]() {
       uint64_t result{0u};
-      for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 1) << i;
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 1) << i;
       }
       return result;
     }();
@@ -280,7 +264,7 @@ public:
       return (value >> start) & mask;
     };
 
-    if (packet.length != 64 || !checkSync(value) || checksum(value)) {
+    if (packet.size != 64 || !checkSync(value) || checksum(value)) {
       return false;
     }
 
@@ -339,8 +323,8 @@ public:
 
     const auto value = [&]() {
       uint64_t result{0u};
-      for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 0b111) << (i * 3);
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 0b111) << (i * 3);
       }
       return result;
     }();
@@ -362,7 +346,7 @@ public:
       return x & 1;
     };
 
-    if (packet.length != 16 || !parity(value)) {
+    if (packet.size != 16 || !parity(value)) {
       return false;
     }
 
@@ -390,8 +374,8 @@ public:
 
     const auto value = [&]() {
       uint64_t result{0u};
-      for (auto i = 0u; i < packet.length; i++) {
-        result |= uint64_t(packet.bits[i] & 0b111) << (i * 3);
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 0b111) << (i * 3);
       }
       return result;
     }();
@@ -411,7 +395,7 @@ public:
       return (value >> start) & mask;
     };
 
-    if (packet.length != 11 || !parity(value)) {
+    if (packet.size != 11 || !parity(value)) {
       return false;
     }
 
