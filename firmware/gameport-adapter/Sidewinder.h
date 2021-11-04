@@ -31,7 +31,6 @@ public:
   /// Resets the joystick and tries to detect the model.
   bool init() override {
     log("Sidewinder init...");
-    cooldown();
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
@@ -44,6 +43,7 @@ public:
 
   bool update() override {
     const auto packet = readPacket();
+    cooldown();
     State state;
     if (decode(packet, state)) {
       m_state = state;
@@ -53,7 +53,7 @@ public:
 
     m_errors++;
     log("Packet decoding failed %d time(s)", m_errors);
-    if (m_errors > MAX_ERRORS) {
+    if (m_errors > 5) {
       return init();
     }
     return false;
@@ -64,14 +64,6 @@ public:
   }
 
   const Description &getDescription() const override;
-
-  /// Joystick cool down timeout.
-  ///
-  /// This is need to settle the signals between the reads.
-  void cooldown() const {
-    m_trigger.setLow();
-    delay(250);
-  }
 
 private:
   /// Supported Sidewinder model types.
@@ -90,11 +82,6 @@ private:
 
     /// Sidewinder Force Feedback Wheel
     SW_FORCE_FEEDBACK_WHEEL
-  };
-
-  enum Constants {
-    PULSE_DURATION = 100,
-    MAX_ERRORS = 5,
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
@@ -123,6 +110,11 @@ private:
         return Model::SW_UNKNOWN;
     }
   }
+ 
+  void cooldown() const {
+    m_trigger.setLow();
+    delayMicroseconds(500);
+  }
 
   DigitalInput<GamePort<2>::pin, true> m_clock;
   DigitalInput<GamePort<7>::pin, true> m_data0;
@@ -130,8 +122,8 @@ private:
   DigitalInput<GamePort<14>::pin, true> m_data2;
   DigitalOutput<GamePort<3>::pin> m_trigger;
   Model m_model{Model::SW_UNKNOWN};
-  State m_state;
-  int m_errors{0u};
+  State m_state{};
+  uint8_t m_errors{};
 
   /// Enables digital mode for 3D Pro.
   //
@@ -139,16 +131,14 @@ private:
   /// This mode has to be activated explicitly. In this function timing
   /// is very important. See Patent: US#5628686 (page 19) for details.
   void enableDigitalMode() const {
-    static const uint16_t magic = 200;
-    static const uint16_t seq[] = {magic, magic + 725, magic + 300, 0};
+    static const uint16_t magic = 150;
+    static const uint16_t seq[] = {magic, magic + 725, magic + 300, magic, 0};
     log("Trying to enable digital mode");
     cooldown();
     for (auto i = 0u; seq[i]; i++) {
-      m_trigger.pulse(PULSE_DURATION);
+      m_trigger.pulse(10);
       delayMicroseconds(seq[i]);
     }
-    m_trigger.pulse(PULSE_DURATION);
-    cooldown();
   }
 
   /// Read bits packet from the joystick.
@@ -164,7 +154,7 @@ private:
     Packet packet;
 
     // WARNING: Here starts the timing critical section
-    InterruptStopper interruptStopper;
+    const InterruptStopper interruptStopper;
     const auto ready = m_clock.isHigh();
     m_trigger.setHigh();
     // We are reading into a byte array instead of an uint64_t, because of two
@@ -174,16 +164,19 @@ private:
     // uint64_t we would need to shift between the clock impulses, which is
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
-    if (ready || m_clock.wait(Edge::rising, PULSE_DURATION)) {
-      while (packet.size < Packet::MAX_SIZE) {
-        if (!m_clock.wait(Edge::rising, PULSE_DURATION)) {
+    static const uint8_t wait_duration = 250;
+    if (ready || m_clock.wait(Edge::rising, wait_duration)) {
+      for (; packet.size < Packet::MAX_SIZE; packet.size++) {
+        if (!m_clock.wait(Edge::rising, wait_duration)) {
           break;
         }
-        packet.data[packet.size++] = m_data0.get() | (m_data1.get() << 1) | (m_data2.get() << 2);
+        const uint8_t b1 = m_data0.get();
+        const uint8_t b2 = m_data1.get();
+        const uint8_t b3 = m_data2.get();            
+        packet.data[packet.size] = b1 | (b2 << 1) | (b3 << 2);
       }
     }
     m_trigger.setLow();
-    delayMicroseconds(PULSE_DURATION);
     return packet;
   }
 

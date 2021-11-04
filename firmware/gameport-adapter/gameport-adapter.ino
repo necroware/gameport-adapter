@@ -46,7 +46,8 @@ static Joystick *createJoystick(byte sw) {
 static HidJoystick hidJoystick;
 
 void setup() {
-  // Serial.begin(9600);
+  //Serial.begin(9600);
+  //while(!Serial);
   const auto sw1 = DigitalInput<14, true>{}.isLow();
   const auto sw2 = DigitalInput<15, true>{}.isLow();
   const auto sw3 = DigitalInput<20, true>{}.isLow();

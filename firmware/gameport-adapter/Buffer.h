@@ -21,7 +21,7 @@ template <size_t Size>
 struct Buffer {
     static const uint16_t MAX_SIZE{Size};
     uint8_t data[MAX_SIZE]{};
-    uint16_t size{};
+    uint8_t size{};
 };
 
 template <size_t Size>
