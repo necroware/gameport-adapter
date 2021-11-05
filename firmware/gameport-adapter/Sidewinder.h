@@ -102,7 +102,8 @@ private:
       case 16: // 3bit mode
       case 48: // 1bit mode
         return Model::SW_PRECISION_PRO;
-      case 11:
+      case 11: // 3bit mode
+      case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
       case 64:
         return Model::SW_3D_PRO;
@@ -376,14 +377,28 @@ public:
 
   static bool decode(const Packet &packet, State &state) {
 
-    const auto value = [&]() {
+    // The packet can be either in 3bit or in 1bit mode
+    if (packet.size != 11 && packet.size != 33) {
+        return false;
+    }
+
+    const auto value = [&packet]() {
       uint64_t result{0u};
+      const auto shift = 33 / packet.size;
+      const auto mask = (shift == 3) ? 0b111 : 0b1;
       for (auto i = 0u; i < packet.size; i++) {
-        result |= uint64_t(packet.data[i] & 0b111) << (i * 3);
+        result |= uint64_t(packet.data[i] & mask) << (i * shift);
       }
       return result;
     }();
 
+    // TODO shared code with 3D Pro?
+    const auto bits = [&value](uint8_t start, uint8_t length) {
+      const auto mask = (1 << length) - 1;
+      return (value >> start) & mask;
+    };
+
+    // TODO shared code with GP?
     const auto parity = [](uint64_t t) {
       uint32_t x = t ^ (t >> 32);
       x ^= x >> 16;
@@ -394,12 +409,7 @@ public:
       return x & 1;
     };
 
-    const auto bits = [&](uint8_t start, uint8_t length) {
-      const auto mask = (1 << length) - 1;
-      return (value >> start) & mask;
-    };
-
-    if (packet.size != 11 || !parity(value)) {
+    if (!parity(value)) {
       return false;
     }
 
