@@ -16,15 +16,24 @@
 
 #pragma once
 
-class Driver {
-public:
-  virtual void init() = 0;
-  virtual void update() = 0;
+#include "Arduino.h"
 
-  Driver() = default;
-  Driver(const Driver &) = delete;
-  Driver(Driver &&) = delete;
-  virtual ~Driver() = default;
-  Driver &operator=(const Driver &) = delete;
-  Driver &operator=(Driver &&) = delete;
+/// Interrupt guard (RAII).
+///
+/// This class is used to deactivate the interrupts in performance
+/// critical sections. The interrupt is reactivated as soon as this
+/// guard runs out of scope.
+struct InterruptStopper {
+  InterruptStopper() {
+    noInterrupts();
+  }
+  ~InterruptStopper() {
+    interrupts();
+  }
+
+  InterruptStopper(const InterruptStopper&) = delete;
+  InterruptStopper(InterruptStopper&&) = delete;
+  InterruptStopper& operator=(const InterruptStopper&) = delete;
+  InterruptStopper& operator=(InterruptStopper&&) = delete;
 };
+

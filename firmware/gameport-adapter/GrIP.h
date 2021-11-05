@@ -17,16 +17,65 @@
 #pragma once
 
 #include "DigitalPin.h"
+#include "Joystick.h"
 
 /// Class to communicate with Gravis joysticks using GrIP.
 /// @remark This is a green field implementation, but it was heavily
 ///         inspired by Linux Sidewinder driver implementation. See
-///         https://github.com/torvalds/linux/blob/master/drivers/input/joystick/grip.c
-class GrIP {
+class GrIP : public Joystick {
+  ///         https://github.com/torvalds/linux/blob/master/drivers/input/joystick/grip.c
 public:
+  /// Resets the joystick and tries to detect the model.
+  bool init() override {
+    while (!readPacket())
+      ;
+    return true;
+  }
+
+  /// Reads the joystick state.
+  /// @returns the state of axis, buttons etc.
+  /// @remark if reading the state fails, the last known state is
+  ///         returned and the joystick reset is executed.
+  bool update() override {
+
+    const auto packet = readPacket();
+    if (packet == 0) {
+      return false;
+    }
+
+    const auto getBit = [&](uint8_t pos) { return uint8_t(packet >> pos) & 1; };
+
+    m_state.axes[0] = map(1 + getBit(15) - getBit(16), 0, 2, 0, 1023);
+    m_state.axes[1] = map(1 + getBit(13) - getBit(12), 0, 2, 0, 1023);
+
+    m_state.buttons = getBit(8);
+    m_state.buttons |= getBit(3) << 1;
+    m_state.buttons |= getBit(7) << 2;
+    m_state.buttons |= getBit(6) << 3;
+    m_state.buttons |= getBit(10) << 4;
+    m_state.buttons |= getBit(11) << 5;
+    m_state.buttons |= getBit(5) << 6;
+    m_state.buttons |= getBit(2) << 7;
+    m_state.buttons |= getBit(0) << 8;
+    m_state.buttons |= getBit(1) << 9;
+
+    return true;
+  }
+
+  const State &getState() const override {
+    return m_state;
+  }
+
+  const Description &getDescription() const override {
+    static Description desc{"Gravis GamePad Pro", 2, 10, 0};
+    return desc;
+  }
+
+private:
   /// Supported Gravis model types.
   ///
-  /// @remark currently inly GamePad Pro is supported
+  /// @remark currently inly GamePad Pro is supported and
+  //          this enum is not used yet
   enum class Model {
 
     /// Unknown model
@@ -36,60 +85,8 @@ public:
     GRIP_GAMEPAD_PRO,
   };
 
-  /// Joystick state.
-  struct State {
-    uint8_t axis[2]{0};
-    uint16_t buttons{0};
-  };
-
-  /// Resets the joystick and tries to detect the model.
-  void reset() {
-    m_model = Model::GRIP_UNKNOWN;
-    while (m_model == Model::GRIP_UNKNOWN) {
-      if (readPacket()) {
-        m_model = Model::GRIP_GAMEPAD_PRO;
-      }
-    }
-  }
-
-  /// Gets the detected model.
-  /// @returns the detected joystick model
-  Model getModel() const {
-    return m_model;
-  }
-
-  /// Reads the joystick state.
-  /// @returns the state of axis, buttons etc.
-  /// @remark if reading the state fails, the last known state is
-  ///         returned and the joystick reset is executed.
-  State readState() {
-    const auto packet = readPacket();
-    if (packet) {
-
-      const auto getBit = [&](uint8_t pos) { return uint8_t(packet >> pos) & 1; };
-
-      m_state.axis[0] = 1 + getBit(15) - getBit(16);
-      m_state.axis[1] = 1 + getBit(13) - getBit(12);
-
-      m_state.buttons = getBit(8);
-      m_state.buttons |= getBit(3) << 1;
-      m_state.buttons |= getBit(7) << 2;
-      m_state.buttons |= getBit(6) << 3;
-      m_state.buttons |= getBit(10) << 4;
-      m_state.buttons |= getBit(11) << 5;
-      m_state.buttons |= getBit(5) << 6;
-      m_state.buttons |= getBit(2) << 7;
-      m_state.buttons |= getBit(0) << 8;
-      m_state.buttons |= getBit(1) << 9;
-    }
-
-    return m_state;
-  }
-
-private:
   DigitalInput<GamePort<2>::pin, true> m_clock;
   DigitalInput<GamePort<7>::pin, true> m_data;
-  Model m_model{Model::GRIP_UNKNOWN};
   State m_state;
 
   /// Read bits packet from the joystick.
