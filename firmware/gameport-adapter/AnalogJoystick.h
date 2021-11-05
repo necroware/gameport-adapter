@@ -27,7 +27,7 @@ public:
   ///
   /// @param[in] id is the axes ID
   /// @returns a value between 0 and 255
-  byte getAxis(int id) {
+  uint16_t getAxis(int id) {
     switch (id) {
       case 0:
         return m_axis1.get();

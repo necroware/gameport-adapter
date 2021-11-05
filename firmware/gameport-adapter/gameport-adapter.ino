@@ -2,63 +2,61 @@
 // Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-//
+
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 #include "DigitalPin.h"
-#include "HidCHFlightstickPro.h"
-#include "HidGrIP.h"
-#include "HidJoystickB2A2.h"
-#include "HidJoystickB4A2.h"
-#include "HidJoystickB4A3.h"
-#include "HidJoystickB4A4.h"
-#include "HidSidewinder.h"
-#include "HidThrustMaster.h"
+#include "HidJoystick.h"
 
-static Driver *driver;
+#include "CHFlightstickPro.h"
+#include "GenericJoystick.h"
+#include "GrIP.h"
+#include "Sidewinder.h"
+#include "ThrustMaster.h"
 
-static Driver *createDriver(byte sw) {
+static Joystick *createJoystick(byte sw) {
   switch (sw) {
     case 0b0001:
-      return new HidJoystickB4A2;
+      return new GenericJoystick<4,2>;
     case 0b0010:
-      return new HidJoystickB4A3;
+      return new GenericJoystick<4,3>;
     case 0b0011:
-      return new HidJoystickB4A4;
+      return new GenericJoystick<4,4>;
     case 0b0100:
-      return new HidCHFlightstickPro;
+      return new CHFlightstickPro;
     case 0b0101:
-      return new HidThrustMaster;
+      return new ThrustMaster;
     case 0b0111:
-      return new HidSidewinder;
+      return new Sidewinder;
     case 0b1000:
-      return new HidGrIP;
+      return new GrIP;
     default:
-      return new HidJoystickB2A2;
+      return new GenericJoystick<2,2>;
   }
 }
 
+static HidJoystick hidJoystick;
+
 void setup() {
-  // Serial.begin(9600);
+  //Serial.begin(9600);
+  //while(!Serial);
   const auto sw1 = DigitalInput<14, true>{}.isLow();
   const auto sw2 = DigitalInput<15, true>{}.isLow();
   const auto sw3 = DigitalInput<20, true>{}.isLow();
   const auto sw4 = DigitalInput<21, true>{}.isLow();
-  driver = createDriver(sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1);
-  driver->init();
+
+  const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
+  hidJoystick.init(createJoystick(sw));
 }
 
 void loop() {
-  if (driver) {
-    driver->update();
-  }
+  hidJoystick.update();
 }
