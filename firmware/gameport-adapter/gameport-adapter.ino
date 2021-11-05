@@ -19,6 +19,7 @@
 #include "CHFlightstickPro.h"
 #include "GenericJoystick.h"
 #include "GrIP.h"
+#include "Logitech.h"
 #include "Sidewinder.h"
 #include "ThrustMaster.h"
 
@@ -38,6 +39,8 @@ static Joystick *createJoystick(byte sw) {
       return new Sidewinder;
     case 0b1000:
       return new GrIP;
+    case 0b1001:
+      return new Logitech;
     default:
       return new GenericJoystick<2,2>;
   }

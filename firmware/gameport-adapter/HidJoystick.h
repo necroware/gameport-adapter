@@ -19,7 +19,7 @@
 #include "Buffer.h"
 #include "HidDevice.h"
 #include "Joystick.h"
-#include "Log.h"
+#include "Utilities.h"
 #include <Arduino.h>
 
 class HidJoystick {

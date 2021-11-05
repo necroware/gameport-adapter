@@ -16,7 +16,9 @@
 
 #pragma once
 
-#include "Arduino.h"
+#include <Arduino.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 /// Interrupt guard (RAII).
 ///
@@ -37,3 +39,11 @@ struct InterruptStopper {
   InterruptStopper& operator=(InterruptStopper&&) = delete;
 };
 
+inline void log(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  char buffer[512];
+  vsnprintf(buffer, sizeof(buffer), fmt, args);
+  va_end(args);
+  Serial.println(buffer);
+}

@@ -21,6 +21,8 @@
 /// Base class for all joysticks.
 class Joystick {
 public:
+  static const auto MAX_AXES{8u};
+  static const auto MAX_HATS{2u};
 
   /// Device description.
   ///
@@ -43,8 +45,6 @@ public:
 
   /// Joystick state.
   struct State {
-    static const auto MAX_AXES{8u};
-    static const auto MAX_HATS{1u};
 
     /// Axes.
     ///
