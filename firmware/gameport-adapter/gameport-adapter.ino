@@ -26,9 +26,9 @@
 static Joystick *createJoystick(byte sw) {
   switch (sw) {
     case 0b0001:
-      return new GenericJoystick<4,2>;
+      return new GenericJoystick<2,4>;
     case 0b0010:
-      return new GenericJoystick<4,3>;
+      return new GenericJoystick<3,4>;
     case 0b0011:
       return new GenericJoystick<4,4>;
     case 0b0100:
