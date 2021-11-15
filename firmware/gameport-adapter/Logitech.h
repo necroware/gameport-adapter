@@ -59,6 +59,12 @@ public:
     // ?      R*N   Hats (R is resolution, N is number of hats)
     // ?      1*N   Secondary buttons (N is number of buttons)
 
+    // Cyberman 2 seems not to work properly if the packets are
+    // read too fast. Following delay will ensure, that after the
+    // last read at least 5ms passed to ensure, that the joystick
+    // cooled down again.
+    delay(5);
+
     const auto packet = readPacket();
 
     if (packet.size != m_metaData.packageSize) {
