@@ -105,7 +105,7 @@ were tested so far.
 ## Which joysticks were tested?
 
 Many joysticks in the wild are using the same digital protocol or are backwards
-compatible to the analog joysticks as they were used nack in the days in DOS.
+compatible to the analog joysticks as they were used back in the days in DOS.
 Following list contains all the devices wich were reported by others as working
 so far:
 
