@@ -69,7 +69,6 @@ Currently, the following drivers are implemented. To select the right driver, yo
 have to use four switches, as shown in the table. The switches may be changed or
 extended in the future, so please pay attention to the updates.
 
-```
 Joystick Model           | Buttons | Axes  |  Hat | SW1-4 | Comments
 -------------------------|---------|-------|------|-------|-------------------------------------
 Generic Analog           | 2       | 2     | 0    | 0000  | 
@@ -84,28 +83,30 @@ Sidewinder 3D Pro Plus   | 9       | 4     | 1    | 1110  | First version of Pre
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
 Sidewinder FFB Wheel     | 8       | 3     | 0    | 1110  | Digital, FFB not yet implemented
 Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
-Logitech WingMan Extreme | 6       | 3     | 1    | 1001  | Digital protocol (ADI) 
-```
+Logitech WingMan Extreme | 6       | 3     | 1    | 1001  | Digital protocol (ADI)
+Logitech CyberMan 2      | 8       | 6     | 0    | 1001  | Digital proticol (ADI)
 
-Please pay attention to how the same switches are used for different families
+*Remarks:*
+
+- Please pay attention to how the same switches are used for different families
 of digital devices. This is possible due to fully digital communication. Using
 this method, the adapter implements autodetection as soon as it knows, that it
 is connected to a digital joystick.
-
-Currently, only the drivers for the listed Sidewinder devices are implemented,
+- Currently, only the drivers for the listed Sidewinder devices are implemented,
 since I have no other models at hand. The Precision Pro works natively on USB
 as well, but was still implemented, because we can.
-
-Gravis used their GrIP protocol, which is currently implemented only for the
+- Gravis used their GrIP protocol, which is currently implemented only for the
 Gravis GamePad Pro, but without daisy chaining possibility so far.
-
-The implementation of the ADI protocol used by Logitech should work with all
-the devices which support that protocol. However only the Logitech WingMan 
-Extreme Digital was tested with it so far.
+- The implementation of the ADI protocol used by Logitech should work with all
+the devices which support that protocol. However only the listed Logitech devices 
+were tested so far.
 
 ## Which joysticks were tested?
 
-The following joysticks were tested so far:
+Many joysticks in the wild are using the same digital protocol or are backwards
+compatible to the analog joysticks as they were used nack in the days in DOS.
+Following list contains all the devices wich were reported by others as working
+so far:
 
 * Gravis Analog Pro
 * Gravis PC GamePad
@@ -118,6 +119,7 @@ The following joysticks were tested so far:
 * Sidewinder Precision Pro
 * Sidewinder ForceFeedBack Wheel
 * Logitech WingMan Extreme Digital
+* Logitech CyberMan 2
 
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
 mode it can emulate the ThrustMaster and CH FlightStick. That's why you see them in
@@ -176,15 +178,13 @@ optimization.
 The hardware is super simple. To build an adapter you'll need the PCB from this
 project and following parts:
 
-```
-Part    | Count | LCSC#   | Digikey #                | Comment
---------|-------|---------|--------------------------------------------------------------------
+Part    | Count | LCSC #  | Digikey #                | Comment
+--------|-------|---------|--------------------------|------------------------------------------
 CONN1   |   1   | C77835  | 609-5371-ND              | DB15 female connector
 R1..R4  |   4   | C172965 | 13-MFR-25FTE52-100KCT-ND | 100 kOhm resistors
 SW1     |   1   | C15781  | 2449-KG04ET-ND           | DIP-4 switch
 U1      |   1   | C72120  | ED3024-ND                | DIP24 Socket (optional)
 U1      |   1   | ---     | 1568-1060-ND             | Arduino Pro Micro (ATmega32U4 16MHz, 5V)
-```
 
 ## Known issues
 
