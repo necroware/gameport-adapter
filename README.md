@@ -38,8 +38,9 @@ future.
 Features overview:
 * Support for generic analog joysticks with 2/4 buttons and 2/4 axes
 * Four switches to select joystick type
-* Autodetection for digital Microsoft Sidwinder joysticks
+* Autodetection for various digital protocol joysticks
 * Auto-Calibration
+* Very low input lag
 
 ## What is the difference between analog and digital joystick?
 
