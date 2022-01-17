@@ -22,6 +22,7 @@
 #include "Logitech.h"
 #include "Sidewinder.h"
 #include "ThrustMaster.h"
+#include "ThrustmasterAttackThrottle.h"
 
 static Joystick *createJoystick(byte sw) {
   switch (sw) {
@@ -41,6 +42,8 @@ static Joystick *createJoystick(byte sw) {
       return new GrIP;
     case 0b1001:
       return new Logitech;
+    case 0b1010:
+      return new ThrustmasterAttackThrottle;    
     default:
       return new GenericJoystick<2,2>;
   }
