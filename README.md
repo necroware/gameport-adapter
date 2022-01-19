@@ -202,10 +202,7 @@ work in legacy analog mode
 
 * *MicroUSB port on the Arduino is not stable enough*
 
-This can be a problem indeed, since it is very easy to rip off the USB port
-from the PCB. May be there will be other solution in the future. To use an 
-Arduino Pro Micro was just the cheapest way so far and they all have these
-SMD microUSB ports.
+Use the USB-C version of the Arduino instead.
 
 ## How to help the project?
 
