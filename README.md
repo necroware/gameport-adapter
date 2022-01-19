@@ -175,6 +175,10 @@ part is that the code is written in pure C++. It is very simple to read and to
 use. There are no macros, no assembler or any dirty hacks, just a lot of
 optimization.
 
+## Video on the GamePort Adapter
+
+[![GamePort to USB Adapter for analog and digital joysticks](https://user-images.githubusercontent.com/14175483/150093832-37baa51e-6eb0-41a7-88c4-69d5e4c5b55a.jpg)](https://www.youtube.com/watch?v=tSJLgCD8jeM)
+
 ## Bill of materials (BOM)
 
 The hardware is super simple. To build an adapter you'll need the PCB from this
