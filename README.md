@@ -16,6 +16,11 @@ play. It can be used to connect gameport joysticks to a USB port.
 
 ![GamePort Adapter](./photo.jpg)
 
+## Videos on the GamePort Adapter
+
+* [Part 1: Introduction](https://youtu.be/tSJLgCD8jeM)
+* [Part 2: Updates](https://youtu.be/947DewHwbsE)
+
 ## How does it work?
 
 The adapter is built around Arduino Pro Micro, which uses the same ATmega32U4
@@ -174,10 +179,6 @@ to read the data with the speed which a Sidewinder joystick requires. The best
 part is that the code is written in pure C++. It is very simple to read and to 
 use. There are no macros, no assembler or any dirty hacks, just a lot of
 optimization.
-
-## Video on the GamePort Adapter
-
-[![GamePort to USB Adapter for analog and digital joysticks](https://user-images.githubusercontent.com/14175483/150093832-37baa51e-6eb0-41a7-88c4-69d5e4c5b55a.jpg)](https://www.youtube.com/watch?v=tSJLgCD8jeM)
 
 ## Bill of materials (BOM)
 
