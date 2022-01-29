@@ -1,5 +1,7 @@
 # Necroware's GamePort Adapter
 
+![GamePort Adapter](./photo.jpg)
+
 Many people from the retro community still have their beloved joysticks and
 gamepads from the early days. These devices often live their lives somewhere in
 the dark corners of our basements and we don't dare to throw them away, because
@@ -14,10 +16,7 @@ USB joystick. But wouldn't it be great to play the old games with the same
 joystick which we used back then? And this is where this adapter comes into
 play. It can be used to connect gameport joysticks to a USB port.
 
-![GamePort Adapter](./photo.jpg)
-
-## Videos on the GamePort Adapter
-
+GamePort Adapter Videos:
 * [Part 1: Introduction](https://youtu.be/tSJLgCD8jeM)
 * [Part 2: Updates](https://youtu.be/947DewHwbsE)
 
