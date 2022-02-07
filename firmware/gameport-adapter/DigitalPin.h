@@ -106,12 +106,12 @@ public:
 
   /// Checks if the input is high.
   bool isHigh() const {
-    return read();
+    return get();
   }
 
   /// Checks if the input is low
   bool isLow() const {
-    return !read();
+    return !get();
   }
 
   /// Waits for an edge with given timeout.
