@@ -101,46 +101,31 @@ public:
 
   /// Gets the value of the input.
   bool get() const {
-    return m_input & m_pin.mask;
+    return read();
   }
 
   /// Checks if the input is high.
   bool isHigh() const {
-    return get();
+    return read();
   }
 
   /// Checks if the input is low
   bool isLow() const {
-    return !get();
+    return !read();
   }
 
   /// Waits for an edge with given timeout.
   /// @param[in] edge is the type of edge to wait for
   /// @param[in] timeount is the timeout in microseconds
   uint16_t wait(Edge edge, uint16_t timeout) const {
-    auto last = get();
-    for (; timeout; timeout--) {
-      const auto next = get();
-      if (last == next) {
-        continue;
-      }
-      switch (edge) {
-        case Edge::falling:
-          if (last > next) {
-            return timeout;
-          }
-          break;
-        case Edge::rising:
-          if (last < next) {
-            return timeout;
-          }
-          break;
-        case Edge::any:
-          return timeout;
-      }
-      last = next;
+    if (edge == Edge::falling) {
+      return waitImpl(timeout, [](uint8_t a, uint8_t) {return a;});
     }
-    return 0u;
+    if (edge == Edge::rising) {
+      return waitImpl(timeout, [](uint8_t, uint8_t b) {return b;});
+    }
+    // edge == Edge::rising
+    return waitImpl(timeout, [](uint8_t a, uint8_t b) {return a|b;});
   }
 
   /// Waits for a state with given timeout.
@@ -155,4 +140,23 @@ public:
 private:
   DigitalPin<Id> m_pin;
   volatile typename DigitalPin<Id>::RegType &m_input;
+
+  uint8_t read() const {
+    return m_input & m_pin.mask;
+  }
+
+  template <typename T>
+  uint16_t waitImpl(uint16_t timeout, T compare) const {
+    auto last = read();
+    for (; timeout; timeout--) {
+      const auto next = read();
+      if (last != next) {
+        if (compare(last, next)) {
+          return timeout;
+        }
+        last = next;
+      }
+    }
+    return 0u;
+  }
 };
