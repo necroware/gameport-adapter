@@ -99,19 +99,19 @@ public:
     }
   }
 
-  /// Gets the value of the input.
-  bool get() const {
-    return read();
+  /// Read raw bit data
+  uint8_t read() const {
+    return m_input & m_pin.mask;
   }
 
   /// Checks if the input is high.
   bool isHigh() const {
-    return get();
+    return read();
   }
 
   /// Checks if the input is low
   bool isLow() const {
-    return !get();
+    return !read();
   }
 
   /// Waits for an edge with given timeout.
@@ -132,7 +132,7 @@ public:
   /// @param[in] state is the state to wait for
   /// @param[in] timeount is the timeout in microseconds
   uint16_t wait(bool state, uint16_t timeout) const {
-    for (; state != get() && timeout; timeout--)
+    for (; state != isHigh() && timeout; timeout--)
       ;
     return timeout;
   }
@@ -140,10 +140,6 @@ public:
 private:
   DigitalPin<Id> m_pin;
   volatile typename DigitalPin<Id>::RegType &m_input;
-
-  uint8_t read() const {
-    return m_input & m_pin.mask;
-  }
 
   template <typename T>
   uint16_t waitImpl(uint16_t timeout, T compare) const {
