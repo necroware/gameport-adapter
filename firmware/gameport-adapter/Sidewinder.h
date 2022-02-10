@@ -173,10 +173,10 @@ private:
         if (!m_clock.wait(Edge::rising, wait_duration)) {
           break;
         }
-        const uint8_t b1 = m_data0.get();
-        const uint8_t b2 = m_data1.get();
-        const uint8_t b3 = m_data2.get();            
-        packet.data[packet.size] = b1 | (b2 << 1) | (b3 << 2);
+        const auto b1 = m_data0.read();
+        const auto b2 = m_data1.read();
+        const auto b3 = m_data2.read();
+        packet.data[packet.size] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
       }
     }
     m_trigger.setLow();

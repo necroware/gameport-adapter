@@ -103,7 +103,7 @@ private:
       if (!m_clock.wait(Edge::falling, 100)) {
         return 0u;
       }
-      result |= uint32_t(m_data.get()) << i;
+      result |= uint32_t(m_data.isHigh()) << i;
     }
 
     // alighn the bits to have the binary tag in front. This code
