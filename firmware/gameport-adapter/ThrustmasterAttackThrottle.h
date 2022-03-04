@@ -275,7 +275,7 @@ private:
           return false;
         }
 
-        if (!m_data.get()) {
+        if (!m_data.read()) {
           // bad start bit
           return false;
         }
@@ -293,14 +293,14 @@ private:
           }
 
           // shift in from the left
-          shiftReg = shiftReg >> 1 | m_data.get() << 7;
+          shiftReg = shiftReg >> 1 | m_data.isHigh() << 7;
         }
 
         if (!m_clock.wait(Edge::falling, 200)) {
           return false;
         }
 
-        if (m_data.get()) {
+        if (m_data.read()) {
           // bad stop bit
           return false;
         }
