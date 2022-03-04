@@ -53,27 +53,11 @@ public:
     }
 
     BufferFillerImpl& push(uint32_t bits, size_t count) {
-
-        // First push as much bits as free bits available in the current byte
-        // to get bytewise aligned
-        const auto filled = fillup(bits, count);
-        bits >>= filled;
-        count -= filled;
-
-        // Now we should be definitely aligned at the byte border, so we can
-        // simply take the bits and push them into the buffer bytewise
-        while(count >= BITS_PER_BYTE) {
-            const auto res = fillup(bits, BITS_PER_BYTE);
-            bits >>= res;
-            count -= res;
+        while(count) {
+            const auto pushed = fillup(bits, count);
+            bits >>= pushed;
+            count -= pushed;
         }
-
-        // Now we have to push the bits left, which are obviously less then
-        // the amount of bits per byte
-        if (count) {
-            fillup(bits, count);
-        }
-
         return *this;
     }
 

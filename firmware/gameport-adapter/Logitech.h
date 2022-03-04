@@ -175,7 +175,9 @@ private:
   }
 
   byte readData() const {
-    return m_data0.get() | m_data1.get() << 1;
+    const auto b0 = m_data0.read();
+    const auto b1 = m_data1.read();
+    return bool(b0) | bool(b1) << 1;
   }
 
   Packet readPacket() const {
