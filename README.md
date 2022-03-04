@@ -1,5 +1,7 @@
 # Necroware's GamePort Adapter
 
+![GamePort Adapter](./photo.jpg)
+
 Many people from the retro community still have their beloved joysticks and
 gamepads from the early days. These devices often live their lives somewhere in
 the dark corners of our basements and we don't dare to throw them away, because
@@ -14,7 +16,9 @@ USB joystick. But wouldn't it be great to play the old games with the same
 joystick which we used back then? And this is where this adapter comes into
 play. It can be used to connect gameport joysticks to a USB port.
 
-![GamePort Adapter](./photo.jpg)
+GamePort Adapter Videos:
+* [Part 1: Introduction](https://youtu.be/tSJLgCD8jeM)
+* [Part 2: Updates](https://youtu.be/947DewHwbsE)
 
 ## How does it work?
 
@@ -202,10 +206,7 @@ work in legacy analog mode
 
 * *MicroUSB port on the Arduino is not stable enough*
 
-This can be a problem indeed, since it is very easy to rip off the USB port
-from the PCB. May be there will be other solution in the future. To use an 
-Arduino Pro Micro was just the cheapest way so far and they all have these
-SMD microUSB ports.
+Use the USB-C version of the Arduino instead.
 
 ## How to help the project?
 
