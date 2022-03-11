@@ -30,6 +30,7 @@ public:
   /// Resets the joystick and tries to detect the model.
   bool init() override {
     log("Sidewinder init...");
+    m_errors = 0;
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
