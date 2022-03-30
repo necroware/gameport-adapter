@@ -189,7 +189,7 @@ Part    | Count | LCSC #   | Digikey #                | Mouser Electronics # | C
 CONN1   |   1   | C77835   | 609-5371-ND              | 523-L77SDA15SA4CH4F  | DB15 female connector
 R1..R4  |   4   | C172965  | 13-MFR-25FTE52-100KCT-ND | 603-MFR-25FTE52-100K | 100 kOhm resistors
 SW1     |   1   | C15781   | 2449-KG04ET-ND           | 642-DS04             | DIP-4 switch
-U1      |   1   | C2846071 | ED3024-ND                | 575-11044624         | DIP24 Socket (optional)
+U1      |   1   | C72120   | ED3024-ND                | 575-11044624         | DIP24 Socket (optional)
 U1      |   1   | ---      | 1568-1060-ND             | 474-DEV-12640        | Arduino Pro Micro (ATmega32U4 16MHz, 5V)
 
 ## Known issues
