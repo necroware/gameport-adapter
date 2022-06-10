@@ -184,29 +184,30 @@ optimization.
 The hardware is super simple. To build an adapter you'll need the PCB from this
 project and following parts:
 
-Part    | Count | LCSC #  | Digikey #                | Mouser Electronics # | Comment
+Part    |  Qty  | [LCSC](https://lcsc.com/) #  | [Digikey](https://www.digikey.com/) #                | [Mouser Electronics](https://www.mouser.com/) # | Comment
 --------|-------|---------|--------------------------|----------------------|------------------------------------------
 CONN1   |   1   | C77835  | 609-5371-ND              | 523-L77SDA15SA4CH4F  | DB15 female connector
 R1..R4  |   4   | C172965 | 13-MFR-25FTE52-100KCT-ND | 603-MFR-25FTE52-100K | 100 kOhm resistors
-SW1     |   1   | C15781  | 2449-KG04ET-ND           | 642-DS04             | DIP-4 switch
+SW1     |   1   | C15781  | 2449-KG04ET-ND           | 642-DS04T            | DIP-4 switch
 U1      |   1   | C72120  | ED3051-5-ND              | 649-DILB24P-223TLF   | DIP24 Socket (optional)
-U1      |   1   | ---     | 1568-1060-ND             | 474-DEV-12640        | Arduino Pro Micro (ATmega32U4 16MHz, 5V)
+U1      |   1   |   N/A   | 1568-1060-ND             | 474-DEV-12640        | Arduino Pro Micro (ATmega32U4 16MHz, 5V), including two 12 pin header connectors, MicroUSB version (see "Known issues")
 
 ## Known issues
 
 * *Some axes on an analog joystick are offset*
 
-Auto calibration requires all the axes to be in the center position during 
-initialization. Please see the paragraph about auto calibration.
+   Auto calibration requires all the axes to be in the center position during 
+   initialization. Please see the paragraph about auto calibration.
 
 * *Joystick doesn't work*
 
-Make sure that you are using one of supported joysticks or a joystick which can
-work in legacy analog mode
+   Make sure that you are using one of supported joysticks or a joystick which can
+   work in legacy analog mode
 
 * *MicroUSB port on the Arduino is not stable enough*
 
-Use the USB-C version of the Arduino instead.
+   Use the USB-C version of the Arduino instead.  
+   Or always keep the MicroUSB cable attached to the Arduino MicroUSB version to avoid further wear and apply plug/unplug operations only on the remote side of the cable.
 
 ## How to help the project?
 
