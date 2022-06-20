@@ -49,25 +49,6 @@ public:
     return m_button1.isLow() | m_button2.isLow() << 1 | m_button3.isLow() << 2 | m_button4.isLow() << 3;
   }
 
-  /// Checks if a button is pressed.
-  ///
-  /// @param[in] id is the button id
-  /// @returns true if button is pressed, or false
-  bool isPressed(int id) {
-    switch (id) {
-      case 0:
-        return m_button1.isLow();
-      case 1:
-        return m_button2.isLow();
-      case 2:
-        return m_button3.isLow();
-      case 3:
-        return m_button4.isLow();
-      default:
-        return false;
-    }
-  }
-
 private:
   DigitalInput<GamePort<2>::pin> m_button1;
   DigitalInput<GamePort<7>::pin> m_button2;
