@@ -22,6 +22,9 @@
 template <size_t Axes, size_t Buttons>
 class GenericJoystick : public Joystick {
 public:
+
+    static_assert(Axes > 0 && Axes <= 4);
+
     bool init() override {
         return true;
     }
