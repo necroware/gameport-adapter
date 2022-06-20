@@ -27,7 +27,7 @@ public:
     }
 
     bool update() override {
-        for (auto i = 0u; i < 4; i++) {
+        for (auto i = 0u; i < Axes; i++) {
             m_state.axes[i] = m_joystick.getAxis(i);
         }
         m_state.buttons = m_joystick.getButtons();
