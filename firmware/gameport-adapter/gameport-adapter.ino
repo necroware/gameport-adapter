@@ -23,7 +23,14 @@
 #include "Sidewinder.h"
 #include "ThrustMaster.h"
 
-static Joystick *createJoystick(byte sw) {
+static Joystick *createJoystick() {
+
+  const auto sw1 = DigitalInput<14, true>{}.isLow();
+  const auto sw2 = DigitalInput<15, true>{}.isLow();
+  const auto sw3 = DigitalInput<20, true>{}.isLow();
+  const auto sw4 = DigitalInput<21, true>{}.isLow();
+  const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
+
   switch (sw) {
     case 0b0001:
       return new GenericJoystick<2,4>;
@@ -46,20 +53,18 @@ static Joystick *createJoystick(byte sw) {
   }
 }
 
-static HidJoystick hidJoystick;
-
 void setup() {
   Serial.begin(9600);
   //while(!Serial);
-  const auto sw1 = DigitalInput<14, true>{}.isLow();
-  const auto sw2 = DigitalInput<15, true>{}.isLow();
-  const auto sw3 = DigitalInput<20, true>{}.isLow();
-  const auto sw4 = DigitalInput<21, true>{}.isLow();
-
-  const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
-  hidJoystick.init(createJoystick(sw));
 }
 
 void loop() {
+
+  static auto hidJoystick = []() {
+      HidJoystick hidJoystick;
+      hidJoystick.init(createJoystick());
+      return hidJoystick;
+  }();
+
   hidJoystick.update();
 }
