@@ -113,12 +113,12 @@ compatible to the analog joysticks as they were used back in the days in DOS.
 Following list contains all the devices wich were reported by others as working
 so far:
 
-* Gravis Analog Pro
-* Gravis PC GamePad
+* Gravis Analog Pro (analog)
+* Gravis PC GamePad (analog)
 * Gravis GamePad Pro
-* QuickShot QS-123E "Warrior 5"
-* QuickShot QS-201 "Super Warrior"
-* QuickShot QS-203 "Avenger"
+* QuickShot QS-123E "Warrior 5" (analog)
+* QuickShot QS-201 "Super Warrior" (analog)
+* QuickShot QS-203 "Avenger" (analog)
 * Sidewinder GamePad
 * Sidewinder 3D Pro
 * Sidewinder 3D Pro Plus
@@ -126,6 +126,7 @@ so far:
 * Sidewinder ForceFeedBack Wheel
 * Logitech WingMan Extreme Digital
 * Logitech CyberMan 2
+* InterAct UltraRacer PC (analog)
 
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
 mode it can emulate the ThrustMaster and CH FlightStick. That's why you see them in
