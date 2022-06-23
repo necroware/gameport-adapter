@@ -20,6 +20,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#ifdef __DEBUG__
+#define DEBUG_LOG(...) log(__VA_ARGS__)
+#else
+#define DEBUG_LOG(...)
+#endif
+
 /// Interrupt guard (RAII).
 ///
 /// This class is used to deactivate the interrupts in performance
