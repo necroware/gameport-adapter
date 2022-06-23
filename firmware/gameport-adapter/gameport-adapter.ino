@@ -1,5 +1,11 @@
 // This file is part of Necroware's GamePort adapter firmware.
 // Copyright (C) 2021 Necroware
+//   _   _ ______ _____ _____   ______          __     _____  ______ 
+//  | \ | |  ____/ ____|  __ \ / __ \ \        / /\   |  __ \|  ____|
+//  |  \| | |__ | |    | |__) | |  | \ \  /\  / /  \  | |__) | |__   
+//  | . ` |  __|| |    |  _  /| |  | |\ \/  \/ / /\ \ |  _  /|  __|  
+//  | |\  | |___| |____| | \ \| |__| | \  /\  / ____ \| | \ \| |____ 
+//  |_| \_|______\_____|_|  \_\\____/   \/  \/_/    \_\_|  \_\______|
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version
@@ -12,6 +18,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+//#define __DEBUG__
 
 #include "DigitalPin.h"
 #include "HidJoystick.h"
@@ -54,8 +62,13 @@ static Joystick *createJoystick() {
 }
 
 void setup() {
-  Serial.begin(9600);
-  //while(!Serial);
+  #ifdef __DEBUG__
+    Serial.begin(9600);
+    // Arduino Micro shares Serial with native USB interface.
+    // The following line is only necessary for outputting messages at the Serial Monitor.
+    // But do not enable it if you actually want to use the Joystick
+    while(!Serial); 
+  #endif
 }
 
 void loop() {
