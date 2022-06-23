@@ -29,7 +29,7 @@ class Sidewinder : public Joystick {
 public:
   /// Resets the joystick and tries to detect the model.
   bool init() override {
-    log("Sidewinder init...");
+    DEBUG_LOG("Sidewinder init...");
     m_errors = 0;
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
@@ -37,7 +37,7 @@ public:
       enableDigitalMode();
       m_model = guessModel(readPacket());
     }
-    log("Detected model %d", m_model);
+    DEBUG_LOG("Detected model %d", m_model);
     return true;
   }
 
@@ -51,7 +51,7 @@ public:
     }
 
     m_errors++;
-    log("Packet decoding failed %d time(s)", m_errors);
+    DEBUG_LOG("Packet decoding failed %d time(s)", m_errors);
     if (m_errors > 5) {
       return init();
     }
@@ -95,7 +95,7 @@ private:
 
   /// Guesses joystick model from the size of the packet.
   static Model guessModel(const Packet &packet) {
-    log("Guessing model by packet size of %d", packet.size);
+    DEBUG_LOG("Guessing model by packet size of %d", packet.size);
     switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
@@ -134,7 +134,7 @@ private:
   void enableDigitalMode() const {
     static const uint16_t magic = 150;
     static const uint16_t seq[] = {magic, magic + 725, magic + 300, magic, 0};
-    log("Trying to enable digital mode");
+    DEBUG_LOG("Trying to enable digital mode");
     cooldown();
     const InterruptStopper interruptStopper;
     for (auto i = 0u; seq[i]; i++) {
