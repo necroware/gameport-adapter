@@ -24,15 +24,6 @@ struct Buffer {
     uint8_t size{};
 };
 
-template <size_t Size>
-void print(const Buffer<Size>& buffer) {
-    for (auto i = 0u; i < buffer.size; i++) {
-        Serial.print(buffer.data[i], HEX);
-        Serial.print(" ");
-    }
-    Serial.println();
-}
-
 template <size_t S>
 class BufferFillerImpl {
 public:
