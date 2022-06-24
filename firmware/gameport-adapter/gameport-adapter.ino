@@ -2,8 +2,9 @@
 // Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +16,7 @@
 
 // DEBUG information:
 // Uncomment the "__DEBUG__" line for direct message output to the Serial Monitor.
-// Since Arduino Micro directly shares Serial with native USB interface (unlike other Arduino devices)
+// Since the Arduino Micro model directly shares Serial with native USB interface
 // the underlying operating system will no longer recognize the USB device!
 
 // #define __DEBUG__
