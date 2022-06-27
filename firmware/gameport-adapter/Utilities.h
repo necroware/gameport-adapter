@@ -20,7 +20,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifdef __DEBUG__
+/// When debugging is enabled, rename the DEBUG_LOG() macro to log() 
+/// to output messages to the Serial Monitor
+#ifdef NDEBUG
 #define DEBUG_LOG(...) log(__VA_ARGS__)
 #else
 #define DEBUG_LOG(...)
