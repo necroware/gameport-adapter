@@ -57,7 +57,7 @@ static Joystick *createJoystick() {
 void setup() {
     // DEBUG information: Debugging is turned off by default
     // Comment the "NDEBUG" line in "Utilities.h" to enable logging to the serial monitor
-    init_log();
+    initLog();
 }
 
 void loop() {
