@@ -34,7 +34,7 @@ public:
     m_subDescriptor = new HIDSubDescriptor{m_hidDescription.data, m_hidDescription.size};
     m_hidDevice.AppendDescriptor(m_subDescriptor);
 
-    DEBUG_LOG("Detected device: %s", joystick->getDescription().name);
+    log("Detected device: %s", joystick->getDescription().name);
     return true;
   }
 

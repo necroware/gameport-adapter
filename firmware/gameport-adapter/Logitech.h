@@ -242,7 +242,7 @@ private:
 
     const auto metaSize = getBits(packet, 0, 10);
     if (metaSize != packet.size) {
-      DEBUG_LOG("Meta data package size mismatch, expected %d but got %d", packet.size, metaSize);
+      log("Meta data package size mismatch, expected %d but got %d", packet.size, metaSize);
       return false;
     }
 

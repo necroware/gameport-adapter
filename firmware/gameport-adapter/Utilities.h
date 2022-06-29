@@ -59,3 +59,4 @@ struct InterruptStopper {
   InterruptStopper& operator=(const InterruptStopper&) = delete;
   InterruptStopper& operator=(InterruptStopper&&) = delete;
 };
+
