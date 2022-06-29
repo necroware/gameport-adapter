@@ -20,6 +20,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+/// DEBUG information: Debugging is turned off by default
+/// Comment the "NDEBUG" line for direct message output to the Serial Monitor.
+/// Since the Arduino Micro model directly shares Serial with native USB interface
+/// the underlying operating system will no longer recognize the USB device!
+#define NDEBUG 
+
 /// When debugging is enabled, rename the DEBUG_LOG() macro to log() 
 /// to output messages to the Serial Monitor
 #ifdef NDEBUG
@@ -46,6 +52,14 @@ struct InterruptStopper {
   InterruptStopper& operator=(const InterruptStopper&) = delete;
   InterruptStopper& operator=(InterruptStopper&&) = delete;
 };
+
+/// This function is used during the default setup() routine
+inline void InitLogging() {
+  #ifndef NDEBUG
+    Serial.begin(9600);
+    while(!Serial);
+  #endif
+}
 
 inline void log(const char *fmt, ...) {
   va_list args;
