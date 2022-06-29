@@ -26,13 +26,25 @@
 /// the underlying operating system will no longer recognize the USB device!
 #define NDEBUG 
 
-/// When debugging is enabled, rename the DEBUG_LOG() macro to log() 
-/// to output messages to the Serial Monitor
 #ifdef NDEBUG
-#define DEBUG_LOG(...) log(__VA_ARGS__)
+#define init_log()
+#define log(...)
 #else
-#define DEBUG_LOG(...)
-#endif
+/// This function is used during the default setup() routine
+inline void init_log() {
+    Serial.begin(9600);
+    while(!Serial); 
+}
+
+inline void log(const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  char buffer[512];
+  vsnprintf(buffer, sizeof(buffer), fmt, args);
+  va_end(args);
+  Serial.println(buffer);
+}
+#endif // !NDEBUG
 
 /// Interrupt guard (RAII).
 ///
@@ -53,19 +65,3 @@ struct InterruptStopper {
   InterruptStopper& operator=(InterruptStopper&&) = delete;
 };
 
-/// This function is used during the default setup() routine
-inline void InitLogging() {
-  #ifndef NDEBUG
-    Serial.begin(9600);
-    while(!Serial);
-  #endif
-}
-
-inline void log(const char *fmt, ...) {
-  va_list args;
-  va_start(args, fmt);
-  char buffer[512];
-  vsnprintf(buffer, sizeof(buffer), fmt, args);
-  va_end(args);
-  Serial.println(buffer);
-}
