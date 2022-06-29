@@ -20,45 +20,20 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-/// DEBUG information: Debugging is turned off by default
-/// Comment the "NDEBUG" line for direct message output to the Serial Monitor.
-/// Since the Arduino Micro model directly shares Serial with native USB interface
-/// the underlying operating system will no longer recognize the USB device!
+/// Debug messages on serial port are turned off by default. Comment the following
+/// line to enable logging to the serial port.
+/// Arduino Micro seems somehow to share the serial port with the USB interface.
+/// If the serial port will be activated, the operating system will no longer
+/// recognize the USB device!
 #define NDEBUG 
 
-/// When debugging is enabled, rename the DEBUG_LOG() macro to log() 
-/// to output messages to the Serial Monitor
 #ifdef NDEBUG
-#define DEBUG_LOG(...) log(__VA_ARGS__)
+#define initLog()
+#define log(...)
 #else
-#define DEBUG_LOG(...)
-#endif
-
-/// Interrupt guard (RAII).
-///
-/// This class is used to deactivate the interrupts in performance
-/// critical sections. The interrupt is reactivated as soon as this
-/// guard runs out of scope.
-struct InterruptStopper {
-  InterruptStopper() {
-    noInterrupts();
-  }
-  ~InterruptStopper() {
-    interrupts();
-  }
-
-  InterruptStopper(const InterruptStopper&) = delete;
-  InterruptStopper(InterruptStopper&&) = delete;
-  InterruptStopper& operator=(const InterruptStopper&) = delete;
-  InterruptStopper& operator=(InterruptStopper&&) = delete;
-};
-
-/// This function is used during the default setup() routine
-inline void InitLogging() {
-  #ifndef NDEBUG
+inline void initLog() {
     Serial.begin(9600);
-    while(!Serial);
-  #endif
+    while(!Serial); 
 }
 
 inline void log(const char *fmt, ...) {
@@ -69,3 +44,18 @@ inline void log(const char *fmt, ...) {
   va_end(args);
   Serial.println(buffer);
 }
+#endif // !NDEBUG
+
+/// Interrupt guard (RAII).
+///
+/// This class is used to deactivate the interrupts in performance
+/// critical sections. The interrupt is reactivated as soon as this
+/// guard runs out of scope.
+struct InterruptStopper {
+  InterruptStopper() { noInterrupts(); }
+  ~InterruptStopper() { interrupts(); }
+  InterruptStopper(const InterruptStopper&) = delete;
+  InterruptStopper(InterruptStopper&&) = delete;
+  InterruptStopper& operator=(const InterruptStopper&) = delete;
+  InterruptStopper& operator=(InterruptStopper&&) = delete;
+};

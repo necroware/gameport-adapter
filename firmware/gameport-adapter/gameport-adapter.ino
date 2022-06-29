@@ -10,12 +10,9 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-/// DEBUG information: Debugging is turned off by default
-/// Comment the "NDEBUG" line in "Utilities.h" for direct message output to the Serial Monitor.
 
 #include "DigitalPin.h"
 #include "HidJoystick.h"
@@ -58,7 +55,9 @@ static Joystick *createJoystick() {
 }
 
 void setup() {
-  InitLogging();
+    // Serial port debugging is turned off by default, comment the "NDEBUG" line
+    // in "Utilities.h" to enable logging to the serial monitor
+    initLog();
 }
 
 void loop() {
