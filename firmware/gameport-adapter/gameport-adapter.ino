@@ -15,10 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 /// DEBUG information: Debugging is turned off by default
-/// Comment the "NDEBUG" line for direct message output to the Serial Monitor.
-/// Since the Arduino Micro model directly shares Serial with native USB interface
-/// the underlying operating system will no longer recognize the USB device!
-#define NDEBUG
+/// Comment the "NDEBUG" line in "Utilities.h" for direct message output to the Serial Monitor.
 
 #include "DigitalPin.h"
 #include "HidJoystick.h"
@@ -61,10 +58,7 @@ static Joystick *createJoystick() {
 }
 
 void setup() {
-  #ifndef NDEBUG
-    Serial.begin(9600);
-    while(!Serial); 
-  #endif
+  InitLogging();
 }
 
 void loop() {
