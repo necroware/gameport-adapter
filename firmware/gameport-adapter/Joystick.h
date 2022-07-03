@@ -22,7 +22,7 @@
 class Joystick {
 public:
   static const auto MAX_AXES{8u};
-  static const auto MAX_HATS{2u};
+  static const auto MAX_HATS{3u};
 
   /// Device description.
   ///
