@@ -18,6 +18,7 @@
 #include "HidJoystick.h"
 
 #include "CHFlightstickPro.h"
+#include "CH-f16-combat-stick.h"
 #include "GenericJoystick.h"
 #include "GrIP.h"
 #include "Logitech.h"
@@ -41,6 +42,8 @@ static Joystick *createJoystick() {
       return new GenericJoystick<4,4>;
     case 0b0100:
       return new CHFlightstickPro;
+    case 0b1100:
+      return new CHF16CombatStick;
     case 0b0101:
       return new ThrustMaster;
     case 0b0111:
