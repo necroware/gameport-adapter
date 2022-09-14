@@ -18,7 +18,7 @@
 #include "HidJoystick.h"
 
 #include "CHFlightstickPro.h"
-#include "CH-f16-combat-stick.h"
+#include "CHF16CombatStick.h"
 #include "GenericJoystick.h"
 #include "GrIP.h"
 #include "Logitech.h"
@@ -33,6 +33,7 @@ static Joystick *createJoystick() {
   const auto sw4 = DigitalInput<21, true>{}.isLow();
   const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
 
+  log("sw %d",sw );
   switch (sw) {
     case 0b0001:
       return new GenericJoystick<2,4>;
@@ -42,7 +43,7 @@ static Joystick *createJoystick() {
       return new GenericJoystick<4,4>;
     case 0b0100:
       return new CHFlightstickPro;
-    case 0b1100:
+    case 0b0110:
       return new CHF16CombatStick;
     case 0b0101:
       return new ThrustMaster;

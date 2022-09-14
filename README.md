@@ -81,6 +81,7 @@ Generic Analog           | 4       | 2     | 0    | 1000  |
 Generic Analog           | 4       | 3     | 0    | 0100  | 3rd Axis is throttle
 Generic Analog           | 4       | 4     | 0    | 1100  | 
 CH FlightStick           | 4       | 4     | 1    | 0010  | Analog, DOS-compatible
+CH F16 Combat Stick      | 10      | 3     | 1    | 0110  | Analog, DOS-compatible
 ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
 Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
 Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol

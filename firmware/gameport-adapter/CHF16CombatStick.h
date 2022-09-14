@@ -15,13 +15,6 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 //
 // CH F16 Combat Stick from 1995
-// Made by Stefan Geissler
-//  3 axes
-// 10 buttons
-//  1 Hat with 4 positions
-// The 4th axis (index 2) is ignored, because there is a big jitter
-// and it reacts on movement of the other axes too. So you can not
-// assign the axes to a function in your game.
 
 #pragma once
 
@@ -45,16 +38,6 @@ public:
 
 
   bool update() override {
-
-    // Unfortunately I had no real CHFlighstickPro joystick to test, but
-    // Sidewinder 3D Pro has an emulation for CHFlighstickPro. So, this
-    // implementation was made using that emulation and could be wrong.
-    // CHFlighstickPro seems to be a very interesting joystick. It doesn't
-    // allow the user to press multiple buttons simultaneously and uses
-    // combined buttons invocations as hat switch codes instead. So, every
-    // time a multiple buttons seem to be pressed, means that the user is
-    // actually using the hat switch.
-
     // Same as CH Flight Stick Pro. But the F16 stick has 4 positions on the hat only. 
     const auto decode1 = [](byte code) -> byte {
       //                             0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15
@@ -63,6 +46,9 @@ public:
     };
 
 
+    // The 4th axis (index 2) is ignored, because there is a big jitter
+    // and it reacts on movement of the other axes too. So you can not
+    // assign the axes to a function in your game.
     m_state.axes[0] = m_joystick.getAxis(0);
     m_state.axes[1] = m_joystick.getAxis(1);
     m_state.axes[2] = m_joystick.getAxis(3); // Throttle
@@ -72,10 +58,7 @@ public:
     //                                 0  1  2  3  4   5    6  7   8  9   10 11   12 13  14 15
     static const uint16_t table[16] = {0, 1, 8, 0, 4, 32, 256, 0, 16, 2, 128, 0, 512, 0, 64, 0};
 
-#ifndef NDEBUG 
     log("Code %d : %d , A2 %d",code, table[code], m_state.axes[2] );
-    return true;
-#endif
     m_state.hats[0] = decode1(code);
     m_state.buttons = table[code];
   
