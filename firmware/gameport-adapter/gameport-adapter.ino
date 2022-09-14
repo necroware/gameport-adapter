@@ -42,10 +42,10 @@ static Joystick *createJoystick() {
       return new GenericJoystick<4,4>;
     case 0b0100:
       return new CHFlightstickPro;
-    case 0b0110:
-      return new CHF16CombatStick;
     case 0b0101:
       return new ThrustMaster;
+    case 0b0110:
+      return new CHF16CombatStick;
     case 0b0111:
       return new Sidewinder;
     case 0b1000:
