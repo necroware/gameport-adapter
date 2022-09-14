@@ -33,7 +33,6 @@ static Joystick *createJoystick() {
   const auto sw4 = DigitalInput<21, true>{}.isLow();
   const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
 
-  log("sw %d",sw );
   switch (sw) {
     case 0b0001:
       return new GenericJoystick<2,4>;
