@@ -49,7 +49,7 @@ Features overview:
 ## What is the difference between analog and digital joystick?
 
 Many people call button-only joysticks or gamepads digital. This is kind of
-right, because A button is either pressed or not. You can't have an analog
+right, because a button is either pressed or not. You can't have an analog
 values in between. However by digital, in this case, we mean something different.
 A gameport contains 15 pins, 8 of which are used for joystick communication. 4
 pins are for buttons and carry digital values in sense of on/off and 4 pins are
@@ -65,7 +65,7 @@ pin of the gameport as clock and another one as data, the possibilities were
 almost limitless. Such joysticks are called digital as well, because they used
 digital protocols to communicate with the PC. And suddenly, many features were
 possible, but the price of these features was the lost compatibility to DOS. You
-couldn't just plug such a joystick it into the gameport and expect it to work in
+couldn't just plug such a joystick into the gameport and expect it to work in
 old DOS games. The plug was the same, but the signaling was completely different.
 
 ## Which joysticks does this adapter support?
@@ -165,10 +165,10 @@ works. Also the Sidewinder patent US#5628686A helped a lot, especially with
 switching between digital and analog mode for Sidewinder 3D Pro.
 
 In opposition to the already mentioned Sidewinder for Arduino implementations,
-this one doesn't rely on interrupts. This implementation is from a similare idea 
+this one doesn't rely on interrupts. This implementation is from a similar idea 
 to what the Linux driver does. It polls the port and makes a lot of things
 simpler due to synchronous process. The biggest problem was that the Sidwinder
-devices send the data incredibly fast, with a clock pulse of only 5us.  It was
+devices send the data incredibly fast, with a clock pulse of only 5us. It was
 not possible to use Arduino's digitalRead(...) function for that. It was too
 slow with about 2.7us per call on an Arduino Pro Micro of 16MHz.  It simply
 made it impossible to poll 5us pulses, with such a slow function, not even
