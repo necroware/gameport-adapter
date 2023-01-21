@@ -79,6 +79,9 @@ private:
     /// Sidewinder Precision Pro
     SW_PRECISION_PRO,
 
+    /// Sidewinder Force Feedback Pro
+    SW_FORCE_FEEDBACK_PRO,
+
     /// Sidewinder Force Feedback Wheel
     SW_FORCE_FEEDBACK_WHEEL
   };
@@ -101,7 +104,10 @@ private:
         return Model::SW_GAMEPAD;
       case 16: // 3bit mode
       case 48: // 1bit mode
-        return Model::SW_PRECISION_PRO;
+        // TODO: SW_PRECISION_PRO and SW_FORCE_FEEDBACK_PRO have the same packet size.
+        // Need some other means of differentiating between the two of them.
+        return Model::SW_FORCE_FEEDBACK_PRO;
+        //return Model::SW_PRECISION_PRO;
       case 11: // 3bit mode
       case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
@@ -366,6 +372,17 @@ public:
   }
 };
 
+/// Descriptor for Sidewinder Force Feedback Pro.
+/// (The bit decoder is identical to the Precision Pro.)
+template <>
+class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_PRO> {
+public:
+  static const Description &getDescription() {
+    static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 9, 1};
+    return desc;
+  }
+};
+
 /// Bit decoder for Sidewinder Force Feedback Wheel.
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL> {
@@ -437,6 +454,8 @@ inline const Joystick::Description &Sidewinder::getDescription() const {
       return Decoder<Model::SW_3D_PRO>::getDescription();
     case Model::SW_PRECISION_PRO:
       return Decoder<Model::SW_PRECISION_PRO>::getDescription();
+    case Model::SW_FORCE_FEEDBACK_PRO:
+      return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::getDescription();
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::getDescription();
     default:
@@ -451,6 +470,9 @@ inline bool Sidewinder::decode(const Packet &packet, State &state) const {
     case Model::SW_3D_PRO:
       return Decoder<Model::SW_3D_PRO>::decode(packet, state);
     case Model::SW_PRECISION_PRO:
+      return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+    case Model::SW_FORCE_FEEDBACK_PRO:
+      // Decode is identical between the Force Feedback Pro and the Precision Pro.
       return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
