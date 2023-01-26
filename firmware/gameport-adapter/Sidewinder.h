@@ -32,10 +32,6 @@ public:
     log("Sidewinder init...");
     m_errors = 0;
 
-    log("Data packet size: %d", readPacket().size);
-    log("ID packet size: %d", readIDPacket().size);
-    log("Data packet size again: %d", readPacket().size);
-
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
@@ -102,17 +98,25 @@ private:
   };
 
   /// Guesses joystick model from the size of the packet.
-  static Model guessModel(const Packet &packet) {
+  Model guessModel(const Packet &packet) {
     log("Guessing model by packet size of %d", packet.size);
     switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
       case 16: // 3bit mode
       case 48: // 1bit mode
+        log("Data packet size is ambiguous. Collecting ID packet.");
+        Packet id_packet = readIDPacket(packet.size);
+        if (id_packet.size == 14)
+        {
+          log("Sidewinder FFB Pro - AC Adapter: %s", id_packet.data[12] == 5 ? "ON" : "OFF");
+          return Model::SW_FORCE_FEEDBACK_PRO;
+        }
+        else
+          return Model::SW_PRECISION_PRO;
         // TODO: SW_PRECISION_PRO and SW_FORCE_FEEDBACK_PRO have the same packet size.
         // Need some other means of differentiating between the two of them.
         return Model::SW_FORCE_FEEDBACK_PRO;
-        //return Model::SW_PRECISION_PRO;
       case 11: // 3bit mode
       case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
@@ -195,15 +199,22 @@ private:
     return packet;
   }
 
-  /// Read ID packet from the joystick
-  Packet readIDPacket() const {
+  /// Read ID packet from the joystick.
+  ///
+  /// dataPacketSize is the size of a "normal" data packet (collected
+  /// using readPacket().) The only way to collect an ID packet is to emit
+  /// a second trigger pulse during the collection of a data packet. The
+  /// two packets will come in tandem, so the easiest way to start collecting
+  /// just the ID packet is to know the data packet's size beforehand.
+  ///
+  /// Like readPacket() above, this packet collection is timing-critical.
+  Packet readIDPacket(int dataPacketSize) const {
 
     // Packet instantiation is a very expensive call, which zeros the memory.
     // The instantiation should therefore happen outside of the interrupt stopper
     // and before triggering the device. Otherwise the clock will come before
     // the packet was zeroed/instantiated.
     Packet packet;
-    int i = 0;
 
     cooldown();
 
@@ -212,29 +223,29 @@ private:
 
     auto ready = m_clock.isHigh();
     m_trigger.setHigh();
-    static const uint8_t wait_duration = 250;
+    static const uint16_t wait_duration = 250;
     if (ready || m_clock.wait(Edge::rising, wait_duration)) {
-      for (; i < Packet::MAX_SIZE; i++) {
+      for (int dataPacketIndex = 0; dataPacketIndex < dataPacketSize; dataPacketIndex++) {
         if (!m_clock.wait(Edge::rising, wait_duration)) {
           break;
         }
 
-        // To request the ID, a second trigger pulse must be sent.
-        // The i values are guesses at the proper timing
-        switch (i)
+        // To request the ID packet, a second trigger pulse must be sent.
+        // The values below are magic-number guesses at the proper timing.
+        // Testing with a Sidewinder FFB Pro, the pulse needs to be at least
+        // two indices wide, but can occur a bit earlier or later than this.
+        // in the Linux driver, the second trigger's timing is determined
+        // in a much more complex way.
+        switch (dataPacketIndex)
         {
           case 0: m_trigger.setLow(); break;
           case 8: m_trigger.setHigh(); break;
-          case 9: m_trigger.setLow(); break;
+          case 11: m_trigger.setLow(); break;
         }
-
-        m_data0.read();
-        m_data1.read();
-        m_data2.read();
       }
     }
 
-    // WARNING: See above explanation in readPacket
+    // Okay, now we can collect the ID packet.
     for (; packet.size < Packet::MAX_SIZE; packet.size++) {
       if (!m_clock.wait(Edge::rising, wait_duration)) {
         break;
@@ -245,8 +256,6 @@ private:
       packet.data[packet.size] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
     }
 
-    log("   First packet size during ID read: %d", i);
-    log("  Second packet size during ID read: %d", packet.size);
     return packet;
   }
 
