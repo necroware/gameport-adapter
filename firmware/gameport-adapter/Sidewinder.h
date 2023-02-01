@@ -42,6 +42,7 @@ public:
   }
 
   bool update() override {
+    cooldown();
     const auto packet = readPacket();
     State state;
     if (decode(packet, state)) {
@@ -111,10 +112,14 @@ private:
         return Model::SW_UNKNOWN;
     }
   }
- 
+
   void cooldown() const {
     m_trigger.setLow();
     delayMicroseconds(1000);
+  }
+
+  void trigger() const {
+    m_trigger.pulse(15);
   }
 
   DigitalInput<GamePort<2>::pin, true> m_clock;
@@ -138,7 +143,7 @@ private:
     cooldown();
     const InterruptStopper interruptStopper;
     for (auto i = 0u; seq[i]; i++) {
-      m_trigger.pulse(10);
+      trigger();
       delayMicroseconds(seq[i]);
     }
   }
@@ -155,12 +160,9 @@ private:
     // the packet was zeroed/instantiated.
     Packet packet;
 
-    cooldown();
-
-    // WARNING: Here starts the timing critical section
     const InterruptStopper interruptStopper;
-    const auto ready = m_clock.isHigh();
-    m_trigger.setHigh();
+    trigger();
+
     // We are reading into a byte array instead of an uint64_t, because of two
     // reasons. First, bits packets can be larger, than 64 bits. We are actually
     // not interested in packets, which are larger than that, but may be in the
@@ -168,20 +170,44 @@ private:
     // uint64_t we would need to shift between the clock impulses, which is
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
-    static const uint8_t wait_duration = 250;
-    if (ready || m_clock.wait(Edge::rising, wait_duration)) {
-      for (; packet.size < Packet::MAX_SIZE; packet.size++) {
-        if (!m_clock.wait(Edge::rising, wait_duration)) {
-          break;
-        }
-        const auto b1 = m_data0.read();
-        const auto b2 = m_data1.read();
-        const auto b3 = m_data2.read();
-        packet.data[packet.size] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
+    packet.size = readBits(Packet::MAX_SIZE, [this, &packet](uint8_t pos) {
+      const auto b1 = m_data0.read();
+      const auto b2 = m_data1.read();
+      const auto b3 = m_data2.read();
+      packet.data[pos] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
+    });
+
+    return packet;
+  }
+
+  uint8_t readID(uint8_t dataPacketSize) const {
+
+    const auto rise = dataPacketSize / 2 - 1;
+    const auto fall = rise + 2;
+
+    const InterruptStopper interruptStopper;
+    trigger();
+    const auto count = readBits(255u, [this, rise, fall](uint8_t pos) {
+      if (pos == rise) {
+        m_trigger.setHigh();
+      }
+      else if (pos == fall) {
+        m_trigger.setLow();
+      }
+    });
+    return count < dataPacketSize ? 0 : count - dataPacketSize;
+  }
+
+  template <typename T>
+  uint8_t readBits(uint8_t maxCount, T&& extract) const {
+    static const uint8_t wait_duration = 100;
+    uint8_t count{};
+    if (m_clock.wait(true, wait_duration)) {
+      while(count < maxCount && m_clock.wait(Edge::rising, wait_duration)) {
+        extract(count++);
       }
     }
-    m_trigger.setLow();
-    return packet;
+    return count;
   }
 
   /// Decodes bit packet into a state.
