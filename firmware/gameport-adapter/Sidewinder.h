@@ -104,20 +104,15 @@ private:
     switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
-      case 16: // 3bit mode
-      case 48: // 1bit mode
-        log("Data packet size is ambiguous. Collecting ID packet.");
-        Packet id_packet = readIDPacket(packet.size);
-        if (id_packet.size == 14)
-        {
-          log("Sidewinder FFB Pro - AC Adapter: %s", id_packet.data[12] == 5 ? "ON" : "OFF");
-          return Model::SW_FORCE_FEEDBACK_PRO;
-        }
-        else
+      case 16:   // 3bit mode
+      case 48: { // 1bit mode
+          const auto id = readID(packet.size);
+          log("Data packet size is ambiguous. Guessing by ID %d", id);
+          if (id == 14) {
+            return Model::SW_FORCE_FEEDBACK_PRO;
+          }
           return Model::SW_PRECISION_PRO;
-        // TODO: SW_PRECISION_PRO and SW_FORCE_FEEDBACK_PRO have the same packet size.
-        // Need some other means of differentiating between the two of them.
-        return Model::SW_FORCE_FEEDBACK_PRO;
+        }
       case 11: // 3bit mode
       case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
@@ -223,66 +218,6 @@ private:
       }
     }
     return count;
-  }
-
-  /// Read ID packet from the joystick.
-  ///
-  /// dataPacketSize is the size of a "normal" data packet (collected
-  /// using readPacket().) The only way to collect an ID packet is to emit
-  /// a second trigger pulse during the collection of a data packet. The
-  /// two packets will come in tandem, so the easiest way to start collecting
-  /// just the ID packet is to know the data packet's size beforehand.
-  ///
-  /// Like readPacket() above, this packet collection is timing-critical.
-  Packet readIDPacket(int dataPacketSize) const {
-
-    // Packet instantiation is a very expensive call, which zeros the memory.
-    // The instantiation should therefore happen outside of the interrupt stopper
-    // and before triggering the device. Otherwise the clock will come before
-    // the packet was zeroed/instantiated.
-    Packet packet;
-
-    cooldown();
-
-    // WARNING: Here starts the timing critical section
-    const InterruptStopper interruptStopper;
-
-    auto ready = m_clock.isHigh();
-    m_trigger.setHigh();
-    static const uint16_t wait_duration = 250;
-    if (ready || m_clock.wait(Edge::rising, wait_duration)) {
-      for (int dataPacketIndex = 0; dataPacketIndex < dataPacketSize; dataPacketIndex++) {
-        if (!m_clock.wait(Edge::rising, wait_duration)) {
-          break;
-        }
-
-        // To request the ID packet, a second trigger pulse must be sent.
-        // The values below are magic-number guesses at the proper timing.
-        // Testing with a Sidewinder FFB Pro, the pulse needs to be at least
-        // two indices wide, but can occur a bit earlier or later than this.
-        // in the Linux driver, the second trigger's timing is determined
-        // in a much more complex way.
-        switch (dataPacketIndex)
-        {
-          case 0: m_trigger.setLow(); break;
-          case 8: m_trigger.setHigh(); break;
-          case 11: m_trigger.setLow(); break;
-        }
-      }
-    }
-
-    // Okay, now we can collect the ID packet.
-    for (; packet.size < Packet::MAX_SIZE; packet.size++) {
-      if (!m_clock.wait(Edge::rising, wait_duration)) {
-        break;
-      }
-      const auto b1 = m_data0.read();
-      const auto b2 = m_data1.read();
-      const auto b3 = m_data2.read();
-      packet.data[packet.size] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
-    }
-
-    return packet;
   }
 
   /// Decodes bit packet into a state.
@@ -476,6 +411,11 @@ public:
     static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 9, 1};
     return desc;
   }
+
+  static bool decode(const Packet &packet, State &state) {
+    // Decode is identical between the Force Feedback Pro and the Precision Pro.
+    return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+  }
 };
 
 /// Bit decoder for Sidewinder Force Feedback Wheel.
@@ -567,8 +507,7 @@ inline bool Sidewinder::decode(const Packet &packet, State &state) const {
     case Model::SW_PRECISION_PRO:
       return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
     case Model::SW_FORCE_FEEDBACK_PRO:
-      // Decode is identical between the Force Feedback Pro and the Precision Pro.
-      return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+      return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::decode(packet, state);
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
     default:
