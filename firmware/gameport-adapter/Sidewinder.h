@@ -129,7 +129,7 @@ private:
   }
 
   void trigger() const {
-    m_trigger.pulse(15);
+    m_trigger.pulse(10);
   }
 
   DigitalInput<GamePort<2>::pin, true> m_clock;
@@ -170,9 +170,6 @@ private:
     // the packet was zeroed/instantiated.
     Packet packet;
 
-    const InterruptStopper interruptStopper;
-    trigger();
-
     // We are reading into a byte array instead of an uint64_t, because of two
     // reasons. First, bits packets can be larger, than 64 bits. We are actually
     // not interested in packets, which are larger than that, but may be in the
@@ -195,8 +192,6 @@ private:
     const auto rise = dataPacketSize / 2 - 1;
     const auto fall = rise + 2;
 
-    const InterruptStopper interruptStopper;
-    trigger();
     const auto count = readBits(255u, [this, rise, fall](uint8_t pos) {
       if (pos == rise) {
         m_trigger.setHigh();
@@ -210,9 +205,14 @@ private:
 
   template <typename T>
   uint8_t readBits(uint8_t maxCount, T&& extract) const {
+
     static const uint8_t wait_duration = 100;
     uint8_t count{};
-    if (m_clock.wait(true, wait_duration)) {
+
+    const InterruptStopper interruptStopper;
+    const auto ready = m_clock.isHigh();
+    trigger();
+    if (ready || m_clock.wait(Edge::rising, wait_duration)) {
       while(count < maxCount && m_clock.wait(Edge::rising, wait_duration)) {
         extract(count++);
       }
