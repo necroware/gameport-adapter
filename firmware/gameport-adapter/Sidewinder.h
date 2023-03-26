@@ -124,7 +124,7 @@ private:
 
   void cooldown() const {
     m_trigger.setLow();
-    delayMicroseconds(2000);
+    delay(3);
   }
 
   void trigger() const {
