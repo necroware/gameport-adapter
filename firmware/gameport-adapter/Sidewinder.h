@@ -43,7 +43,6 @@ public:
   }
 
   bool update() override {
-    cooldown();
     const auto packet = readPacket();
     State state;
     if (decode(packet, state)) {
@@ -99,7 +98,7 @@ private:
   };
 
   /// Guesses joystick model from the size of the packet.
-  Model guessModel(const Packet &packet) {
+  Model guessModel(const Packet &packet) const {
     log("Guessing model by packet size of %d", packet.size);
     switch (packet.size) {
       case 15:
@@ -125,11 +124,11 @@ private:
 
   void cooldown() const {
     m_trigger.setLow();
-    delayMicroseconds(1000);
+    delayMicroseconds(2000);
   }
 
   void trigger() const {
-    m_trigger.pulse(10);
+    m_trigger.pulse(20);
   }
 
   DigitalInput<GamePort<2>::pin, true> m_clock;
@@ -205,14 +204,13 @@ private:
 
   template <typename T>
   uint8_t readBits(uint8_t maxCount, T&& extract) const {
-
     static const uint8_t wait_duration = 100;
     uint8_t count{};
-
+    cooldown();
+    // WARNING: Here starts the timing critical section
     const InterruptStopper interruptStopper;
-    const auto ready = m_clock.isHigh();
     trigger();
-    if (ready || m_clock.wait(Edge::rising, wait_duration)) {
+    if (m_clock.wait(true, wait_duration)) {
       while(count < maxCount && m_clock.wait(Edge::rising, wait_duration)) {
         extract(count++);
       }
