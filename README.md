@@ -49,7 +49,7 @@ Features overview:
 ## What is the difference between analog and digital joystick?
 
 Many people call button-only joysticks or gamepads digital. This is kind of
-right, because A button is either pressed or not. You can't have an analog
+right, because a button is either pressed or not. You can't have an analog
 values in between. However by digital, in this case, we mean something different.
 A gameport contains 15 pins, 8 of which are used for joystick communication. 4
 pins are for buttons and carry digital values in sense of on/off and 4 pins are
@@ -65,7 +65,7 @@ pin of the gameport as clock and another one as data, the possibilities were
 almost limitless. Such joysticks are called digital as well, because they used
 digital protocols to communicate with the PC. And suddenly, many features were
 possible, but the price of these features was the lost compatibility to DOS. You
-couldn't just plug such a joystick it into the gameport and expect it to work in
+couldn't just plug such a joystick into the gameport and expect it to work in
 old DOS games. The plug was the same, but the signaling was completely different.
 
 ## Which joysticks does this adapter support?
@@ -81,11 +81,13 @@ Generic Analog           | 4       | 2     | 0    | 1000  |
 Generic Analog           | 4       | 3     | 0    | 0100  | 3rd Axis is throttle
 Generic Analog           | 4       | 4     | 0    | 1100  | 
 CH FlightStick           | 4       | 4     | 1    | 0010  | Analog, DOS-compatible
+CH F16 Combat Stick      | 10      | 3     | 1    | 0110  | Analog, DOS-compatible
 ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
 Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
 Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
 Sidewinder 3D Pro Plus   | 9       | 4     | 1    | 1110  | First version of Precision Pro
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
+Sidewinder FFB Pro       | 9       | 4     | 1    | 1110  | Digital, FFB not yet implemented
 Sidewinder FFB Wheel     | 8       | 3     | 0    | 1110  | Digital, FFB not yet implemented
 Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
 Logitech WingMan Extreme | 6       | 3     | 1    | 1001  | Digital protocol (ADI)
@@ -113,19 +115,21 @@ compatible to the analog joysticks as they were used back in the days in DOS.
 Following list contains all the devices wich were reported by others as working
 so far:
 
-* Gravis Analog Pro
-* Gravis PC GamePad
+* Gravis Analog Pro (analog)
+* Gravis PC GamePad (analog)
 * Gravis GamePad Pro
-* QuickShot QS-123E "Warrior 5"
-* QuickShot QS-201 "Super Warrior"
-* QuickShot QS-203 "Avenger"
+* QuickShot QS-123E "Warrior 5" (analog)
+* QuickShot QS-201 "Super Warrior" (analog)
+* QuickShot QS-203 "Avenger" (analog)
 * Sidewinder GamePad
 * Sidewinder 3D Pro
 * Sidewinder 3D Pro Plus
 * Sidewinder Precision Pro
+* Sidewinder ForceFeedBack Pro
 * Sidewinder ForceFeedBack Wheel
 * Logitech WingMan Extreme Digital
 * Logitech CyberMan 2
+* InterAct UltraRacer PC (analog)
 
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
 mode it can emulate the ThrustMaster and CH FlightStick. That's why you see them in
@@ -164,10 +168,10 @@ works. Also the Sidewinder patent US#5628686A helped a lot, especially with
 switching between digital and analog mode for Sidewinder 3D Pro.
 
 In opposition to the already mentioned Sidewinder for Arduino implementations,
-this one doesn't rely on interrupts. This implementation is from a similare idea 
+this one doesn't rely on interrupts. This implementation is from a similar idea 
 to what the Linux driver does. It polls the port and makes a lot of things
 simpler due to synchronous process. The biggest problem was that the Sidwinder
-devices send the data incredibly fast, with a clock pulse of only 5us.  It was
+devices send the data incredibly fast, with a clock pulse of only 5us. It was
 not possible to use Arduino's digitalRead(...) function for that. It was too
 slow with about 2.7us per call on an Arduino Pro Micro of 16MHz.  It simply
 made it impossible to poll 5us pulses, with such a slow function, not even
@@ -184,29 +188,30 @@ optimization.
 The hardware is super simple. To build an adapter you'll need the PCB from this
 project and following parts:
 
-Part    | Count | LCSC #  | Digikey #                | Comment
---------|-------|---------|--------------------------|------------------------------------------
-CONN1   |   1   | C77835  | 609-5371-ND              | DB15 female connector
-R1..R4  |   4   | C172965 | 13-MFR-25FTE52-100KCT-ND | 100 kOhm resistors
-SW1     |   1   | C15781  | 2449-KG04ET-ND           | DIP-4 switch
-U1      |   1   | C72120  | ED3024-ND                | DIP24 Socket (optional)
-U1      |   1   | ---     | 1568-1060-ND             | Arduino Pro Micro (ATmega32U4 16MHz, 5V)
+Part    |  Qty  | [LCSC](https://lcsc.com/) #  | [Digikey](https://www.digikey.com/) #                | [Mouser Electronics](https://www.mouser.com/) # | Comment
+--------|-------|---------|--------------------------|----------------------|------------------------------------------
+CONN1   |   1   | C77835  | 609-5371-ND              | 523-L77SDA15SA4CH4F  | DB15 female connector
+R1..R4  |   4   | C172965 | 13-MFR-25FTE52-100KCT-ND | 603-MFR-25FTE52-100K | 100 kOhm resistors
+SW1     |   1   | C15781  | 2449-KG04ET-ND           | 642-DS04T            | DIP-4 switch
+U1      |   1   | C72120  | ED3051-5-ND              | 649-DILB24P-223TLF   | DIP24 Socket (optional)
+U1      |   1   |   N/A   | 1568-1060-ND             | 474-DEV-12640        | Arduino Pro Micro (ATmega32U4 16MHz, 5V), including two 12 pin header connectors, MicroUSB version (see "Known issues")
 
 ## Known issues
 
 * *Some axes on an analog joystick are offset*
 
-Auto calibration requires all the axes to be in the center position during 
-initialization. Please see the paragraph about auto calibration.
+   Auto calibration requires all the axes to be in the center position during 
+   initialization. Please see the paragraph about auto calibration.
 
 * *Joystick doesn't work*
 
-Make sure that you are using one of supported joysticks or a joystick which can
-work in legacy analog mode
+   Make sure that you are using one of supported joysticks or a joystick which can
+   work in legacy analog mode
 
 * *MicroUSB port on the Arduino is not stable enough*
 
-Use the USB-C version of the Arduino instead.
+   Use the USB-C version of the Arduino instead.  
+   Or always keep the MicroUSB cable attached to the Arduino MicroUSB version to avoid further wear and apply plug/unplug operations only on the remote side of the cable.
 
 ## How to help the project?
 

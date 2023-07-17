@@ -63,7 +63,7 @@ public:
     // read too fast. Following delay will ensure, that after the
     // last read at least 5ms passed to ensure, that the joystick
     // cooled down again.
-    delay(5);
+    delayMicroseconds(5000);
 
     const auto packet = readPacket();
 

@@ -22,12 +22,15 @@
 template <size_t Axes, size_t Buttons>
 class GenericJoystick : public Joystick {
 public:
+
+    static_assert(Axes > 0 && Axes <= 4);
+
     bool init() override {
         return true;
     }
 
     bool update() override {
-        for (auto i = 0u; i < 4; i++) {
+        for (auto i = 0u; i < Axes; i++) {
             m_state.axes[i] = m_joystick.getAxis(i);
         }
         m_state.buttons = m_joystick.getButtons();

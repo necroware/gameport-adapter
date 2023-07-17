@@ -19,19 +19,10 @@
 
 template <size_t Size>
 struct Buffer {
-    static const uint16_t MAX_SIZE{Size};
+    static const uint8_t MAX_SIZE{Size};
     uint8_t data[MAX_SIZE]{};
     uint8_t size{};
 };
-
-template <size_t Size>
-void print(const Buffer<Size>& buffer) {
-    for (auto i = 0u; i < buffer.size; i++) {
-        Serial.print(buffer.data[i], HEX);
-        Serial.print(" ");
-    }
-    Serial.println();
-}
 
 template <size_t S>
 class BufferFillerImpl {
@@ -86,6 +77,10 @@ private:
         // byte, then push just a chunk to fill up the current byte
         if (freeBits < count) {
             return fillup(bits, freeBits);
+        }
+
+        if (bitsUsed == 0u) {
+          m_buffer.data[m_buffer.size] = 0u;
         }
 
         // Obviously the total count is less, than the amount of free bytes

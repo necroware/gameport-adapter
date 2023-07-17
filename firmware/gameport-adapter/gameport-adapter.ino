@@ -2,14 +2,15 @@
 // Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-
+//
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
@@ -17,6 +18,7 @@
 #include "HidJoystick.h"
 
 #include "CHFlightstickPro.h"
+#include "CHF16CombatStick.h"
 #include "GenericJoystick.h"
 #include "GrIP.h"
 #include "Logitech.h"
@@ -24,7 +26,14 @@
 #include "ThrustMaster.h"
 #include "ThrustmasterAttackThrottle.h"
 
-static Joystick *createJoystick(byte sw) {
+static Joystick *createJoystick() {
+
+  const auto sw1 = DigitalInput<14, true>{}.isLow();
+  const auto sw2 = DigitalInput<15, true>{}.isLow();
+  const auto sw3 = DigitalInput<20, true>{}.isLow();
+  const auto sw4 = DigitalInput<21, true>{}.isLow();
+  const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
+
   switch (sw) {
     case 0b0001:
       return new GenericJoystick<2,4>;
@@ -36,6 +45,8 @@ static Joystick *createJoystick(byte sw) {
       return new CHFlightstickPro;
     case 0b0101:
       return new ThrustMaster;
+    case 0b0110:
+      return new CHF16CombatStick;
     case 0b0111:
       return new Sidewinder;
     case 0b1000:
@@ -49,20 +60,19 @@ static Joystick *createJoystick(byte sw) {
   }
 }
 
-static HidJoystick hidJoystick;
-
 void setup() {
-  Serial.begin(9600);
-  //while(!Serial);
-  const auto sw1 = DigitalInput<14, true>{}.isLow();
-  const auto sw2 = DigitalInput<15, true>{}.isLow();
-  const auto sw3 = DigitalInput<20, true>{}.isLow();
-  const auto sw4 = DigitalInput<21, true>{}.isLow();
-
-  const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
-  hidJoystick.init(createJoystick(sw));
+    // DEBUG information: Debugging is turned off by default
+    // Comment the "NDEBUG" line in "Utilities.h" to enable logging to the serial monitor
+    initLog();
 }
 
 void loop() {
+
+  static auto hidJoystick = []() {
+      HidJoystick hidJoystick;
+      hidJoystick.init(createJoystick());
+      return hidJoystick;
+  }();
+
   hidJoystick.update();
 }

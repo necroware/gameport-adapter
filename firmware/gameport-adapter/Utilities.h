@@ -20,24 +20,21 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-/// Interrupt guard (RAII).
-///
-/// This class is used to deactivate the interrupts in performance
-/// critical sections. The interrupt is reactivated as soon as this
-/// guard runs out of scope.
-struct InterruptStopper {
-  InterruptStopper() {
-    noInterrupts();
-  }
-  ~InterruptStopper() {
-    interrupts();
-  }
+/// Debug messages on serial port are turned off by default. Comment the following
+/// line to enable logging to the serial port.
+/// Arduino Micro seems somehow to share the serial port with the USB interface.
+/// If the serial port will be activated, the operating system will no longer
+/// recognize the USB device!
+#define NDEBUG
 
-  InterruptStopper(const InterruptStopper&) = delete;
-  InterruptStopper(InterruptStopper&&) = delete;
-  InterruptStopper& operator=(const InterruptStopper&) = delete;
-  InterruptStopper& operator=(InterruptStopper&&) = delete;
-};
+#ifdef NDEBUG
+#define initLog()
+#define log(...)
+#else
+inline void initLog() {
+    Serial.begin(9600);
+    while(!Serial); 
+}
 
 inline void log(const char *fmt, ...) {
   va_list args;
@@ -47,3 +44,18 @@ inline void log(const char *fmt, ...) {
   va_end(args);
   Serial.println(buffer);
 }
+#endif // !NDEBUG
+
+/// Interrupt guard (RAII).
+///
+/// This class is used to deactivate the interrupts in performance
+/// critical sections. The interrupt is reactivated as soon as this
+/// guard runs out of scope.
+struct InterruptStopper {
+  InterruptStopper() { noInterrupts(); }
+  ~InterruptStopper() { interrupts(); }
+  InterruptStopper(const InterruptStopper&) = delete;
+  InterruptStopper(InterruptStopper&&) = delete;
+  InterruptStopper& operator=(const InterruptStopper&) = delete;
+  InterruptStopper& operator=(InterruptStopper&&) = delete;
+};
