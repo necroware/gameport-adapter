@@ -55,8 +55,6 @@ static Joystick *createJoystick() {
       return new Logitech;
     case 0b1101:
       return new InterActPCPowerPadPro;
-    case 0b1110:
-      return new NE558<4,4>;
     default:
       return new GenericJoystick<2,2>;
   }
