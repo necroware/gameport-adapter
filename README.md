@@ -87,6 +87,7 @@ Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
 Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
 Sidewinder 3D Pro Plus   | 9       | 4     | 1    | 1110  | First version of Precision Pro
 Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
+Sidewinder FFB Pro       | 9       | 4     | 1    | 1110  | Digital, FFB not yet implemented
 Sidewinder FFB Wheel     | 8       | 3     | 0    | 1110  | Digital, FFB not yet implemented
 Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
 Logitech WingMan Extreme | 6       | 3     | 1    | 1001  | Digital protocol (ADI)
@@ -124,6 +125,7 @@ so far:
 * Sidewinder 3D Pro
 * Sidewinder 3D Pro Plus
 * Sidewinder Precision Pro
+* Sidewinder ForceFeedBack Pro
 * Sidewinder ForceFeedBack Wheel
 * Logitech WingMan Extreme Digital
 * Logitech CyberMan 2

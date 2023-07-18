@@ -25,7 +25,7 @@
 /// Arduino Micro seems somehow to share the serial port with the USB interface.
 /// If the serial port will be activated, the operating system will no longer
 /// recognize the USB device!
-#define NDEBUG 
+#define NDEBUG
 
 #ifdef NDEBUG
 #define initLog()

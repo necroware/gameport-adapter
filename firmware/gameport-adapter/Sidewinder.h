@@ -31,6 +31,7 @@ public:
   bool init() override {
     log("Sidewinder init...");
     m_errors = 0;
+
     m_model = guessModel(readPacket());
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
@@ -79,6 +80,9 @@ private:
     /// Sidewinder Precision Pro
     SW_PRECISION_PRO,
 
+    /// Sidewinder Force Feedback Pro
+    SW_FORCE_FEEDBACK_PRO,
+
     /// Sidewinder Force Feedback Wheel
     SW_FORCE_FEEDBACK_WHEEL
   };
@@ -94,14 +98,20 @@ private:
   };
 
   /// Guesses joystick model from the size of the packet.
-  static Model guessModel(const Packet &packet) {
+  Model guessModel(const Packet &packet) const {
     log("Guessing model by packet size of %d", packet.size);
     switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
-      case 16: // 3bit mode
-      case 48: // 1bit mode
-        return Model::SW_PRECISION_PRO;
+      case 16:   // 3bit mode
+      case 48: { // 1bit mode
+          const auto id = readID(packet.size);
+          log("Data packet size is ambiguous. Guessing by ID %d", id);
+          if (id == 14) {
+            return Model::SW_FORCE_FEEDBACK_PRO;
+          }
+          return Model::SW_PRECISION_PRO;
+        }
       case 11: // 3bit mode
       case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
@@ -111,10 +121,14 @@ private:
         return Model::SW_UNKNOWN;
     }
   }
- 
+
   void cooldown() const {
     m_trigger.setLow();
-    delayMicroseconds(1000);
+    delay(3);
+  }
+
+  void trigger() const {
+    m_trigger.pulse(20);
   }
 
   DigitalInput<GamePort<2>::pin, true> m_clock;
@@ -138,7 +152,7 @@ private:
     cooldown();
     const InterruptStopper interruptStopper;
     for (auto i = 0u; seq[i]; i++) {
-      m_trigger.pulse(10);
+      trigger();
       delayMicroseconds(seq[i]);
     }
   }
@@ -155,12 +169,6 @@ private:
     // the packet was zeroed/instantiated.
     Packet packet;
 
-    cooldown();
-
-    // WARNING: Here starts the timing critical section
-    const InterruptStopper interruptStopper;
-    const auto ready = m_clock.isHigh();
-    m_trigger.setHigh();
     // We are reading into a byte array instead of an uint64_t, because of two
     // reasons. First, bits packets can be larger, than 64 bits. We are actually
     // not interested in packets, which are larger than that, but may be in the
@@ -168,20 +176,46 @@ private:
     // uint64_t we would need to shift between the clock impulses, which is
     // impossible to do in time. Unfortunately this shift is extremely slow on
     // an Arduino and it's just faster to write into an array. One bit per byte.
-    static const uint8_t wait_duration = 250;
-    if (ready || m_clock.wait(Edge::rising, wait_duration)) {
-      for (; packet.size < Packet::MAX_SIZE; packet.size++) {
-        if (!m_clock.wait(Edge::rising, wait_duration)) {
-          break;
-        }
-        const auto b1 = m_data0.read();
-        const auto b2 = m_data1.read();
-        const auto b3 = m_data2.read();
-        packet.data[packet.size] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
+    packet.size = readBits(Packet::MAX_SIZE, [this, &packet](uint8_t pos) {
+      const auto b1 = m_data0.read();
+      const auto b2 = m_data1.read();
+      const auto b3 = m_data2.read();
+      packet.data[pos] = bool(b1) | bool(b2) << 1 | bool(b3) << 2;
+    });
+
+    return packet;
+  }
+
+  uint8_t readID(uint8_t dataPacketSize) const {
+
+    const auto rise = dataPacketSize / 2 - 1;
+    const auto fall = rise + 2;
+
+    const auto count = readBits(255u, [this, rise, fall](uint8_t pos) {
+      if (pos == rise) {
+        m_trigger.setHigh();
+      }
+      else if (pos == fall) {
+        m_trigger.setLow();
+      }
+    });
+    return count < dataPacketSize ? 0 : count - dataPacketSize;
+  }
+
+  template <typename T>
+  uint8_t readBits(uint8_t maxCount, T&& extract) const {
+    static const uint8_t wait_duration = 100;
+    uint8_t count{};
+    cooldown();
+    // WARNING: Here starts the timing critical section
+    const InterruptStopper interruptStopper;
+    trigger();
+    if (m_clock.wait(true, wait_duration)) {
+      while(count < maxCount && m_clock.wait(Edge::rising, wait_duration)) {
+        extract(count++);
       }
     }
-    m_trigger.setLow();
-    return packet;
+    return count;
   }
 
   /// Decodes bit packet into a state.
@@ -366,6 +400,22 @@ public:
   }
 };
 
+/// Descriptor for Sidewinder Force Feedback Pro.
+/// (The bit decoder is identical to the Precision Pro.)
+template <>
+class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_PRO> {
+public:
+  static const Description &getDescription() {
+    static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 9, 1};
+    return desc;
+  }
+
+  static bool decode(const Packet &packet, State &state) {
+    // Decode is identical between the Force Feedback Pro and the Precision Pro.
+    return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+  }
+};
+
 /// Bit decoder for Sidewinder Force Feedback Wheel.
 template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL> {
@@ -437,6 +487,8 @@ inline const Joystick::Description &Sidewinder::getDescription() const {
       return Decoder<Model::SW_3D_PRO>::getDescription();
     case Model::SW_PRECISION_PRO:
       return Decoder<Model::SW_PRECISION_PRO>::getDescription();
+    case Model::SW_FORCE_FEEDBACK_PRO:
+      return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::getDescription();
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::getDescription();
     default:
@@ -452,6 +504,8 @@ inline bool Sidewinder::decode(const Packet &packet, State &state) const {
       return Decoder<Model::SW_3D_PRO>::decode(packet, state);
     case Model::SW_PRECISION_PRO:
       return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+    case Model::SW_FORCE_FEEDBACK_PRO:
+      return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::decode(packet, state);
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
     default:

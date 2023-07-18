@@ -49,7 +49,7 @@ public:
   }
 
 private:
-  using BufferType = Buffer<256>;
+  using BufferType = Buffer<255>;
   static const uint8_t DEVICE_ID{3};
 
   static BufferType createDescription(const Joystick &joystick) {
