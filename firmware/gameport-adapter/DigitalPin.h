@@ -99,6 +99,10 @@ public:
     }
   }
 
+  operator bool() const {
+      return isHigh();
+  }
+
   /// Read raw bit data
   uint8_t read() const {
     return m_input & m_pin.mask;

@@ -27,11 +27,15 @@
 
 static Joystick *createJoystick() {
 
-  const auto sw1 = DigitalInput<14, true>{}.isLow();
-  const auto sw2 = DigitalInput<15, true>{}.isLow();
-  const auto sw3 = DigitalInput<20, true>{}.isLow();
-  const auto sw4 = DigitalInput<21, true>{}.isLow();
-  const auto sw = sw4 << 3 | sw3 << 2 | sw2 << 1 | sw1;
+  const auto sw1 = DigitalInput<14, true>{};
+  const auto sw2 = DigitalInput<15, true>{};
+  const auto sw3 = DigitalInput<20, true>{};
+  const auto sw4 = DigitalInput<21, true>{};
+
+  // Give some time to setup the input
+  delay(1);
+
+  const auto sw = !sw4 << 3 | !sw3 << 2 | !sw2 << 1 | !sw1;
 
   switch (sw) {
     case 0b0001:
@@ -65,7 +69,7 @@ void setup() {
 
 void loop() {
 
-  static auto hidJoystick = []() {
+  static auto hidJoystick = [] {
       HidJoystick hidJoystick;
       hidJoystick.init(createJoystick());
       return hidJoystick;
