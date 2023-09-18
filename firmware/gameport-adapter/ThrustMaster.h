@@ -63,7 +63,7 @@ public:
     for (auto i = 0u; i < 3; i++) {
       m_state.axes[i] = m_joystick.getAxis(i);
     }
-    m_state.hats[0] = hat(m_joystick.getAxis(3));
+    m_state.hat = hat(m_joystick.getAxis(3));
     m_state.buttons = m_joystick.getButtons();
 
     return true;
