@@ -181,7 +181,7 @@ private:
   }
 
   Packet readPacket() const {
-    static const auto TIMEOUT = 10u;
+    static constexpr auto TIMEOUT = 32u;
     auto timeout = TIMEOUT;
     auto first = true;
     Packet packet;
