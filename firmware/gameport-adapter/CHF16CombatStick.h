@@ -61,7 +61,7 @@ public:
     
     const auto code = m_joystick.getButtons();
 
-    m_state.hats[0] = decodeHat(code);
+    m_state.hat = decodeHat(code);
     m_state.buttons = decodeButtons(code);
   
     log("Code %d : %d , A2 %d", code, m_state.buttons, m_state.axes[2] );

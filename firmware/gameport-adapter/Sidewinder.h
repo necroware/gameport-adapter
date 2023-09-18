@@ -316,7 +316,7 @@ public:
     state.axes[3] = bits(32, 3) << 7 | bits(48, 7);
 
     // bit 6-7 + bit 60-62 (9 pos, 0 center, 1-8 clockwise)
-    state.hats[0] = bits(6, 1) << 3 | bits(60, 3);
+    state.hat = bits(6, 1) << 3 | bits(60, 3);
 
     return true;
   }
@@ -393,7 +393,7 @@ public:
     state.axes[1] = bits(19, 10);
     state.axes[2] = map(bits(36, 6), 0, 63, 0, 1023);
     state.axes[3] = map(bits(29, 7), 0, 127, 0, 1023);
-    state.hats[0] = bits(42, 4);
+    state.hat = bits(42, 4);
     state.buttons = ~bits(0, 9);
 
     return true;

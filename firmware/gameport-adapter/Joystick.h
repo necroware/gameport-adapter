@@ -21,8 +21,7 @@
 /// Base class for all joysticks.
 class Joystick {
 public:
-  static const auto MAX_AXES{8u};
-  static const auto MAX_HATS{3u};
+  static const auto MAX_AXES{16u};
 
   /// Device description.
   ///
@@ -39,8 +38,8 @@ public:
     /// Number of supported buttons.
     uint8_t numButtons;
 
-    /// Number of supported HATs.
-    uint8_t numHats;
+    /// Has HAT.
+    bool hasHat;
   };
 
   /// Joystick state.
@@ -56,10 +55,10 @@ public:
 
     /// Hats.
     ///
-    /// All hats are represented through values 0..8
-    /// 1 is up, 2 is 45° clockwise, 3 is right etc.
-    /// Center is represented with zero.
-    uint8_t hats[MAX_HATS]{};
+    /// HAT is represented through values 0..8 1 is up, 2 is
+    /// 45° clockwise, 3 is right etc. Center is represented
+    /// with zero.
+    uint8_t hat{};
 
     /// Buttons.
     ///
