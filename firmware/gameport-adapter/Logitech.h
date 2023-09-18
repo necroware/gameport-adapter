@@ -166,11 +166,10 @@ private:
   Limits m_limits[Joystick::MAX_AXES];
 
   void enableDigitalMode() const {
-    static const uint16_t seq[] = {4, 2, 3, 10, 6, 11, 7, 9, 11, 0};
-    const InterruptStopper noirq;
+    static constexpr uint16_t seq[] = {4, 2, 3, 10, 6, 11, 7, 9, 11, 0};
     for (auto i = 0u; seq[i]; i++) {
       m_trigger.pulse(10u);
-      delayMicroseconds(seq[i] * 1000u);
+      delay(seq[i]);
     }
   }
 
