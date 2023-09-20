@@ -196,7 +196,7 @@ private:
   void enableDigitalMode() const {
     static constexpr uint16_t seq[] = {4, 2, 3, 10, 6, 11, 7, 9, 11, 0};
     for (auto i = 0u; seq[i]; i++) {
-      m_trigger.pulse(10u);
+      m_trigger.pulse(20u);
       delay(seq[i]);
     }
   }
