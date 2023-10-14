@@ -115,7 +115,7 @@ private:
       filler.push(ID::usage).push(ID::hat_switch);
       filler.push(ID::logical_min).push<uint8_t>(1);
       filler.push(ID::logical_max).push<uint16_t>(8);
-      pushData(4, 1);
+      pushData(8, 1);
     }
 
     // Push buttons
