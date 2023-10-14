@@ -39,7 +39,7 @@ public:
     uint8_t numButtons;
 
     /// Has HAT.
-    bool hasHat;
+    uint8_t hatDirections;
   };
 
   /// Joystick state.

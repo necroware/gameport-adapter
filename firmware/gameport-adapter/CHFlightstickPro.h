@@ -22,7 +22,7 @@
 class CHFlightstickPro : public Joystick {
 public:
   const Description &getDescription() const override {
-    static const Description description{"CH FlightStick Pro", 4, 4, 1};
+    static const Description description{"CH FlightStick Pro", 4, 4, 4};
     return description;
   }
 

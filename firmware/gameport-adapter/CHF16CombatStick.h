@@ -23,7 +23,7 @@ class CHF16CombatStick : public Joystick {
 public:
   const Description &getDescription() const override {
     // CH F16 Combat Stick from 1995
-    static const Description description{"CH F16 Combat Stick", 3, 10, 1};
+    static const Description description{"CH F16 Combat Stick", 3, 10, 4};
     return description;
   }
 

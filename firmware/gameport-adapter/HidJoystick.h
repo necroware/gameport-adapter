@@ -111,11 +111,11 @@ private:
     }
 
     // Push hat
-    if (desc.hasHat) {
+    if (desc.hatDirections > 0) {
       filler.push(ID::usage).push(ID::hat_switch);
       filler.push(ID::logical_min).push<uint8_t>(1);
       filler.push(ID::logical_max).push<uint16_t>(8);
-      pushData(8, 1);
+      pushData(desc.hatDirections, 1);
     }
 
     // Push buttons
@@ -144,7 +144,7 @@ private:
     }
     filler.allign();
 
-    if (description.hasHat) {
+    if (description.hatDirections > 0) {
       filler.push(state.hat, 4);
       filler.allign();
     }

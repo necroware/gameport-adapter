@@ -23,7 +23,7 @@ class ThrustMaster : public Joystick {
 public:
 
   const Description &getDescription() const override {
-    static const Description description{"ThrustMaster", 3, 4, 1};
+    static const Description description{"ThrustMaster", 3, 4, 4};
     return description;
   }
 

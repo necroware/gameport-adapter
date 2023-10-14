@@ -36,7 +36,7 @@ public:
                                 m_metaData.num8bitAxes +
                                 m_metaData.numSecondaryHats * 2); // Each hat is mapped to two axes
     m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
-    m_description.hasHat = m_metaData.hasHat;
+    m_description.hatDirections = (m_metaData.hasHat ? 4 : 0);
 
     // Initialize axes centers
     uint8_t axis = 0u;

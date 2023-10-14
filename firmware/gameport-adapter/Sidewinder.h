@@ -278,7 +278,7 @@ template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_3D_PRO> {
 public:
   static const Description &getDescription() {
-    static const Description desc{"MS Sidewinder 3D Pro", 4, 8, 1};
+    static const Description desc{"MS Sidewinder 3D Pro", 4, 8, 8};
     return desc;
   }
 
@@ -347,7 +347,7 @@ template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_PRECISION_PRO> {
 public:
   static const Description &getDescription() {
-    static const Description desc{"MS Sidewinder Precision Pro", 4, 9, 1};
+    static const Description desc{"MS Sidewinder Precision Pro", 4, 9, 8};
     return desc;
   }
 
@@ -406,7 +406,7 @@ template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_PRO> {
 public:
   static const Description &getDescription() {
-    static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 9, 1};
+    static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 9, 8};
     return desc;
   }
 
