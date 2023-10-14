@@ -53,22 +53,22 @@ public:
     }
 
     BufferFillerImpl& allign() {
-        if (bitsUsed) {
+        if (m_bitsUsed) {
             m_buffer.size++;
-            bitsUsed = 0u;
+            m_bitsUsed = 0u;
         }        
         return *this;
     }
 
 private:
-    static const auto BITS_PER_BYTE{8u};
+    static constexpr auto BITS_PER_BYTE{8u};
 
     BufferType& m_buffer;
-    size_t bitsUsed{};
+    size_t m_bitsUsed{};
 
     size_t fillup(byte bits, size_t count) {
 
-        const auto freeBits = BITS_PER_BYTE - bitsUsed;
+        const auto freeBits = BITS_PER_BYTE - m_bitsUsed;
         if (freeBits == 0) {
             return 0;
         }
@@ -79,19 +79,19 @@ private:
             return fillup(bits, freeBits);
         }
 
-        if (bitsUsed == 0u) {
+        if (m_bitsUsed == 0u) {
           m_buffer.data[m_buffer.size] = 0u;
         }
 
-        // Obviously the total count is less, than the amount of free bytes
+        // Obviously the total count is less, than the amount of free bits
         // available in the current byte, so the following block will simply
         // add the bits to the current byte and return
-        const auto mask = uint32_t(1u << count) - 1;
-        m_buffer.data[m_buffer.size] |= byte(bits & mask) << bitsUsed;
-        bitsUsed += count;
-        if (bitsUsed == BITS_PER_BYTE) {
+        const auto mask = uint32_t(1u << count) - 1u;
+        m_buffer.data[m_buffer.size] |= byte(bits & mask) << m_bitsUsed;
+        m_bitsUsed += count;
+        if (m_bitsUsed == BITS_PER_BYTE) {
             m_buffer.size++;
-            bitsUsed = 0u;
+            m_bitsUsed = 0u;
         }
         return count;
     }
