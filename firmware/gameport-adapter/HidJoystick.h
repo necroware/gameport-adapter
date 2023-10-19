@@ -157,7 +157,7 @@ private:
       filler.push(state.buttons, description.numButtons);
     }
 
-    filler.allign();
+    filler.align();
     return buffer;
   }
 

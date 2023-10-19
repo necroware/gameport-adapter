@@ -74,7 +74,7 @@ public:
 private:
   /// Supported Gravis model types.
   ///
-  /// @remark currently inly GamePad Pro is supported and
+  /// @remark currently only GamePad Pro is supported and
   //          this enum is not used yet
   enum class Model {
 
