@@ -113,7 +113,7 @@ were tested so far.
 
 Many joysticks in the wild are using the same digital protocol or are backwards
 compatible to the analog joysticks as they were used back in the days in DOS.
-Following list contains all the devices wich were reported by others as working
+Following list contains all the devices which were reported by others as working
 so far:
 
 * Gravis Analog Pro (analog)

@@ -52,7 +52,7 @@ public:
         return *this;
     }
 
-    BufferFillerImpl& allign() {
+    BufferFillerImpl& align() {
         if (m_bitsUsed) {
             m_buffer.size++;
             m_bitsUsed = 0u;
