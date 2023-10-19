@@ -21,7 +21,8 @@
 
 /// Class to communicate with Gravis joysticks using GrIP.
 /// @remark This is a green field implementation, but it was heavily
-///         inspired by Linux Sidewinder driver implementation. See
+///         inspired by Linux Gravis/Kensington GrIP driver
+///         implementation. See
 class GrIP : public Joystick {
   ///         https://github.com/torvalds/linux/blob/master/drivers/input/joystick/grip.c
 public:
