@@ -142,16 +142,16 @@ private:
     for (auto i = 0u; i < description.numAxes; i++) {
       filler.push(state.axes[i], 10);
     }
-    filler.allign();
+    filler.align();
 
     if (description.hasHat) {
       filler.push(state.hat, 4);
-      filler.allign();
+      filler.align();
     }
 
     if (description.numButtons) {
       filler.push(state.buttons, description.numButtons);
-      filler.allign();
+      filler.align();
     }
 
     return buffer;
@@ -162,4 +162,3 @@ private:
   HIDSubDescriptor *m_subDescriptor{};
   HidDevice m_hidDevice;
 };
-
