@@ -86,15 +86,18 @@ private:
       filler.push(ID::report_size).push(size);
       filler.push(ID::report_count).push(count);
       filler.push(ID::input).push(ID::input_data);
-      return size * count;
+      const auto padding = (size * count) % 8u;
+      if (padding) {
+        filler.push(ID::report_size).push<uint8_t>(8u - padding);
+        filler.push(ID::report_count).push<uint8_t>(1);
+        filler.push(ID::input).push(ID::input_const);
+      }
     };
 
     filler.push(ID::usage_page).push(ID::generic_desktop);
     filler.push(ID::usage).push(ID::joystick);
     filler.push(ID::collection).push(ID::application);
     filler.push(ID::report_id).push<uint8_t>(DEVICE_ID);
-
-    uint32_t padding = 0u;
 
     // Push axes
     if (desc.numAxes > 0) {
@@ -104,7 +107,7 @@ private:
       }
       filler.push(ID::logical_min).push<uint8_t>(0);
       filler.push(ID::logical_max).push<uint16_t>(1023);
-      padding += pushData(10, desc.numAxes);
+      pushData(10, desc.numAxes);
     }
 
     // Push hat
@@ -112,7 +115,7 @@ private:
       filler.push(ID::usage).push(ID::hat_switch);
       filler.push(ID::logical_min).push<uint8_t>(1);
       filler.push(ID::logical_max).push<uint16_t>(8);
-      padding += pushData(4, 1);
+      pushData(4, 1);
     }
 
     // Push buttons
@@ -122,16 +125,7 @@ private:
       filler.push(ID::usage_max).push<uint8_t>(desc.numButtons);
       filler.push(ID::logical_min).push<uint8_t>(0);
       filler.push(ID::logical_max).push<uint16_t>(1);
-      padding += pushData(1, desc.numButtons);
-    }
-
-    // Push padding
-    static const auto bitsPerByte = 8u;
-    padding %= bitsPerByte;
-    if (padding) {
-      filler.push(ID::report_size).push<uint8_t>(bitsPerByte - padding);
-      filler.push(ID::report_count).push<uint8_t>(1);
-      filler.push(ID::input).push(ID::input_const);
+      pushData(1, desc.numButtons);
     }
 
     filler.push(ID::end_collection);
@@ -148,16 +142,18 @@ private:
     for (auto i = 0u; i < description.numAxes; i++) {
       filler.push(state.axes[i], 10);
     }
+    filler.align();
 
     if (description.hasHat) {
       filler.push(state.hat, 4);
+      filler.align();
     }
 
     if (description.numButtons) {
       filler.push(state.buttons, description.numButtons);
+      filler.align();
     }
 
-    filler.align();
     return buffer;
   }
 
@@ -166,4 +162,3 @@ private:
   HIDSubDescriptor *m_subDescriptor{};
   HidDevice m_hidDevice;
 };
-
