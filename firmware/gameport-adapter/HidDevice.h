@@ -76,7 +76,7 @@ protected:
       return 0;
     }
 
-    // In a HID Class Descriptor wIndex cointains the interface number
+    // In a HID Class Descriptor wIndex contains the interface number
     if (setup.wIndex != pluggedInterface) {
       return 0;
     }

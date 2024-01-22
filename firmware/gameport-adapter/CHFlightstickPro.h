@@ -55,8 +55,8 @@ public:
     }
 
     const auto code = m_joystick.getButtons();
-    m_state.hats[0] = decode(code);
-    m_state.buttons = m_state.hats[0] ? 0u : code;
+    m_state.hat = decode(code);
+    m_state.buttons = m_state.hat ? 0u : code;
 
     return true;
   }

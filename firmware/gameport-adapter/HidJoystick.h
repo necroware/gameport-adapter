@@ -86,54 +86,46 @@ private:
       filler.push(ID::report_size).push(size);
       filler.push(ID::report_count).push(count);
       filler.push(ID::input).push(ID::input_data);
-      return size * count;
+      const auto padding = (size * count) % 8u;
+      if (padding) {
+        filler.push(ID::report_size).push<uint8_t>(8u - padding);
+        filler.push(ID::report_count).push<uint8_t>(1);
+        filler.push(ID::input).push(ID::input_const);
+      }
     };
 
     filler.push(ID::usage_page).push(ID::generic_desktop);
     filler.push(ID::usage).push(ID::joystick);
     filler.push(ID::collection).push(ID::application);
-    filler.push(ID::report_id).push(uint8_t(DEVICE_ID));
-
-    uint32_t padding = 0u;
+    filler.push(ID::report_id).push<uint8_t>(DEVICE_ID);
 
     // Push axes
     if (desc.numAxes > 0) {
-      filler.push(ID::usage_page).push(ID::generic_desktop);
       for (auto i = 0u; i < desc.numAxes; i++) {
-        static const uint8_t x_axis = 0x30;
-        filler.push(ID::usage).push(uint8_t(x_axis + i));
+        static constexpr uint8_t x_axis = 0x30;
+        filler.push(ID::usage).push<uint8_t>(x_axis + i);
       }
-      filler.push(ID::logical_min).push(uint8_t(0));
-      filler.push(ID::logical_max).push(uint16_t(1023));
-      padding += pushData(10, desc.numAxes);
+      filler.push(ID::logical_min).push<uint8_t>(0);
+      filler.push(ID::logical_max).push<uint16_t>(1023);
+      pushData(10, desc.numAxes);
     }
 
-    // Push hats
-    if (desc.numHats > 0) {
-      filler.push(ID::usage_page).push(ID::generic_desktop);
+    // Push hat
+    if (desc.hasHat) {
       filler.push(ID::usage).push(ID::hat_switch);
-      filler.push(ID::logical_min).push(uint8_t(1));
-      filler.push(ID::logical_max).push(uint16_t(8));
-      padding += pushData(4, desc.numHats);
+      filler.push(ID::logical_min).push<uint8_t>(1);
+      filler.push(ID::logical_max).push<uint16_t>(8);
+      pushData(4, 1);
     }
 
     // Push buttons
     if (desc.numButtons > 0) {
       filler.push(ID::usage_page).push(ID::button);
-      filler.push(ID::usage_min).push(uint8_t(1));
-      filler.push(ID::usage_max).push(uint8_t(desc.numButtons));
-      filler.push(ID::logical_min).push(uint8_t(0));
-      filler.push(ID::logical_max).push(uint16_t(1));
-      padding += pushData(1, desc.numButtons);
-    }
-
-    // Push padding
-    static const auto bitsPerByte = 8u;
-    padding %= bitsPerByte;
-    if (padding) {
-      filler.push(ID::report_size).push(uint8_t(bitsPerByte - padding));
-      filler.push(ID::report_count).push(uint8_t(1));
-      filler.push(ID::input).push(ID::input_const);
+      filler.push(ID::usage_min).push<uint8_t>(1);
+      filler.push(ID::usage_max).push<uint8_t>(desc.numButtons);
+      filler.push(ID::logical_min).push<uint8_t>(0);
+      filler.push(ID::logical_max).push<uint16_t>(1);
+      pushData(1, desc.numButtons);
     }
 
     filler.push(ID::end_collection);
@@ -150,16 +142,18 @@ private:
     for (auto i = 0u; i < description.numAxes; i++) {
       filler.push(state.axes[i], 10);
     }
+    filler.align();
 
-    for (auto i = 0u; i < description.numHats; i++) {
-      filler.push(state.hats[i], 4);
+    if (description.hasHat) {
+      filler.push(state.hat, 4);
+      filler.align();
     }
 
     if (description.numButtons) {
       filler.push(state.buttons, description.numButtons);
+      filler.align();
     }
 
-    filler.allign();
     return buffer;
   }
 
@@ -168,4 +162,3 @@ private:
   HIDSubDescriptor *m_subDescriptor{};
   HidDevice m_hidDevice;
 };
-

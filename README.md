@@ -74,24 +74,25 @@ Currently, the following drivers are implemented. To select the right driver, yo
 have to use four switches, as shown in the table. The switches may be changed or
 extended in the future, so please pay attention to the updates.
 
-Joystick Model           | Buttons | Axes  |  Hat | SW1-4 | Comments
--------------------------|---------|-------|------|-------|-------------------------------------
-Generic Analog           | 2       | 2     | 0    | 0000  | 
-Generic Analog           | 4       | 2     | 0    | 1000  | 
-Generic Analog           | 4       | 3     | 0    | 0100  | 3rd Axis is throttle
-Generic Analog           | 4       | 4     | 0    | 1100  | 
-CH FlightStick           | 4       | 4     | 1    | 0010  | Analog, DOS-compatible
-CH F16 Combat Stick      | 10      | 3     | 1    | 0110  | Analog, DOS-compatible
-ThrustMaster             | 4       | 3     | 1    | 1010  | Analog, DOS-compatible 
-Sidewinder GamePad       | 10      | 2     | 0    | 1110  | Digital protocol
-Sidewinder 3D Pro        | 8       | 4     | 1    | 1110  | Digital protocol
-Sidewinder 3D Pro Plus   | 9       | 4     | 1    | 1110  | First version of Precision Pro
-Sidewinder Precision Pro | 9       | 4     | 1    | 1110  | Digital protocol
-Sidewinder FFB Pro       | 9       | 4     | 1    | 1110  | Digital, FFB not yet implemented
-Sidewinder FFB Wheel     | 8       | 3     | 0    | 1110  | Digital, FFB not yet implemented
-Gravis GamePad Pro       | 10      | 2     | 0    | 0001  | Digital protocol (GrIP)
-Logitech WingMan Extreme | 6       | 3     | 1    | 1001  | Digital protocol (ADI)
-Logitech CyberMan 2      | 8       | 6     | 0    | 1001  | Digital proticol (ADI)
+Joystick Model               | Buttons | Axes  |  Hat | SW1-4 | Protocol   | Comments
+-----------------------------|---------|-------|------|-------|------------|------------------------------------
+Generic Analog               | 2       | 2     | 0    | 0000  | Analogue   |
+Generic Analog               | 4       | 2     | 0    | 1000  | Analogue   |
+Generic Analog               | 4       | 3     | 0    | 0100  | Analogue   | 3rd Axis is throttle
+Generic Analog               | 4       | 4     | 0    | 1100  | Analogue   |
+CH FlightStick               | 4       | 4     | 1    | 0010  | Analogue   |
+CH F16 Combat Stick          | 10      | 3     | 1    | 0110  | Analogue   |
+ThrustMaster                 | 4       | 3     | 1    | 1010  | Analogue   |
+Sidewinder GamePad           | 10      | 2     | 0    | 1110  | Sidewinder |
+Sidewinder 3D Pro            | 8       | 4     | 1    | 1110  | Sidewinder |
+Sidewinder 3D Pro Plus       | 9       | 4     | 1    | 1110  | Sidewinder | First version of Precision Pro
+Sidewinder Precision Pro     | 9       | 4     | 1    | 1110  | Sidewinder |
+Sidewinder FFB Pro           | 9       | 4     | 1    | 1110  | Sidewinder | FFB not yet implemented
+Sidewinder FFB Wheel         | 8       | 3     | 0    | 1110  | Sidewinder | FFB not yet implemented
+Gravis GamePad Pro           | 10      | 2     | 0    | 0001  | GrIP       |
+Logitech WingMan Extreme     | 6       | 3     | 1    | 1001  | ADI        |
+Logitech CyberMan 2          | 8       | 6     | 0    | 1001  | ADI        |
+Logitech WingMan Interceptor | 9       | 3     | 3    | 1001  | ADI        | 2 hats are mapped as 4 axes
 
 *Remarks:*
 
@@ -112,7 +113,7 @@ were tested so far.
 
 Many joysticks in the wild are using the same digital protocol or are backwards
 compatible to the analog joysticks as they were used back in the days in DOS.
-Following list contains all the devices wich were reported by others as working
+Following list contains all the devices which were reported by others as working
 so far:
 
 * Gravis Analog Pro (analog)
@@ -129,6 +130,7 @@ so far:
 * Sidewinder ForceFeedBack Wheel
 * Logitech WingMan Extreme Digital
 * Logitech CyberMan 2
+* Logitech WingMan Interceptor
 * InterAct UltraRacer PC (analog)
 
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
