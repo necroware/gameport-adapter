@@ -23,6 +23,10 @@ class Joystick {
 public:
   static const auto MAX_AXES{16u};
 
+  /// For digital joysticks that can daisy chain off
+  /// of the same port.
+  static const auto MAX_JOYSTICKS{2u};
+
   /// Device description.
   ///
   /// This structure is used to generate the HID description
@@ -82,8 +86,22 @@ public:
   /// Gets the State of the Joystick.
   virtual const State &getState() const = 0;
 
+  /// Override this method to add support for daisy chained joysticks.
+  virtual const State &getState(uint8_t joystickIndex) const
+  {
+    return getState();
+  }
+
   /// Gets the Description of the Joystick.
   virtual const Description &getDescription() const = 0;
+
+  /// Returns the number of daisy chained joysticks
+  /// that are connected. Defaults to 1 as most joysticks
+  /// implementations don't have this feature.  
+  virtual uint8_t getJoystickCount() const
+  {
+    return 1;
+  }
 
   Joystick() = default;
   virtual ~Joystick() = default;

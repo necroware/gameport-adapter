@@ -30,11 +30,17 @@ public:
     }
 
     m_joystick = joystick;
-    m_hidDescription = createDescription(*m_joystick);
-    m_subDescriptor = new HIDSubDescriptor{m_hidDescription.data, m_hidDescription.size};
-    m_hidDevice.AppendDescriptor(m_subDescriptor);
+    m_joystickCount = joystick->getJoystickCount();
+    for (uint8_t i = 0; i < m_joystickCount; ++i)
+    {
+      m_hidDescription[i] = createDescription(*m_joystick);
+      m_subDescriptor[i] = new HIDSubDescriptor{m_hidDescription[i].data, m_hidDescription[i].size};
+      
+    
+      m_hidDevices[i].AppendDescriptor(m_subDescriptor[i]);
+    }
 
-    log("Detected device: %s", joystick->getDescription().name);
+    log("Detected device: %s, count %d", joystick->getDescription().name, m_joystickCount);
     return true;
   }
 
@@ -43,8 +49,11 @@ public:
       return false;
     }
 
-    const auto packet = createPacket(*m_joystick);
-    m_hidDevice.SendReport(DEVICE_ID, packet.data, packet.size);
+    for (uint8_t i = 0; i < m_joystickCount; ++i)
+    {
+      const auto packet = createPacket(*m_joystick, i);
+      m_hidDevices[i].SendReport(DEVICE_ID, packet.data, packet.size);
+    }
     return true;
   }
 
@@ -132,9 +141,9 @@ private:
     return buffer;
   }
 
-  static BufferType createPacket(const Joystick &joystick) {
+  static BufferType createPacket(const Joystick &joystick, uint8_t joystickIndex) {
 
-    const auto &state = joystick.getState();
+    const auto &state = joystick.getState(joystickIndex);
     const auto &description = joystick.getDescription();
     BufferType buffer;
     auto filler = BufferFiller(buffer);
@@ -158,7 +167,9 @@ private:
   }
 
   Joystick *m_joystick{};
-  BufferType m_hidDescription{};
-  HIDSubDescriptor *m_subDescriptor{};
-  HidDevice m_hidDevice;
+  BufferType m_hidDescription[Joystick::MAX_JOYSTICKS]{};
+  HIDSubDescriptor *m_subDescriptor[Joystick::MAX_JOYSTICKS]{};
+
+  HidDevice m_hidDevices[Joystick::MAX_JOYSTICKS];
+  uint8_t m_joystickCount{};  
 };
