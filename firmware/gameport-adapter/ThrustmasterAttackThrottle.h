@@ -375,7 +375,7 @@ private:
     m_analogRangeState.update(packet, m_state);
     
     // hats are returned in an analog axis
-    m_state.hats[0] = mapHat(data[4]);
+    m_state.hat = mapHat(data[4]);
 
     // Other joysticks and modes may be different but I found the
     // buttons triggered the following bits:
