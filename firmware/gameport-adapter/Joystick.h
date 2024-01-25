@@ -25,7 +25,7 @@ public:
 
   /// For digital joysticks that can daisy chain off
   /// of the same port.
-  static const auto MAX_JOYSTICKS{2u};
+  static const auto MAX_JOYSTICKS{4u};
 
   /// Device description.
   ///

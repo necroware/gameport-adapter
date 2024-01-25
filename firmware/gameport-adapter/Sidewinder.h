@@ -29,22 +29,19 @@ class Sidewinder : public Joystick {
 public:
 
   /// The maximum number of sidewinder gamepads supported.
-  /// The gamepad supports up to 4, but I don't have 4 to test with.
-  /// So this is capped at 2. If someone has 4, try it out. Bump up the
-  /// 2 to 4 here as well as in Joystick to 4. It might just work.
-  static const auto MAX_GAMEPADS{min(Joystick::MAX_JOYSTICKS, 2)};
+  static const auto MAX_GAMEPADS{min(Joystick::MAX_JOYSTICKS, 4)};
 
   /// Resets the joystick and tries to detect the model.
   bool init() override {
     log("Sidewinder init...");
     m_errors = 0;
 
-    uint8_t joystickCount;
+    uint8_t joystickCount = 1;
     m_model = guessModel(readPacket(), joystickCount);
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
       enableDigitalMode();
-      m_model = guessModel(readPacket(), m_joystickCount);
+      m_model = guessModel(readPacket(), joystickCount);
     }
     m_joystickCount = joystickCount;
     log("Detected model %d, count %d", m_model, joystickCount);
@@ -295,7 +292,7 @@ public:
 
     uint8_t joystickCount = packet.size / 15;
     if (joystickCount < (joystickIndex + 1) || 
-        joystickCount > Joystick::MAX_JOYSTICKS || 
+        joystickCount > Sidewinder::MAX_GAMEPADS || 
         (packet.size % 15) != 0 || 
         (joystickIndex == 0 && checksum() != 0)) {
       return false;
