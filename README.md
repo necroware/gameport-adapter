@@ -93,6 +93,7 @@ Gravis GamePad Pro           | 10      | 2     | 0    | 0001  | GrIP       |
 Logitech WingMan Extreme     | 6       | 3     | 1    | 1001  | ADI        |
 Logitech CyberMan 2          | 8       | 6     | 0    | 1001  | ADI        |
 Logitech WingMan Interceptor | 9       | 3     | 3    | 1001  | ADI        | 2 hats are mapped as 4 axes
+Logitech WingMan Light       | 2       | 2     | 0    | 0000  | Analogue   |
 
 *Remarks:*
 
@@ -131,6 +132,7 @@ so far:
 * Logitech WingMan Extreme Digital
 * Logitech CyberMan 2
 * Logitech WingMan Interceptor
+* Logitech WingMan Light
 * InterAct UltraRacer PC (analog)
 
 Sidewinder 3D Pro can be switched between analog and digital mode and in analog
