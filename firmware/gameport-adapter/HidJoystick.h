@@ -101,6 +101,7 @@ private:
 
     // Push axes
     if (desc.numAxes > 0) {
+      filler.push(ID::usage_page).push(ID::generic_desktop);
       for (auto i = 0u; i < desc.numAxes; i++) {
         static constexpr uint8_t x_axis = 0x30;
         filler.push(ID::usage).push<uint8_t>(x_axis + i);
