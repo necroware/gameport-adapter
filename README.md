@@ -121,6 +121,8 @@ so far:
 * Gravis PC GamePad (analog)
 * Gravis GamePad Pro
 * QuickShot QS-123E "Warrior 5" (analog)
+* Quickshot QS-146 "Intruder 5" (analog)
+* Quickshot QS-151 "Aviator" (analog)
 * QuickShot QS-201 "Super Warrior" (analog)
 * QuickShot QS-203 "Avenger" (analog)
 * Sidewinder GamePad
