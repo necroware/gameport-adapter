@@ -91,7 +91,7 @@ private:
     BufferType buffer;
     auto filler = BufferFiller(buffer);
 
-    auto pushData = [&filler](uint8_t size, uint8_t count) -> uint32_t {
+    auto pushData = [&filler](uint8_t size, uint8_t count) {
       filler.push(ID::report_size).push(size);
       filler.push(ID::report_count).push(count);
       filler.push(ID::input).push(ID::input_data);
@@ -110,6 +110,7 @@ private:
 
     // Push axes
     if (desc.numAxes > 0) {
+      filler.push(ID::usage_page).push(ID::generic_desktop);
       for (auto i = 0u; i < desc.numAxes; i++) {
         static constexpr uint8_t x_axis = 0x30;
         filler.push(ID::usage).push<uint8_t>(x_axis + i);
