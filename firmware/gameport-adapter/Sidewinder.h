@@ -148,8 +148,9 @@ private:
         return Model::SW_3D_PRO;
       default:
         // for daisychained gamepads, the packet will be a multiple of 15
-        if (gamepadCount > 0 && gamepadCount <= MAX_GAMEPADS && (packet.size % 15 == 0)) {
-          joystickCount = gamepadCount;
+        if (gamepadCount > 0 && (packet.size % 15 == 0)) {
+          // clamp the count to the maximum the firmware supports.
+          joystickCount = min(MAX_GAMEPADS, gamepadCount);
           return Model::SW_GAMEPAD;
         }
         return Model::SW_UNKNOWN;
@@ -292,7 +293,6 @@ public:
 
     uint8_t joystickCount = packet.size / 15;
     if (joystickCount < (joystickIndex + 1) || 
-        joystickCount > Sidewinder::MAX_GAMEPADS || 
         (packet.size % 15) != 0 || 
         (joystickIndex == 0 && checksum() != 0)) {
       return false;

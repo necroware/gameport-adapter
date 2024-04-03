@@ -23,9 +23,15 @@ class Joystick {
 public:
   static const auto MAX_AXES{16u};
 
-  /// For digital joysticks that can daisy chain off
-  /// of the same port.
-  static const auto MAX_JOYSTICKS{4u};
+  /// Calculate how many usb endpoints are available. USB_ENDPOINTS is the total supported endpoints.
+  /// The CDC / serial endpoints are first, then any pluggable modules get what is remaining.
+  /// Normally this leaves 3, but if you disable CDC support (via CDC_DISABLED), then 6 are available.
+  static const uint8_t AVAILABLE_USB_ENDPOINTS {max(0, (USB_ENDPOINTS - CDC_ENPOINT_COUNT - CDC_FIRST_ENDPOINT))};
+
+  /// Maximum number of digital joysticks that can daisy chain off of the same port. 
+  /// Sidewinder gamepad is the only one supported at this time which has a limit of 4.
+  /// This is then limited by how many USB endpoints are available so this is normally 3.
+  static const uint8_t MAX_JOYSTICKS{min(4, AVAILABLE_USB_ENDPOINTS)};
 
   /// Device description.
   ///
