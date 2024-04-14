@@ -424,7 +424,12 @@ template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_PRO> {
 public:
   static const Description &getDescription() {
+#ifndef SWPPSHIFT
     static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 9, 1};
+#endif
+#ifdef SWPPSHIFT
+    static const Description desc{"MS Sidewinder Force Feedback Pro", 4, 16, 1};
+#endif
     return desc;
   }
 
