@@ -402,7 +402,7 @@ public:
     state.axes[0] = bits(9, 10);
     state.axes[1] = bits(19, 10);
     state.axes[2] = map(bits(36, 6), 0, 63, 0, 1023);
-    state.axes[3] = map(bits(29, 7), 0, 127, 1023, 0);
+    state.axes[3] = map(bits(29, 7), 0, 127, 0, 1023);
     state.hat = bits(42, 4);
 #ifndef SWPPSHIFT
     state.buttons = ~bits(0, 9);
