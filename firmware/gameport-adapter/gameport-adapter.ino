@@ -65,6 +65,12 @@ void setup() {
     // DEBUG information: Debugging is turned off by default
     // Comment the "NDEBUG" line in "Utilities.h" to enable logging to the serial monitor
     initLog();
+
+    // Some devices, as the Logitech ThunderPad Digital, require some time for its
+    // microcontroller to initialize; otherwise the enableDigitalMode command is skipped
+    // and the device stays in analog mode. Don't use values higher than 100ms, they could
+    // interfere with the USB initialization
+    delay(100);
 }
 
 void loop() {

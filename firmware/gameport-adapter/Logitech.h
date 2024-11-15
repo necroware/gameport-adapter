@@ -38,6 +38,13 @@ public:
     m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
     m_description.hasHat = m_metaData.hasHat;
 
+    // If the device is a Logitech ThunderPad Digital, manually redefine the gamepad layout to 2 axes and 8 buttons
+    if(m_metaData.isThunder == 1){
+      m_description.numAxes = 2;
+      m_description.numButtons = 8;
+      m_description.hasHat = 0;
+    }
+
     // Initialize axes centers
     uint8_t axis = 0u;
     for (auto i = 0u; i < m_metaData.num10bitAxes; i++, axis++) {
@@ -121,6 +128,34 @@ public:
       state.buttons |= getBits(packet, offset++, 1) << button++;
     }
 
+    // If the device is a Logitech ThunderPad Digital, manually remap up, down, left and right buttons to X and Y axes
+    if(m_metaData.isThunder == 1){
+      state.axes[0] = 512;
+      state.axes[1] = 512;
+      state.buttons &= ~(1 << 4);
+      state.buttons &= ~(1 << 5);
+      state.buttons &= ~(1 << 6);
+      state.buttons &= ~(1 << 7);
+
+      if(getBits(packet, 12, 1)){
+        state.axes[1] = 0;
+      }
+      if(getBits(packet, 13, 1)){
+        state.axes[0] = 1023;
+      }
+      if(getBits(packet, 14, 1)){
+        state.axes[1] = 1023;
+      }
+      if(getBits(packet, 15, 1)){
+        state.axes[0] = 0;
+      }
+      
+      state.buttons |= getBits(packet, 16, 1) << 4;
+      state.buttons |= getBits(packet, 17, 1) << 5;
+      state.buttons |= getBits(packet, 18, 1) << 6;
+      state.buttons |= getBits(packet, 19, 1) << 7;
+    }
+
     m_state = state;
     return true;
   }
@@ -145,6 +180,7 @@ private:
     uint8_t numSecondaryHats{};
     uint8_t hasHat{};
     uint8_t numHatDirections{};
+    uint8_t isThunder{};
   };
 
   struct Limits {
@@ -173,7 +209,7 @@ private:
   }
 
   /// Internal bit structure which is filled by reading from the joystick.
-  using Packet = Buffer<128>;
+  using Packet = Buffer<255>;
 
   static uint16_t getBits(const Packet& packet, uint8_t offset, uint8_t count) {
     uint16_t result = 0u;
@@ -294,6 +330,11 @@ private:
     m_metaData.deviceName[cnameLength] = 0;
     for (auto i = 0u; i < cnameLength; i++) {
       m_metaData.deviceName[i] = getBits(packet, 66 + 8 * i, 8);
+    }
+
+    m_metaData.isThunder = 0;
+    if(strcmp(m_metaData.deviceName, "ThunderPad") == 0){
+      m_metaData.isThunder = 1;
     }
 
     return true;
