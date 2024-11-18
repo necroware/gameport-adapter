@@ -38,6 +38,13 @@ public:
     m_description.numButtons = m_metaData.numPrimaryButtons + m_metaData.numSecondaryButtons;
     m_description.hasHat = m_metaData.hasHat;
 
+    // If the device is a Logitech ThunderPad Digital, manually redefine the gamepad layout to 2 axes and 8 buttons
+    if(m_metaData.deviceID == DEVICE_THUNDERPAD_DIGITAL){
+      m_description.numAxes = 2;
+      m_description.numButtons = 8;
+      m_description.hasHat = 0;
+    }
+
     // Initialize axes centers
     uint8_t axis = 0u;
     for (auto i = 0u; i < m_metaData.num10bitAxes; i++, axis++) {
@@ -121,6 +128,18 @@ public:
       state.buttons |= getBits(packet, offset++, 1) << button++;
     }
 
+    // If the device is a Logitech ThunderPad Digital, manually remap up, down, left and right buttons to X and Y axes
+    if(m_metaData.deviceID == DEVICE_THUNDERPAD_DIGITAL){
+      const auto value = getBits(packet, 12, 4);
+      static constexpr uint16_t dx[] = { 511, 0, 511, 0, 1023, 511, 1023, 511, 511, 0, 511, 0, 1023, 511, 1023, 511 };
+      static constexpr uint16_t dy[] = { 511, 511, 1023, 1023, 511, 511, 1023, 1023, 0, 0, 511, 511, 0, 0, 511, 511 };
+      state.axes[0] = dx[value]; 
+      state.axes[1] = dy[value];
+
+      state.buttons &= 0xFF0F;
+      state.buttons |= (state.buttons & 0x0F00) >> 4;
+    }
+
     m_state = state;
     return true;
   }
@@ -151,6 +170,20 @@ private:
     uint16_t min, max;
   };
 
+  // Logitech Device ID constants, taken from the Linux Kernel ADI driver
+  enum LogitechDevices{
+    DEVICE_WINGMAN_EXTREME_DIGITAL    = 0x00,
+    DEVICE_THUNDERPAD_DIGITAL         = 0x01,
+    DEVICE_SIDECAR                    = 0x02,
+    DEVICE_CYBERMAN2                  = 0x03,
+    DEVICE_WINGMAN_INTERCEPTOR        = 0x04,
+    DEVICE_WINGMAN_FORMULA            = 0x05,
+    DEVICE_WINGMAN_GAMEPAD            = 0x06,
+    DEVICE_WINGMAN_EXTREME_DIGITAL_3D = 0x07,
+    DEVICE_WINGMAN_GAMEPAD_EXTREME    = 0x08,
+    DEVICE_WINGMAN_GAMEPAD_USB        = 0x09
+  };
+
   uint16_t mapAxisValue(uint8_t axis, uint16_t value) {
     if (value < m_limits[axis].min) {
       m_limits[axis].min = value;
@@ -173,7 +206,7 @@ private:
   }
 
   /// Internal bit structure which is filled by reading from the joystick.
-  using Packet = Buffer<128>;
+  using Packet = Buffer<255>;
 
   static uint16_t getBits(const Packet& packet, uint8_t offset, uint8_t count) {
     uint16_t result = 0u;
@@ -195,6 +228,13 @@ private:
 
   void enableDigitalMode() const {
     static constexpr uint16_t seq[] = {4, 2, 3, 10, 6, 11, 7, 9, 11, 0};
+    
+    // Some devices, as the Logitech ThunderPad Digital, require some time for its
+    // microcontroller to initialize; otherwise the enableDigitalMode command is skipped
+    // and the device stays in analog mode. Don't use values higher than 100ms, they could
+    // interfere with the USB initialization
+    delay(100);
+    
     for (auto i = 0u; seq[i]; i++) {
       m_trigger.pulse(20u);
       delay(seq[i]);
