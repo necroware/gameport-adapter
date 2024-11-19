@@ -27,29 +27,49 @@
 ///         https://github.com/torvalds/linux/blob/master/drivers/input/joystick/sidewinder.c
 class Sidewinder : public Joystick {
 public:
+
+  /// The maximum number of sidewinder gamepads supported.
+  static const auto MAX_GAMEPADS{min(Joystick::MAX_JOYSTICKS, 4)};
+
   /// Resets the joystick and tries to detect the model.
   bool init() override {
     log("Sidewinder init...");
     m_errors = 0;
 
-    m_model = guessModel(readPacket());
+    uint8_t joystickCount = 1;
+    m_model = guessModel(readPacket(), joystickCount);
     while (m_model == Model::SW_UNKNOWN) {
       // No data. 3d Pro analog mode?
       enableDigitalMode();
-      m_model = guessModel(readPacket());
+      m_model = guessModel(readPacket(), joystickCount);
     }
-    log("Detected model %d", m_model);
+    m_joystickCount = joystickCount;
+    log("Detected model %d, count %d", m_model, joystickCount);
     return true;
   }
 
   bool update() override {
     const auto packet = readPacket();
-    State state;
-    if (decode(packet, state)) {
-      m_state = state;
+
+    bool firstJoystickOK = false;
+    for (uint8_t i = 0; i < m_joystickCount; ++i)
+    {
+      State state;
+      if (decode(packet, i, state)) {
+        m_state[i] = state;
+
+        // The logic here is if one of the joysticks in the chain randomly
+        // didn't respond or the cable got loose, it is better to update at 
+        // least one of them than to fail out.
+        firstJoystickOK = firstJoystickOK || (i == 0);
+      }
+    }
+    if (firstJoystickOK)
+    {
       m_errors = 0;
       return true;
     }
+
 
     m_errors++;
     log("Packet decoding failed %d time(s)", m_errors);
@@ -60,7 +80,15 @@ public:
   }
 
   const State &getState() const override {
-    return m_state;
+    return m_state[0];    
+  }
+  const State &getState(uint8_t joystickIndex) const override {
+    return m_state[joystickIndex];
+  }
+
+  uint8_t getJoystickCount() const override
+  {
+    return m_joystickCount;
   }
 
   const Description &getDescription() const override;
@@ -94,12 +122,13 @@ private:
   template <Model M>
   struct Decoder {
     static const Description &getDescription();
-    static bool decode(const Packet &packet, State &state);
+    static bool decode(const Packet &packet, uint8_t joystickIndex, State &state);
   };
 
   /// Guesses joystick model from the size of the packet.
-  Model guessModel(const Packet &packet) const {
+  Model guessModel(const Packet &packet, uint8_t & joystickCount) const {
     log("Guessing model by packet size of %d", packet.size);
+    uint8_t gamepadCount = packet.size / 15;
     switch (packet.size) {
       case 15:
         return Model::SW_GAMEPAD;
@@ -118,6 +147,12 @@ private:
       case 64:
         return Model::SW_3D_PRO;
       default:
+        // for daisychained gamepads, the packet will be a multiple of 15
+        if (gamepadCount > 0 && (packet.size % 15 == 0)) {
+          // clamp the count to the maximum the firmware supports.
+          joystickCount = min(MAX_GAMEPADS, gamepadCount);
+          return Model::SW_GAMEPAD;
+        }
         return Model::SW_UNKNOWN;
     }
   }
@@ -137,7 +172,8 @@ private:
   DigitalInput<GamePort<14>::pin, true> m_data2;
   DigitalOutput<GamePort<3>::pin> m_trigger;
   Model m_model{Model::SW_UNKNOWN};
-  State m_state{};
+  State m_state[Joystick::MAX_JOYSTICKS]{};
+  uint8_t m_joystickCount;
   uint8_t m_errors{};
 
   /// Enables digital mode for 3D Pro.
@@ -219,7 +255,7 @@ private:
   }
 
   /// Decodes bit packet into a state.
-  bool decode(const Packet &packet, State &state) const;
+  bool decode(const Packet &packet, uint8_t joystickIndex, State &state) const;
 };
 
 /// Placeholder for Unknown Device
@@ -231,7 +267,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Packet &, State &) {
+  static bool decode(const Packet &, uint8_t, State &) {
     return false;
   }
 };
@@ -245,7 +281,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Packet &packet, State &state) {
+  static bool decode(const Packet &packet, uint8_t joystickIndex, State &state) {
 
     const auto checksum = [&]() {
       byte result = 0u;
@@ -255,19 +291,24 @@ public:
       return result;
     };
 
-    if (packet.size != 15 || checksum() != 0) {
+    uint8_t joystickCount = packet.size / 15;
+    if (joystickCount < (joystickIndex + 1) || 
+        (packet.size % 15) != 0 || 
+        (joystickIndex == 0 && checksum() != 0)) {
       return false;
     }
 
+    const uint8_t * data = packet.data + (joystickIndex * 15);
+    
     // Bit 0-1: x-axis (10-left, 01-right, 11-middle)
     // Bit 2-3: y-axis (01-up, 10-down, 11-middle)
     // Bit 4-13: 10 buttons
     // Bit 14: checksum
     for (auto i = 0u; i < 10; i++) {
-      state.buttons |= (~packet.data[i + 4] & 1) << i;
+      state.buttons |= (~data[i + 4] & 1) << i;
     }
-    state.axes[0] = map(1 + packet.data[3] - packet.data[2], 0, 2, 0, 1023);
-    state.axes[1] = map(1 + packet.data[0] - packet.data[1], 0, 2, 0, 1023);
+    state.axes[0] = map(1 + data[3] - data[2], 0, 2, 0, 1023);
+    state.axes[1] = map(1 + data[0] - data[1], 0, 2, 0, 1023);
 
     return true;
   }
@@ -282,7 +323,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Packet &packet, State &state) {
+  static bool decode(const Packet &packet, uint8_t joystickIndex, State &state) {
     const auto value = [&]() {
       uint64_t result{0u};
       for (auto i = 0u; i < packet.size; i++) {
@@ -351,7 +392,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Packet &packet, State &state) {
+  static bool decode(const Packet &packet, uint8_t joystickIndex, State &state) {
 
     // The packet can be either in 3bit or in 1bit mode
     if (packet.size != 16 && packet.size != 48) {
@@ -410,9 +451,9 @@ public:
     return desc;
   }
 
-  static bool decode(const Packet &packet, State &state) {
+  static bool decode(const Packet &packet, uint8_t joystickIndex, State &state) {
     // Decode is identical between the Force Feedback Pro and the Precision Pro.
-    return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+    return Decoder<Model::SW_PRECISION_PRO>::decode(packet, joystickIndex, state);
   }
 };
 
@@ -425,7 +466,7 @@ public:
     return desc;
   }
 
-  static bool decode(const Packet &packet, State &state) {
+  static bool decode(const Packet &packet, uint8_t joystickIndex, State &state) {
 
     // The packet can be either in 3bit or in 1bit mode
     if (packet.size != 11 && packet.size != 33) {
@@ -496,19 +537,19 @@ inline const Joystick::Description &Sidewinder::getDescription() const {
   }
 }
 
-inline bool Sidewinder::decode(const Packet &packet, State &state) const {
+inline bool Sidewinder::decode(const Packet &packet, uint8_t joystickIndex, State &state) const {
   switch (m_model) {
     case Model::SW_GAMEPAD:
-      return Decoder<Model::SW_GAMEPAD>::decode(packet, state);
+      return Decoder<Model::SW_GAMEPAD>::decode(packet, joystickIndex, state);
     case Model::SW_3D_PRO:
-      return Decoder<Model::SW_3D_PRO>::decode(packet, state);
+      return Decoder<Model::SW_3D_PRO>::decode(packet, joystickIndex, state);
     case Model::SW_PRECISION_PRO:
-      return Decoder<Model::SW_PRECISION_PRO>::decode(packet, state);
+      return Decoder<Model::SW_PRECISION_PRO>::decode(packet, joystickIndex, state);
     case Model::SW_FORCE_FEEDBACK_PRO:
-      return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::decode(packet, state);
+      return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::decode(packet, joystickIndex, state);
     case Model::SW_FORCE_FEEDBACK_WHEEL:
-      return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
+      return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, joystickIndex, state);
     default:
-      return Decoder<Model::SW_UNKNOWN>::decode(packet, state);
+      return Decoder<Model::SW_UNKNOWN>::decode(packet, joystickIndex, state);
   }
 }

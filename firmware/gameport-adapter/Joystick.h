@@ -23,6 +23,16 @@ class Joystick {
 public:
   static const auto MAX_AXES{16u};
 
+  /// Calculate how many usb endpoints are available. USB_ENDPOINTS is the total supported endpoints.
+  /// The CDC / serial endpoints are first, then any pluggable modules get what is remaining.
+  /// Normally this leaves 3, but if you disable CDC support (via CDC_DISABLED), then 6 are available.
+  static const uint8_t AVAILABLE_USB_ENDPOINTS {max(0, (USB_ENDPOINTS - CDC_ENPOINT_COUNT - CDC_FIRST_ENDPOINT))};
+
+  /// Maximum number of digital joysticks that can daisy chain off of the same port. 
+  /// Sidewinder gamepad is the only one supported at this time which has a limit of 4.
+  /// This is then limited by how many USB endpoints are available so this is normally 3.
+  static const uint8_t MAX_JOYSTICKS{min(4, AVAILABLE_USB_ENDPOINTS)};
+
   /// Device description.
   ///
   /// This structure is used to generate the HID description
@@ -82,8 +92,22 @@ public:
   /// Gets the State of the Joystick.
   virtual const State &getState() const = 0;
 
+  /// Override this method to add support for daisy chained joysticks.
+  virtual const State &getState(uint8_t joystickIndex) const
+  {
+    return getState();
+  }
+
   /// Gets the Description of the Joystick.
   virtual const Description &getDescription() const = 0;
+
+  /// Returns the number of daisy chained joysticks
+  /// that are connected. Defaults to 1 as most joysticks
+  /// implementations don't have this feature.  
+  virtual uint8_t getJoystickCount() const
+  {
+    return 1;
+  }
 
   Joystick() = default;
   virtual ~Joystick() = default;

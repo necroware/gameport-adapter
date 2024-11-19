@@ -22,12 +22,15 @@ public:
 
   explicit HidDevice()
   : PluggableUSBModule(1, 1, epType) {
-    PluggableUSB().plug(this);
   }
 
   void AppendDescriptor(HIDSubDescriptor *node) {
 
     if (rootNode == nullptr) {
+      // Initialization is delayed until AppendDescriptor
+      // is called for the first time. This allows for creating
+      // HidDevice objects and not initializing them.
+      PluggableUSB().plug(this);
       rootNode = node;
     } else {
       auto current = rootNode;
@@ -90,7 +93,7 @@ protected:
       total += res;
     }
 
-    // Reset the protocol on reenumeration. Normally the host should not 
+    // Reset the protocol on reenumeration. Normally the host should not
     // assume the state of the protocol due to the USB specs, but Windows
     // and Linux just assumes its in report mode.
     protocol = HID_REPORT_PROTOCOL;
