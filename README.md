@@ -94,6 +94,7 @@ Logitech WingMan Extreme     | 6       | 3     | 1    | 1001  | ADI        |
 Logitech CyberMan 2          | 8       | 6     | 0    | 1001  | ADI        |
 Logitech WingMan Interceptor | 9       | 3     | 3    | 1001  | ADI        | 2 hats are mapped as 4 axes
 Logitech ThunderPad Digital  | 8       | 2     | 0    | 1001  | ADI        | Directional buttons mapped as 2 axes
+Logitech WingMan Gamepad     | 11      | 2     | 0    | 1001  | ADI        | Directional buttons mapped as 2 axes
 Logitech WingMan Light       | 2       | 2     | 0    | 0000  | Analogue   |
 
 *Remarks:*
@@ -128,6 +129,7 @@ so far:
 * Logitech WingMan Interceptor
 * Logitech WingMan Light
 * Logitech ThunderPad Digital
+* Logitech WingMan Gamepad
 * Medion Joypad MD9823 (analog, 4-axes, 4-buttons)
 * QuickShot QS-123E "Warrior 5" (analog)
 * Quickshot QS-146 "Intruder 5" (analog)

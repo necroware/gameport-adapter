@@ -44,6 +44,12 @@ public:
       m_description.numButtons = 8;
       m_description.hasHat = 0;
     }
+    // If the device is a Logitech WingMan Gamepad, manually redefine the gamepad layout to 2 axes and 11 buttons
+    else if(m_metaData.deviceID == DEVICE_WINGMAN_GAMEPAD){
+      m_description.numAxes = 2;
+      m_description.numButtons = 11;
+      m_description.hasHat = 0;
+    }
 
     // Initialize axes centers
     uint8_t axis = 0u;
@@ -138,6 +144,16 @@ public:
 
       state.buttons &= 0xFF0F;
       state.buttons |= (state.buttons & 0x0F00) >> 4;
+    }
+    // If the device is a Logitech WingMan Gamepad, manually remap up, down, left and right buttons to X and Y axes
+    else if(m_metaData.deviceID == DEVICE_WINGMAN_GAMEPAD){
+      const auto value = getBits(packet, 8, 4);
+      static constexpr uint16_t dx[] = { 511, 0, 511, 0, 1023, 511, 1023, 511, 511, 0, 511, 0, 1023, 511, 1023, 511 };
+      static constexpr uint16_t dy[] = { 511, 511, 1023, 1023, 511, 511, 1023, 1023, 0, 0, 511, 511, 0, 0, 511, 511 };
+      state.axes[0] = dx[value]; 
+      state.axes[1] = dy[value];
+
+      state.buttons >>= 4;
     }
 
     m_state = state;
