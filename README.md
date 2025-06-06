@@ -82,7 +82,7 @@ Generic Analog               | 4       | 3     | 0    | 0100  | Analogue   | 3rd
 Generic Analog               | 4       | 4     | 0    | 1100  | Analogue   |
 CH FlightStick               | 4       | 4     | 1    | 0010  | Analogue   |
 CH F16 Combat Stick          | 10      | 3     | 1    | 0110  | Analogue   |
-ThrustMaster                 | 4       | 3     | 1    | 1010  | Analogue   |
+ThrustMaster                 | 4       | 3     | 1    | 1010  | Analogue   | FCS MARK I/II & PFCS
 Sidewinder GamePad           | 10      | 2     | 0    | 1110  | Sidewinder |
 Sidewinder 3D Pro            | 8       | 4     | 1    | 1110  | Sidewinder |
 Sidewinder 3D Pro Plus       | 9       | 4     | 1    | 1110  | Sidewinder | First version of Precision Pro
