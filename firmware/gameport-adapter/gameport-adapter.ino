@@ -24,6 +24,7 @@
 #include "Logitech.h"
 #include "Sidewinder.h"
 #include "ThrustMaster.h"
+#include "NE558.h"
 
 static Joystick *createJoystick() {
 
@@ -56,6 +57,8 @@ static Joystick *createJoystick() {
       return new GrIP;
     case 0b1001:
       return new Logitech;
+    case 0b1111:
+      return new NE558<2,2>;
     default:
       return new GenericJoystick<2,2>;
   }
