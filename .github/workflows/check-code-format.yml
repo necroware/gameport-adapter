@@ -1,0 +1,17 @@
+name: Check code format
+
+on:
+  workflow_call:
+
+jobs:
+
+  check-code-format:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: jidicula/clang-format-action@v4.18.0
+      with:
+        clang-format-version: '22'
+        check-path: 'firmware'

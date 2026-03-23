@@ -1,0 +1,9 @@
+name: Pull-Request checks
+
+on:
+  pull_request:
+
+jobs:
+  check-code-format:
+    uses: ./.github/workflows/check-code-format.yml
+
