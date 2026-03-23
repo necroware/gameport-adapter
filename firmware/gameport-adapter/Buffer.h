@@ -2,8 +2,9 @@
 // Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// it under the terms of the GNU General Public License as published by 
+// the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,86 +20,86 @@
 
 template <size_t Size>
 struct Buffer {
-    static const uint8_t MAX_SIZE{Size};
-    uint8_t data[MAX_SIZE]{};
-    uint8_t size{};
+  static const uint8_t MAX_SIZE{Size};
+  uint8_t data[MAX_SIZE]{};
+  uint8_t size{};
 };
 
 template <size_t S>
 class BufferFillerImpl {
 public:
-    using BufferType = Buffer<S>;
+  using BufferType = Buffer<S>;
 
-    explicit BufferFillerImpl(BufferType& buffer)
-        : m_buffer(buffer) {}
+  explicit BufferFillerImpl(BufferType &buffer)
+  : m_buffer(buffer) {
+  }
 
-    ~BufferFillerImpl() = default;
-    BufferFillerImpl(const BufferFillerImpl&) = delete;
-    BufferFillerImpl(BufferFillerImpl&&) = default;
-    BufferFillerImpl& operator=(const BufferFillerImpl&) = delete;
-    BufferFillerImpl& operator=(BufferFillerImpl&&) = default;
+  ~BufferFillerImpl() = default;
+  BufferFillerImpl(const BufferFillerImpl &) = delete;
+  BufferFillerImpl(BufferFillerImpl &&) = default;
+  BufferFillerImpl &operator=(const BufferFillerImpl &) = delete;
+  BufferFillerImpl &operator=(BufferFillerImpl &&) = default;
 
-    template <typename T>
-    BufferFillerImpl& push(const T& bits) {
-        return push(uint32_t(bits), sizeof(bits) * BITS_PER_BYTE);
+  template <typename T>
+  BufferFillerImpl &push(const T &bits) {
+    return push(uint32_t(bits), sizeof(bits) * BITS_PER_BYTE);
+  }
+
+  BufferFillerImpl &push(uint32_t bits, size_t count) {
+    while (count) {
+      const auto pushed = fillup(bits, count);
+      bits >>= pushed;
+      count -= pushed;
     }
+    return *this;
+  }
 
-    BufferFillerImpl& push(uint32_t bits, size_t count) {
-        while(count) {
-            const auto pushed = fillup(bits, count);
-            bits >>= pushed;
-            count -= pushed;
-        }
-        return *this;
+  BufferFillerImpl &align() {
+    if (m_bitsUsed) {
+      m_buffer.size++;
+      m_bitsUsed = 0u;
     }
-
-    BufferFillerImpl& align() {
-        if (m_bitsUsed) {
-            m_buffer.size++;
-            m_bitsUsed = 0u;
-        }        
-        return *this;
-    }
+    return *this;
+  }
 
 private:
-    static constexpr auto BITS_PER_BYTE{8u};
+  static constexpr auto BITS_PER_BYTE{8u};
 
-    BufferType& m_buffer;
-    size_t m_bitsUsed{};
+  BufferType &m_buffer;
+  size_t m_bitsUsed{};
 
-    size_t fillup(byte bits, size_t count) {
+  size_t fillup(byte bits, size_t count) {
 
-        const auto freeBits = BITS_PER_BYTE - m_bitsUsed;
-        if (freeBits == 0) {
-            return 0;
-        }
-
-        // If the total count is above the free bits available in the current
-        // byte, then push just a chunk to fill up the current byte
-        if (freeBits < count) {
-            return fillup(bits, freeBits);
-        }
-
-        if (m_bitsUsed == 0u) {
-          m_buffer.data[m_buffer.size] = 0u;
-        }
-
-        // Obviously the total count is less, than the amount of free bits
-        // available in the current byte, so the following block will simply
-        // add the bits to the current byte and return
-        const auto mask = uint32_t(1u << count) - 1u;
-        m_buffer.data[m_buffer.size] |= byte(bits & mask) << m_bitsUsed;
-        m_bitsUsed += count;
-        if (m_bitsUsed == BITS_PER_BYTE) {
-            m_buffer.size++;
-            m_bitsUsed = 0u;
-        }
-        return count;
+    const auto freeBits = BITS_PER_BYTE - m_bitsUsed;
+    if (freeBits == 0) {
+      return 0;
     }
+
+    // If the total count is above the free bits available in the current
+    // byte, then push just a chunk to fill up the current byte
+    if (freeBits < count) {
+      return fillup(bits, freeBits);
+    }
+
+    if (m_bitsUsed == 0u) {
+      m_buffer.data[m_buffer.size] = 0u;
+    }
+
+    // Obviously the total count is less, than the amount of free bits
+    // available in the current byte, so the following block will simply
+    // add the bits to the current byte and return
+    const auto mask = uint32_t(1u << count) - 1u;
+    m_buffer.data[m_buffer.size] |= byte(bits & mask) << m_bitsUsed;
+    m_bitsUsed += count;
+    if (m_bitsUsed == BITS_PER_BYTE) {
+      m_buffer.size++;
+      m_bitsUsed = 0u;
+    }
+    return count;
+  }
 };
 
 template <size_t S>
-BufferFillerImpl<S> BufferFiller(Buffer<S>& buffer) {
-    return BufferFillerImpl<S>(buffer);
+BufferFillerImpl<S> BufferFiller(Buffer<S> &buffer) {
+  return BufferFillerImpl<S>(buffer);
 }
-

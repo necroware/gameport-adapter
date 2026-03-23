@@ -30,7 +30,7 @@ public:
   struct Description {
 
     /// Human readable name.
-    const char* name;
+    const char *name;
 
     /// Number of supported axes.
     uint8_t numAxes;

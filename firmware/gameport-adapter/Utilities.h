@@ -32,8 +32,9 @@
 #define log(...)
 #else
 inline void initLog() {
-    Serial.begin(9600);
-    while(!Serial); 
+  Serial.begin(9600);
+  while (!Serial)
+    ;
 }
 
 inline void log(const char *fmt, ...) {
@@ -52,10 +53,14 @@ inline void log(const char *fmt, ...) {
 /// critical sections. The interrupt is reactivated as soon as this
 /// guard runs out of scope.
 struct InterruptStopper {
-  InterruptStopper() { noInterrupts(); }
-  ~InterruptStopper() { interrupts(); }
-  InterruptStopper(const InterruptStopper&) = delete;
-  InterruptStopper(InterruptStopper&&) = delete;
-  InterruptStopper& operator=(const InterruptStopper&) = delete;
-  InterruptStopper& operator=(InterruptStopper&&) = delete;
+  InterruptStopper() {
+    noInterrupts();
+  }
+  ~InterruptStopper() {
+    interrupts();
+  }
+  InterruptStopper(const InterruptStopper &) = delete;
+  InterruptStopper(InterruptStopper &&) = delete;
+  InterruptStopper &operator=(const InterruptStopper &) = delete;
+  InterruptStopper &operator=(InterruptStopper &&) = delete;
 };

@@ -65,4 +65,3 @@ private:
   AnalogJoystick m_joystick;
   State m_state;
 };
-

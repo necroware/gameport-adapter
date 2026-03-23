@@ -100,7 +100,7 @@ public:
   }
 
   operator bool() const {
-      return isHigh();
+    return isHigh();
   }
 
   /// Read raw bit data
@@ -123,13 +123,13 @@ public:
   /// @param[in] timeount is the timeout in microseconds
   uint16_t wait(Edge edge, uint16_t timeout) const {
     if (edge == Edge::falling) {
-      return waitImpl(timeout, [](uint8_t a, uint8_t) {return a;});
+      return waitImpl(timeout, [](uint8_t a, uint8_t) { return a; });
     }
     if (edge == Edge::rising) {
-      return waitImpl(timeout, [](uint8_t, uint8_t b) {return b;});
+      return waitImpl(timeout, [](uint8_t, uint8_t b) { return b; });
     }
     // edge == Edge::rising
-    return waitImpl(timeout, [](uint8_t a, uint8_t b) {return a|b;});
+    return waitImpl(timeout, [](uint8_t a, uint8_t b) { return a | b; });
   }
 
   /// Waits for a state with given timeout.

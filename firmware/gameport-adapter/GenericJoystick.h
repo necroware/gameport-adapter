@@ -16,37 +16,34 @@
 
 #pragma once
 
-#include "Joystick.h"
 #include "AnalogJoystick.h"
+#include "Joystick.h"
 
 template <size_t Axes, size_t Buttons>
 class GenericJoystick : public Joystick {
 public:
+  static_assert(Axes > 0 && Axes <= 4);
 
-    static_assert(Axes > 0 && Axes <= 4);
+  bool init() override {
+    return true;
+  }
 
-    bool init() override {
-        return true;
+  bool update() override {
+    for (auto i = 0u; i < Axes; i++) {
+      m_state.axes[i] = m_joystick.getAxis(i);
     }
+    m_state.buttons = m_joystick.getButtons();
+    return true;
+  }
 
-    bool update() override {
-        for (auto i = 0u; i < Axes; i++) {
-            m_state.axes[i] = m_joystick.getAxis(i);
-        }
-        m_state.buttons = m_joystick.getButtons();
-        return true;
-    }
+  const State &getState() const override {
+    return m_state;
+  }
 
-    const State& getState() const override {
-        return m_state;
-    }
-
-    const Description& getDescription() const override {
-        static const Description description {
-            "Generic Joystick", Axes, Buttons, 0
-        };
-        return description;
-    }
+  const Description &getDescription() const override {
+    static const Description description{"Generic Joystick", Axes, Buttons, 0};
+    return description;
+  }
 
 private:
   AnalogJoystick m_joystick;

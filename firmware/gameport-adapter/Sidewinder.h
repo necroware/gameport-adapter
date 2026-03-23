@@ -105,13 +105,13 @@ private:
         return Model::SW_GAMEPAD;
       case 16:   // 3bit mode
       case 48: { // 1bit mode
-          const auto id = readID(packet.size);
-          log("Data packet size is ambiguous. Guessing by ID %d", id);
-          if (id == 14) {
-            return Model::SW_FORCE_FEEDBACK_PRO;
-          }
-          return Model::SW_PRECISION_PRO;
+        const auto id = readID(packet.size);
+        log("Data packet size is ambiguous. Guessing by ID %d", id);
+        if (id == 14) {
+          return Model::SW_FORCE_FEEDBACK_PRO;
         }
+        return Model::SW_PRECISION_PRO;
+      }
       case 11: // 3bit mode
       case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
@@ -194,8 +194,7 @@ private:
     const auto count = readBits(255u, [this, rise, fall](uint8_t pos) {
       if (pos == rise) {
         m_trigger.setHigh();
-      }
-      else if (pos == fall) {
+      } else if (pos == fall) {
         m_trigger.setLow();
       }
     });
@@ -203,7 +202,7 @@ private:
   }
 
   template <typename T>
-  uint8_t readBits(uint8_t maxCount, T&& extract) const {
+  uint8_t readBits(uint8_t maxCount, T &&extract) const {
     static const uint8_t wait_duration = 100;
     uint8_t count{};
     cooldown();
@@ -211,7 +210,7 @@ private:
     const InterruptStopper interruptStopper;
     trigger();
     if (m_clock.wait(true, wait_duration)) {
-      while(count < maxCount && m_clock.wait(Edge::rising, wait_duration)) {
+      while (count < maxCount && m_clock.wait(Edge::rising, wait_duration)) {
         extract(count++);
       }
     }
@@ -355,7 +354,7 @@ public:
 
     // The packet can be either in 3bit or in 1bit mode
     if (packet.size != 16 && packet.size != 48) {
-        return false;
+      return false;
     }
 
     const auto value = [&packet]() {
@@ -431,7 +430,7 @@ public:
 
     // The packet can be either in 3bit or in 1bit mode
     if (packet.size != 11 && packet.size != 33) {
-        return false;
+      return false;
     }
 
     const auto value = [&packet]() {

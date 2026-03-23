@@ -2,8 +2,8 @@
 // Copyright (C) 2021 Necroware
 //
 // This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// it under the terms of the GNU General Public License as published by // the Free Software Foundation, either version
+// 3 of the License, or (at your option) any later version.
 //
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,7 +19,6 @@
 
 class HidDevice : public PluggableUSBModule {
 public:
-
   explicit HidDevice()
   : PluggableUSBModule(1, 1, epType) {
     PluggableUSB().plug(this);
@@ -55,14 +54,12 @@ public:
   }
 
 protected:
-
   int getInterface(uint8_t *interfaceCount) override {
     *interfaceCount += 1; // uses 1
-    HIDDescriptor hidInterface {
+    HIDDescriptor hidInterface{
         D_INTERFACE(pluggedInterface, 1, USB_DEVICE_CLASS_HUMAN_INTERFACE, HID_SUBCLASS_NONE, HID_PROTOCOL_NONE),
         D_HIDREPORT(descriptorSize),
-        D_ENDPOINT(USB_ENDPOINT_IN(pluggedEndpoint), USB_ENDPOINT_TYPE_INTERRUPT, USB_EP_SIZE, 0x01)
-    };
+        D_ENDPOINT(USB_ENDPOINT_IN(pluggedEndpoint), USB_ENDPOINT_TYPE_INTERRUPT, USB_EP_SIZE, 0x01)};
     return USB_SendControl(0, &hidInterface, sizeof(hidInterface));
   }
 
@@ -90,7 +87,7 @@ protected:
       total += res;
     }
 
-    // Reset the protocol on reenumeration. Normally the host should not 
+    // Reset the protocol on reenumeration. Normally the host should not
     // assume the state of the protocol due to the USB specs, but Windows
     // and Linux just assumes its in report mode.
     protocol = HID_REPORT_PROTOCOL;
@@ -162,4 +159,3 @@ private:
   uint8_t protocol{HID_REPORT_PROTOCOL};
   uint8_t idle{1};
 };
-

@@ -30,14 +30,14 @@ struct GamePort<2> {
   enum { pin = 10 };
 };
 
-// Analog: Joystick1 X-Axis 
+// Analog: Joystick1 X-Axis
 // Digital (e.g. SW3D): Trigger
 template <>
 struct GamePort<3> {
   enum { pin = A0 };
 };
 
-// Analog: Joystick1 Y-Axis 
+// Analog: Joystick1 Y-Axis
 template <>
 struct GamePort<6> {
   enum { pin = A7 };
@@ -57,7 +57,7 @@ struct GamePort<10> {
   enum { pin = 16 };
 };
 
-// Analog: Joystick2 X-Axis 
+// Analog: Joystick2 X-Axis
 template <>
 struct GamePort<11> {
   enum { pin = A1 };
@@ -69,7 +69,7 @@ struct GamePort<12> {
   enum { pin = 5 };
 };
 
-// Analog: Joystick2 Y-Axis 
+// Analog: Joystick2 Y-Axis
 template <>
 struct GamePort<13> {
   enum { pin = A6 };

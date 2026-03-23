@@ -21,7 +21,6 @@
 
 class ThrustMaster : public Joystick {
 public:
-
   const Description &getDescription() const override {
     static const Description description{"ThrustMaster", 3, 4, 1};
     return description;
@@ -73,4 +72,3 @@ private:
   AnalogJoystick m_joystick;
   State m_state;
 };
-

@@ -31,10 +31,9 @@ public:
     return m_state;
   }
 
-  bool init() override {  
+  bool init() override {
     return true;
   }
-
 
   bool update() override {
     const auto decodeHat = [](byte code) -> byte {
@@ -58,13 +57,13 @@ public:
     m_state.axes[0] = m_joystick.getAxis(0);
     m_state.axes[1] = m_joystick.getAxis(1);
     m_state.axes[2] = m_joystick.getAxis(3); // Throttle
-    
+
     const auto code = m_joystick.getButtons();
 
     m_state.hat = decodeHat(code);
     m_state.buttons = decodeButtons(code);
-  
-    log("Code %d : %d , A2 %d", code, m_state.buttons, m_state.axes[2] );
+
+    log("Code %d : %d , A2 %d", code, m_state.buttons, m_state.axes[2]);
     return true;
   }
 

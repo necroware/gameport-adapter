@@ -17,14 +17,14 @@
 #include "DigitalPin.h"
 #include "HidJoystick.h"
 
-#include "CHFlightstickPro.h"
 #include "CHF16CombatStick.h"
+#include "CHFlightstickPro.h"
 #include "GenericJoystick.h"
 #include "GrIP.h"
 #include "Logitech.h"
 #include "Sidewinder.h"
-#include "ThrustMaster.h"
 #include "TMDC.h"
+#include "ThrustMaster.h"
 
 static Joystick *createJoystick() {
 
@@ -40,11 +40,11 @@ static Joystick *createJoystick() {
 
   switch (sw) {
     case 0b0001:
-      return new GenericJoystick<2,4>;
+      return new GenericJoystick<2, 4>;
     case 0b0010:
-      return new GenericJoystick<3,4>;
+      return new GenericJoystick<3, 4>;
     case 0b0011:
-      return new GenericJoystick<4,4>;
+      return new GenericJoystick<4, 4>;
     case 0b0100:
       return new CHFlightstickPro;
     case 0b0101:
@@ -60,22 +60,22 @@ static Joystick *createJoystick() {
     case 0b1010:
       return new TMDC;
     default:
-      return new GenericJoystick<2,2>;
+      return new GenericJoystick<2, 2>;
   }
 }
 
 void setup() {
-    // DEBUG information: Debugging is turned off by default
-    // Comment the "NDEBUG" line in "Utilities.h" to enable logging to the serial monitor
-    initLog();
+  // DEBUG information: Debugging is turned off by default
+  // Comment the "NDEBUG" line in "Utilities.h" to enable logging to the serial monitor
+  initLog();
 }
 
 void loop() {
 
   static auto hidJoystick = [] {
-      HidJoystick hidJoystick;
-      hidJoystick.init(createJoystick());
-      return hidJoystick;
+    HidJoystick hidJoystick;
+    hidJoystick.init(createJoystick());
+    return hidJoystick;
   }();
 
   hidJoystick.update();

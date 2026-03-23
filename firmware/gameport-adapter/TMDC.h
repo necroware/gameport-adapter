@@ -35,12 +35,12 @@
 class TMDC : public Joystick {
 public:
   bool init() override {
-		uint8_t data[PACKET_LEN];
+    uint8_t data[PACKET_LEN];
 
-		while (!readPacket(data))
-			delay(200);
- 	
-		m_deviceType = static_cast<DeviceType>(data[BYTE_ID]);
+    while (!readPacket(data))
+      delay(200);
+
+    m_deviceType = static_cast<DeviceType>(data[BYTE_ID]);
     return true;
   }
 
@@ -53,34 +53,53 @@ public:
     return true;
   }
 
-  const State& getState() const override {
+  const State &getState() const override {
     return m_state;
   }
 
-  const Description& getDescription() const override {
+  const Description &getDescription() const override {
     switch (m_deviceType) {
-	  	// Note, only the Millennium 3D is tested. Button/axis mappings may need to be revised by folks with actual controllers.
-      case DeviceType::Millenium3D:    { static const Description d{"ThrustMaster Millennium 3D Inceptor", 4, 6,  true};  return d; } // Verified
-      case DeviceType::Rage3D: 		     { static const Description d{"ThrustMaster Rage 3D Gamepad",        2, 10, false}; return d; }
-      case DeviceType::AttackThrottle: { static const Description d{"ThrustMaster Attack Throttle",        4, 10, true};  return d; }
-      case DeviceType::FragMaster:     { static const Description d{"ThrustMaster FragMaster",             4, 10, false}; return d; }
-      case DeviceType::Fusion:    	   { static const Description d{"Thrustmaster Fusion GamePad",         2, 10, false}; return d; }
-      default:          			   		   { static const Description d{"ThrustMaster Generic TMDC",           2, 4,  false}; return d; }
+        // Note, only the Millennium 3D is tested. Button/axis mappings may need to be revised by folks with actual
+        // controllers.
+      case DeviceType::Millenium3D: {
+        static const Description d{"ThrustMaster Millennium 3D Inceptor", 4, 6, true};
+        return d;
+      } // Verified
+      case DeviceType::Rage3D: {
+        static const Description d{"ThrustMaster Rage 3D Gamepad", 2, 10, false};
+        return d;
+      }
+      case DeviceType::AttackThrottle: {
+        static const Description d{"ThrustMaster Attack Throttle", 4, 10, true};
+        return d;
+      }
+      case DeviceType::FragMaster: {
+        static const Description d{"ThrustMaster FragMaster", 4, 10, false};
+        return d;
+      }
+      case DeviceType::Fusion: {
+        static const Description d{"Thrustmaster Fusion GamePad", 2, 10, false};
+        return d;
+      }
+      default: {
+        static const Description d{"ThrustMaster Generic TMDC", 2, 4, false};
+        return d;
+      }
     }
   }
 
 private:
   static constexpr uint8_t PACKET_LEN = 13;
-  static constexpr uint8_t BYTE_ID    = 10;
+  static constexpr uint8_t BYTE_ID = 10;
 
   enum class DeviceType : uint8_t {
-		// Device mode IDs reported in packet byte 10 (TMDC_BYTE_ID)
-		Uninitialized  = 0,
-		Millenium3D    = 1,
-		Rage3D 		     = 3,
-		AttackThrottle = 4, 
-		FragMaster     = 8,
-		Fusion    	   = 163
+    // Device mode IDs reported in packet byte 10 (TMDC_BYTE_ID)
+    Uninitialized = 0,
+    Millenium3D = 1,
+    Rage3D = 3,
+    AttackThrottle = 4,
+    FragMaster = 8,
+    Fusion = 163
   };
 
   // GamePort pin 7 (Button 2): TMDC strobe/clock line for port 0
@@ -107,7 +126,7 @@ private:
   ///   TMDC_MAX_START  = 600 µs  → ~1600 iterations (we use 2000 for margin)
   ///   TMDC_MAX_STROBE = 60 µs   → ~160 iterations  (we use 300 for margin)
   bool readPacket(uint8_t data[PACKET_LEN]) const {
-    static constexpr uint16_t TIMEOUT_START  = 2000;
+    static constexpr uint16_t TIMEOUT_START = 2000;
     static constexpr uint16_t TIMEOUT_STROBE = 300;
 
     // Cooldown: hold trigger LOW and allow the joystick time to reset between
@@ -121,8 +140,8 @@ private:
     // us to miss the first strobe (which must arrive within 600 µs).
     // This mirrors the approach used in Sidewinder.h.
     const InterruptStopper interruptStopper;
-		/// Triggers the gameport timing circuit to start a TMDC data transmission.
-		m_trigger.pulse(20);
+    /// Triggers the gameport timing circuit to start a TMDC data transmission.
+    m_trigger.pulse(20);
 
     for (uint8_t i = 0; i < PACKET_LEN; i++) {
       // Wait for strobe falling edge — this is the start-bit slot
@@ -163,15 +182,24 @@ private:
   /// Converts a HAT switch (x, y) vector to the HID HAT position encoding.
   /// HID encoding: 0=center, 1=up, 2=up-right, 3=right, ... 8=up-left (clockwise).
   static uint8_t hatXYtoHid(int8_t x, int8_t y) {
-    if (x ==  0 && y ==  0) return 0; // center
-    if (x ==  0 && y == -1) return 1; // up
-    if (x ==  1 && y == -1) return 2; // up-right
-    if (x ==  1 && y ==  0) return 3; // right
-    if (x ==  1 && y ==  1) return 4; // down-right
-    if (x ==  0 && y ==  1) return 5; // down
-    if (x == -1 && y ==  1) return 6; // down-left
-    if (x == -1 && y ==  0) return 7; // left
-    if (x == -1 && y == -1) return 8; // up-left
+    if (x == 0 && y == 0)
+      return 0; // center
+    if (x == 0 && y == -1)
+      return 1; // up
+    if (x == 1 && y == -1)
+      return 2; // up-right
+    if (x == 1 && y == 0)
+      return 3; // right
+    if (x == 1 && y == 1)
+      return 4; // down-right
+    if (x == 0 && y == 1)
+      return 5; // down
+    if (x == -1 && y == 1)
+      return 6; // down-left
+    if (x == -1 && y == 0)
+      return 7; // left
+    if (x == -1 && y == -1)
+      return 8; // up-left
     return 0;
   }
 
@@ -193,36 +221,48 @@ private:
     static constexpr uint8_t BYTE_D[4] = {2, 5, 8, 9};
 
     uint8_t numAxes = 0;
-    bool    hasHat  = false;
+    bool hasHat = false;
     uint8_t btnc[4] = {};
     uint8_t btno[4] = {};
 
     switch (m_deviceType) {
       case DeviceType::Millenium3D:
-        numAxes = 4; hasHat = true;
-        btnc[0] = 4; btno[0] = 4;
-        btnc[1] = 2; btno[1] = 6;
+        numAxes = 4;
+        hasHat = true;
+        btnc[0] = 4;
+        btno[0] = 4;
+        btnc[1] = 2;
+        btno[1] = 6;
         break;
       case DeviceType::Rage3D:
         numAxes = 2;
-        btnc[0] = 8; btno[0] = 0;
-        btnc[1] = 2; btno[1] = 0;
+        btnc[0] = 8;
+        btno[0] = 0;
+        btnc[1] = 2;
+        btno[1] = 0;
         break;
       case DeviceType::AttackThrottle:
         // axis index 3 (packet byte 4) carries the HAT, not an analog axis
-        numAxes = 5; hasHat = true;
-        btnc[0] = 4; btno[0] = 4;
-        btnc[1] = 6; btno[1] = 2;
+        numAxes = 5;
+        hasHat = true;
+        btnc[0] = 4;
+        btno[0] = 4;
+        btnc[1] = 6;
+        btno[1] = 2;
         break;
       case DeviceType::FragMaster:
         numAxes = 4;
-        btnc[0] = 8; btno[0] = 0;
-        btnc[1] = 2; btno[1] = 0;
+        btnc[0] = 8;
+        btno[0] = 0;
+        btnc[1] = 2;
+        btno[1] = 0;
         break;
       case DeviceType::Fusion:
         numAxes = 2;
-        btnc[0] = 8; btno[0] = 0;
-        btnc[1] = 2; btno[1] = 0;
+        btnc[0] = 8;
+        btno[0] = 0;
+        btnc[1] = 2;
+        btno[1] = 0;
         break;
       default:
         return;
@@ -245,14 +285,14 @@ private:
         //   bit 0 = up, bit 1 = right, bit 2 = down, bit 3 = left
         const uint8_t d = data[BYTE_D[0]];
         const int8_t x = (int8_t)((d >> 3) & 1) - (int8_t)((d >> 1) & 1); // left - right
-        const int8_t y = (int8_t)((d >> 2) & 1) - (int8_t)(d & 1);         // down - up
+        const int8_t y = (int8_t)((d >> 2) & 1) - (int8_t)(d & 1);        // down - up
         m_state.hat = hatXYtoHid(x, y);
       } else if (m_deviceType == DeviceType::AttackThrottle) {
         // HAT encoded as an analog value in axis byte a[3] (packet byte 4).
         // Five positions spaced ~25 counts apart starting at 141.
         // Index: 0=center, 1=right, 2=up, 3=left, 4=down
-        static constexpr int8_t HAT_X[5] = { 0,  1,  0, -1,  0};
-        static constexpr int8_t HAT_Y[5] = { 0,  0, -1,  0,  1};
+        static constexpr int8_t HAT_X[5] = {0, 1, 0, -1, 0};
+        static constexpr int8_t HAT_Y[5] = {0, 0, -1, 0, 1};
         const uint8_t raw = data[BYTE_A[3]];
         if (raw >= 141) {
           const uint8_t idx = (raw - 141) / 25;
