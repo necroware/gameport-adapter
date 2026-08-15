@@ -28,6 +28,11 @@
 class Sidewinder : public Joystick {
 public:
   /// Resets the joystick and tries to detect the model.
+  ///
+  /// @remark This blocks until a joystick is detected. That is intentional:
+  ///         it is called once from setup and a failure there would leave
+  ///         the adapter dead until it is power cycled. Do not call it from
+  ///         update(), which has to keep sending HID reports.
   bool init() override {
     log("Sidewinder init...");
     m_errors = 0;
@@ -54,7 +59,15 @@ public:
     m_errors++;
     log("Packet decoding failed %d time(s)", m_errors);
     if (m_errors > 5) {
-      return init();
+      // Re-detect with a single attempt per call instead of calling init(),
+      // which would spin here for as long as the joystick stays unplugged and
+      // stop the HID reports along with it.
+      m_errors = 0;
+      m_model = guessModel(readPacket());
+      if (m_model == Model::SW_UNKNOWN) {
+        // No data. 3d Pro analog mode?
+        enableDigitalMode();
+      }
     }
     return false;
   }
@@ -84,7 +97,10 @@ private:
     SW_FORCE_FEEDBACK_PRO,
 
     /// Sidewinder Force Feedback Wheel
-    SW_FORCE_FEEDBACK_WHEEL
+    SW_FORCE_FEEDBACK_WHEEL,
+
+    /// Sidewinder Freestyle Pro
+    SW_FREESTYLE_PRO
   };
 
   /// Internal bit structure which is filled by reading from the joystick.
@@ -115,6 +131,8 @@ private:
       case 11: // 3bit mode
       case 33: // 1bit mode
         return Model::SW_FORCE_FEEDBACK_WHEEL;
+      case 43: // Freestyle Pro, verified on hardware
+        return Model::SW_FREESTYLE_PRO;
       case 64:
         return Model::SW_3D_PRO;
       default:
@@ -480,6 +498,72 @@ public:
   }
 };
 
+/// Bit decoder for Sidewinder Freestyle Pro.
+template <>
+class Sidewinder::Decoder<Sidewinder::Model::SW_FREESTYLE_PRO> {
+public:
+  static const Description &getDescription() {
+    static const Description desc{"MS Sidewinder Freestyle Pro", 3, 10, 1};
+    return desc;
+  }
+
+  static bool decode(const Packet &packet, State &state) {
+
+    // Unlike the other Sidewinders this one was only ever seen in 1bit mode.
+    // The Linux driver also handles it at 45 bits (15 clocks in 3bit mode,
+    // its "case 45"), but that collides with the GamePad packet size, so it
+    // is not worth guessing at until such a device actually shows up.
+    if (packet.size != 43) {
+      return false;
+    }
+
+    const auto value = [&packet]() {
+      uint64_t result{0u};
+      for (auto i = 0u; i < packet.size; i++) {
+        result |= uint64_t(packet.data[i] & 1) << i;
+      }
+      return result;
+    }();
+
+    const auto bits = [&value](uint8_t start, uint8_t length) {
+      const auto mask = (1 << length) - 1;
+      return (value >> start) & mask;
+    };
+
+    const auto parity = [](uint64_t t) {
+      uint32_t x = t ^ (t >> 32);
+      x ^= x >> 16;
+      x ^= x >> 8;
+      x ^= x >> 4;
+      x ^= x >> 2;
+      x ^= x >> 1;
+      return x & 1;
+    };
+
+    if (!parity(value) || bits(28, 4) > 8) {
+      return false;
+    }
+
+    // bit 0-9: x-axis
+    state.axes[0] = bits(0, 10);
+
+    // bit 16-25: y-axis
+    state.axes[1] = bits(16, 10);
+
+    // bit 32-37: throttle-axis
+    state.axes[2] = map(bits(32, 6), 0, 63, 0, 1023);
+
+    // bit 28-31: hat (9 pos, 0 center, 1-8 clockwise)
+    state.hat = bits(28, 4);
+
+    // bit 10-15: buttons 1-6, bit 26: TR, bit 27: START, bit 38: MODE, bit 39: SELECT
+    state.buttons = (~bits(10, 6) & 0x3F) | (~bits(26, 1) & 1) << 6 | (~bits(27, 1) & 1) << 7 |
+                    (~bits(38, 1) & 1) << 8 | (~bits(39, 1) & 1) << 9;
+
+    return true;
+  }
+};
+
 inline const Joystick::Description &Sidewinder::getDescription() const {
   switch (m_model) {
     case Model::SW_GAMEPAD:
@@ -492,6 +576,8 @@ inline const Joystick::Description &Sidewinder::getDescription() const {
       return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::getDescription();
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::getDescription();
+    case Model::SW_FREESTYLE_PRO:
+      return Decoder<Model::SW_FREESTYLE_PRO>::getDescription();
     default:
       return Decoder<Model::SW_UNKNOWN>::getDescription();
   }
@@ -509,6 +595,8 @@ inline bool Sidewinder::decode(const Packet &packet, State &state) const {
       return Decoder<Model::SW_FORCE_FEEDBACK_PRO>::decode(packet, state);
     case Model::SW_FORCE_FEEDBACK_WHEEL:
       return Decoder<Model::SW_FORCE_FEEDBACK_WHEEL>::decode(packet, state);
+    case Model::SW_FREESTYLE_PRO:
+      return Decoder<Model::SW_FREESTYLE_PRO>::decode(packet, state);
     default:
       return Decoder<Model::SW_UNKNOWN>::decode(packet, state);
   }
