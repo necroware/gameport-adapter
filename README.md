@@ -90,6 +90,7 @@ Sidewinder 3D Pro Plus       | 9       | 4     | 1    | 1110  | Sidewinder | Fir
 Sidewinder Precision Pro     | 16      | 4     | 1    | 1110  | Sidewinder | Shift doubbles the buttons
 Sidewinder FFB Pro           | 16      | 4     | 1    | 1110  | Sidewinder | FFB not yet implemented
 Sidewinder FFB Wheel         | 8       | 3     | 0    | 1110  | Sidewinder | FFB not yet implemented
+Sidewinder Freestyle Pro     | 10      | 3     | 1    | 1110  | Sidewinder | 3rd axis is throttle
 Gravis GamePad Pro           | 10      | 2     | 0    | 0001  | GrIP       |
 Logitech WingMan Extreme     | 6       | 3     | 1    | 1001  | ADI        |
 Logitech CyberMan 2          | 8       | 6     | 0    | 1001  | ADI        |
@@ -144,6 +145,7 @@ so far:
 * Sidewinder 3D Pro Plus
 * Sidewinder ForceFeedBack Pro
 * Sidewinder ForceFeedBack Wheel
+* Sidewinder Freestyle Pro
 * Sidewinder GamePad
 * Sidewinder Precision Pro
 * ThrustMaster Millenium 3D Inceptor 
