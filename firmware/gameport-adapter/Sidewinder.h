@@ -44,6 +44,19 @@ public:
 
   bool update() override {
     const auto packet = readPacket();
+
+    // The SideWinder GamePad can enter a mode in which it stops sending
+    // digital packets. Keep the already detected model and report a neutral
+    // state instead of repeatedly trying to reinitialize it as a 3D Pro.
+    if (m_model == Model::SW_GAMEPAD && packet.size == 0) {
+      State state;
+      state.axes[0] = 512;
+      state.axes[1] = 512;
+      m_state = state;
+      m_errors = 0;
+      return true;
+    }
+
     State state;
     if (decode(packet, state)) {
       m_state = state;
