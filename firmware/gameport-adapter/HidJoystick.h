@@ -30,9 +30,15 @@ public:
     }
 
     m_joystick = joystick;
-    m_hidDescription = createDescription(*m_joystick);
+    const auto ffb = m_joystick->getForceFeedback();
+    m_hidDescription = createDescription(*m_joystick, ffb != nullptr);
     m_subDescriptor = new HIDSubDescriptor{m_hidDescription.data, m_hidDescription.size};
     m_hidDevice.AppendDescriptor(m_subDescriptor);
+    if (ffb) {
+      // The PID descriptor closes the application collection
+      m_hidDevice.SetForceFeedback(ffb);
+    }
+    m_hidDevice.Reenumerate();
 
     log("Detected device: %s", joystick->getDescription().name);
     return true;
@@ -49,13 +55,18 @@ public:
   }
 
 private:
-  using BufferType = Buffer<255>;
+  // Sized for the largest joystick (MAX_AXES axes, hat, 16 buttons): the
+  // description needs 102 bytes and the packet 23 bytes. Keep them small,
+  // both end up on the stack of loop() and RAM is scarce.
+  using DescriptionType = Buffer<128>;
+  using PacketType = Buffer<32>;
   static const uint8_t DEVICE_ID{3};
 
-  static BufferType createDescription(const Joystick &joystick) {
+  static DescriptionType createDescription(const Joystick &joystick, bool keepCollectionOpen) {
 
     enum class ID : uint8_t {
       application = 0x01,
+      automobile_simulation_device = 0x02,
       button = 0x09,
       collection = 0xa1,
       end_collection = 0xc0,
@@ -67,6 +78,7 @@ private:
       joystick = 0x04,
       logical_max = 0x26,
       logical_min = 0x15,
+      physical = 0x00,
       report_count = 0x95,
       report_id = 0x85,
       report_size = 0x75,
@@ -79,7 +91,7 @@ private:
     };
 
     const auto &desc = joystick.getDescription();
-    BufferType buffer;
+    DescriptionType buffer;
     auto filler = BufferFiller(buffer);
 
     auto pushData = [&filler](uint8_t size, uint8_t count) {
@@ -98,6 +110,15 @@ private:
     filler.push(ID::usage).push(ID::joystick);
     filler.push(ID::collection).push(ID::application);
     filler.push(ID::report_id).push<uint8_t>(DEVICE_ID);
+
+    // Wheels are marked as automobile simulation device. Windows (and Wine
+    // with hidraw) classify them as driving device that way, so games find
+    // the wheel. The axes keep their usages, X stays the steering.
+    if (desc.isWheel) {
+      filler.push(ID::usage_page).push(ID::simulation_controls);
+      filler.push(ID::usage).push(ID::automobile_simulation_device);
+      filler.push(ID::collection).push(ID::physical);
+    }
 
     // Push axes
     if (desc.numAxes > 0) {
@@ -129,15 +150,20 @@ private:
       pushData(1, desc.numButtons);
     }
 
-    filler.push(ID::end_collection);
+    if (desc.isWheel) {
+      filler.push(ID::end_collection);
+    }
+    if (!keepCollectionOpen) {
+      filler.push(ID::end_collection);
+    }
     return buffer;
   }
 
-  static BufferType createPacket(const Joystick &joystick) {
+  static PacketType createPacket(const Joystick &joystick) {
 
     const auto &state = joystick.getState();
     const auto &description = joystick.getDescription();
-    BufferType buffer;
+    PacketType buffer;
     auto filler = BufferFiller(buffer);
 
     for (auto i = 0u; i < description.numAxes; i++) {
@@ -159,7 +185,7 @@ private:
   }
 
   Joystick *m_joystick{};
-  BufferType m_hidDescription{};
+  DescriptionType m_hidDescription{};
   HIDSubDescriptor *m_subDescriptor{};
   HidDevice m_hidDevice;
 };

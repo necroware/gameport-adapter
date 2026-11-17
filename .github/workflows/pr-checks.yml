@@ -7,3 +7,12 @@ jobs:
   check-code-format:
     uses: ./.github/workflows/check-code-format.yml
 
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run host unit tests
+      run: |
+        g++ -std=c++11 -Wall -Wextra -Werror -Ifirmware/gameport-adapter \
+          firmware/gameport-adapter/test/ffb_test.cpp -o ffb_test
+        ./ffb_test
