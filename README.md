@@ -89,7 +89,7 @@ Sidewinder 3D Pro            | 8       | 4     | 1    | 1110  | Sidewinder |
 Sidewinder 3D Pro Plus       | 9       | 4     | 1    | 1110  | Sidewinder | First version of Precision Pro
 Sidewinder Precision Pro     | 16      | 4     | 1    | 1110  | Sidewinder | Shift doubbles the buttons
 Sidewinder FFB Pro           | 16      | 4     | 1    | 1110  | Sidewinder | FFB not yet implemented
-Sidewinder FFB Wheel         | 8       | 3     | 0    | 1110  | Sidewinder | FFB not yet implemented
+Sidewinder FFB Wheel         | 8       | 3     | 0    | 1110  | Sidewinder | FFB (experimental)
 Gravis GamePad Pro           | 10      | 2     | 0    | 0001  | GrIP       |
 Logitech WingMan Extreme     | 6       | 3     | 1    | 1001  | ADI        |
 Logitech CyberMan 2          | 8       | 6     | 0    | 1001  | ADI        |
@@ -152,6 +152,57 @@ Sidewinder 3D Pro can be switched between analog and digital mode and in analog
 mode it can emulate the ThrustMaster and CH FlightStick. That's why you see them in
 the table above. Unfortunately I don't possess those joysticks in reality, so it may
 be that the implementation is not quite correct.
+
+## Force feedback
+
+The Sidewinder Force Feedback Wheel gets experimental force feedback support.
+The adapter presents itself as a USB HID PID force feedback device, which
+Windows and Linux support without extra drivers, and forwards the forces to
+the wheel via the MIDI pin of the gameport (pin 12). The wheel only accepts
+MIDI data while gameport pin 11 is low, so the adapter drives that pin low once
+it detected a wheel.
+
+All effect types except custom forces are offered to games: constant force,
+ramp, periodic effects (sine, square, triangle, sawtooth, also used for
+rumble), spring, damper, inertia and friction, including envelopes. The
+adapter mixes constant forces, ramps, periodic effects and springs into one
+force, using the wheel's position for the springs. Dampers, inertia and
+friction are played by the wheel itself. The wheel's own inertia effect resonates
+slightly at low turning speeds, at any strength. That is how the wheel
+renders inertia, the adapter only sets its strength. While no game uses force feedback,
+the wheel's own auto-centering is active. Design and open questions are
+documented in [ADR 0001](docs/adr/0001-sidewinder-ffb-wheel-force-feedback.md).
+
+The force feedback logic is covered by host unit tests:
+
+```
+g++ -std=c++11 -Ifirmware/gameport-adapter firmware/gameport-adapter/test/ffb_test.cpp -o ffb_test && ./ffb_test
+```
+
+With a wheel attached, `firmware/gameport-adapter/test/ffb_e2e.py` (Linux,
+python-evdev) plays constant forces, a spring, a ramp, a sine, a damper,
+inertia and friction and checks their effect on the wheel's X axis. Keep your hands off the wheel while it runs.
+
+### Force feedback in Windows games on Linux (Proton)
+
+Proton's default input path (SDL) does not know the adapter as a wheel, so
+games treat it as a joystick. Let Proton talk to the adapter directly via
+hidraw instead, then Wine sends the force feedback reports to the adapter
+like Windows does:
+
+1. Give your user access to the adapter's hidraw device with a udev rule
+   (`2341:8037` is the Arduino Micro, check `lsusb` for other boards):
+
+   ```
+   echo 'KERNEL=="hidraw*", ATTRS{idVendor}=="2341", ATTRS{idProduct}=="8037", TAG+="uaccess"' | sudo tee /etc/udev/rules.d/70-gameport-adapter.rules
+   sudo udevadm control --reload && sudo udevadm trigger
+   ```
+
+2. Add this to the launch options of the game in Steam:
+
+   ```
+   PROTON_ENABLE_HIDRAW=0x2341/0x8037 %command%
+   ```
 
 ## What is auto calibration?
 
@@ -245,5 +296,6 @@ donation this project wouldn't be possible. Especially dealing with Sidewinder
 ## Links
 * [Linux Sidewinder Driver](https://github.com/torvalds/linux/blob/master/drivers/input/joystick/sidewinder.c)
 * [Sidewinder patent](https://patents.google.com/patent/US5628686A/en)
+* [Sidewinder Force Feedback Wheel protocol (adapt-ffb-joy wiki)](https://github.com/tloimu/adapt-ffb-joy/blob/wiki/SidewinderFFBWheel.md)
 * [Creopard Retro Site](https://www.creopard.de/)
 

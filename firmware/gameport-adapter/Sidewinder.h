@@ -18,8 +18,46 @@
 
 #include "Buffer.h"
 #include "DigitalPin.h"
+#include "ForceFeedback.h"
+#include "GamePort.h"
 #include "Joystick.h"
+#include "SidewinderWheelFfb.h"
 #include "Utilities.h"
+
+/// Bit banged MIDI output (31250 baud, 8N1) on gameport pin 12.
+///
+/// The adapter PCB routes gameport pin 12 to a pin without hardware UART.
+class MidiOut {
+public:
+  MidiOut() {
+    m_tx.setHigh(); // idle level
+  }
+
+  void write(const uint8_t *data, uint8_t size) const {
+    while (size--) {
+      write(*data++);
+    }
+  }
+
+private:
+  /// CPU cycles spent per bit in the loop of write(uint8_t) outside of the
+  /// delay. Counted in the disassembly of this loop, recount if the loop or
+  /// the compiler changes.
+  static const uint8_t LOOP_CYCLES{23};
+
+  DigitalOutput<GamePort<12>::pin> m_tx;
+
+  void write(uint8_t byte) const {
+    // start bit (low), 8 data bits (LSB first), stop bit (high)
+    uint16_t frame = uint16_t(byte) << 1 | 0x200;
+    const InterruptStopper interruptStopper;
+    for (uint8_t i = 0; i < 10; i++) {
+      m_tx.set(frame & 1);
+      frame >>= 1;
+      __builtin_avr_delay_cycles(F_CPU / 31250 - LOOP_CYCLES);
+    }
+  }
+};
 
 /// Class to for communication with Sidewinder joysticks.
 /// @remark This is a green field implementation, but it was heavily
@@ -39,10 +77,21 @@ public:
       m_model = guessModel(readPacket());
     }
     log("Detected model %d", m_model);
+
+    // Pins 11 and 12 are only driven, once a wheel was detected. Other
+    // devices may use them differently. The wheel itself is initialized in
+    // update(), init() has to finish before the USB host enumerates.
+    if (m_model == Model::SW_FORCE_FEEDBACK_WHEEL && !m_wheelFfb) {
+      m_wheelFfb = new WheelFfb;
+    }
     return true;
   }
 
   bool update() override {
+    if (m_wheelFfb) {
+      updateForceFeedback();
+    }
+
     const auto packet = readPacket();
     State state;
     if (decode(packet, state)) {
@@ -65,7 +114,24 @@ public:
 
   const Description &getDescription() const override;
 
+  ForceFeedback *getForceFeedback() override {
+    return m_wheelFfb ? &m_wheelFfb->pid : nullptr;
+  }
+
 private:
+  /// Force feedback of the Sidewinder Force Feedback Wheel.
+  struct WheelFfb {
+    WheelFfb() {
+      // The wheel ignores MIDI, unless pin 11 is low. A PC game port pulls
+      // it low, the adapter's pull-down resistor is too weak for that.
+      midiEnable.setLow();
+    }
+    DigitalOutput<GamePort<11>::pin> midiEnable;
+    ForceFeedback pid;
+    SidewinderWheelFfb<MidiOut> wheel;
+    bool initialized{};
+  };
+
   /// Supported Sidewinder model types.
   enum class Model {
     /// Unknown model.
@@ -139,6 +205,32 @@ private:
   Model m_model{Model::SW_UNKNOWN};
   State m_state{};
   uint8_t m_errors{};
+  WheelFfb *m_wheelFfb{};
+
+  void updateForceFeedback() {
+    if (!m_wheelFfb->initialized) {
+      m_wheelFfb->wheel.init();
+      m_wheelFfb->initialized = true;
+    }
+    int16_t force;
+    ForceFeedback::Coefficients damper, inertia, friction;
+    bool active;
+    {
+      // The PID reports are handled in the USB interrupt
+      const InterruptStopper interruptStopper;
+      // Wheel position 0..1023 scaled to -MAX_FORCE..MAX_FORCE (32 bit: int
+      // is 16 bits on AVR)
+      const int16_t position =
+          int32_t(m_state.axes[0]) * (2 * ForceFeedback::MAX_FORCE) / 1023 - ForceFeedback::MAX_FORCE;
+      const auto now = millis();
+      force = m_wheelFfb->pid.force(now, position);
+      damper = m_wheelFfb->pid.coefficients(ForceFeedback::DAMPER, now);
+      inertia = m_wheelFfb->pid.coefficients(ForceFeedback::INERTIA, now);
+      friction = m_wheelFfb->pid.coefficients(ForceFeedback::FRICTION, now);
+      active = m_wheelFfb->pid.active();
+    }
+    m_wheelFfb->wheel.update(active, force, damper, inertia, friction);
+  }
 
   /// Enables digital mode for 3D Pro.
   //
@@ -422,7 +514,7 @@ template <>
 class Sidewinder::Decoder<Sidewinder::Model::SW_FORCE_FEEDBACK_WHEEL> {
 public:
   static const Description &getDescription() {
-    static const Description desc{"MS ForceFeedBack Wheel", 3, 8, 0};
+    static const Description desc{"MS ForceFeedBack Wheel", 3, 8, 0, true};
     return desc;
   }
 

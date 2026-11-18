@@ -15,6 +15,7 @@
 
 #pragma once
 
+#include "ForceFeedback.h"
 #include <HID.h>
 
 class HidDevice : public PluggableUSBModule {
@@ -38,6 +39,25 @@ public:
     descriptorSize += node->length;
   }
 
+  /// Appends the PID descriptor to the HID descriptor and routes the
+  /// force feedback reports of the host to the given handler.
+  void SetForceFeedback(ForceFeedback *ffb) {
+    forceFeedback = ffb;
+    descriptorSize += sizeof(PID_DESCRIPTOR);
+  }
+
+  /// Makes the host enumerate the device again, if it already read the
+  /// descriptor before it was complete. This happens, when the joystick is
+  /// detected after USB is attached, e.g. a wheel with its own power supply,
+  /// which is switched on after the adapter.
+  void Reenumerate() {
+    if (announced) {
+      UDCON |= (1 << DETACH);
+      delay(100);
+      UDCON &= ~(1 << DETACH);
+    }
+  }
+
   int SendReport(uint8_t id, const void *data, int len) const {
 
     const auto ret = USB_Send(pluggedEndpoint, &id, 1);
@@ -55,6 +75,7 @@ public:
 
 protected:
   int getInterface(uint8_t *interfaceCount) override {
+    announced = true;
     *interfaceCount += 1; // uses 1
     HIDDescriptor hidInterface{
         D_INTERFACE(pluggedInterface, 1, USB_DEVICE_CLASS_HUMAN_INTERFACE, HID_SUBCLASS_NONE, HID_PROTOCOL_NONE),
@@ -81,6 +102,14 @@ protected:
     int total = 0;
     for (auto node = rootNode; node; node = node->next) {
       const auto res = USB_SendControl(0, node->data, node->length);
+      if (res < 0) {
+        return -1;
+      }
+      total += res;
+    }
+
+    if (forceFeedback) {
+      const auto res = USB_SendControl(TRANSFER_PGM, PID_DESCRIPTOR, sizeof(PID_DESCRIPTOR));
       if (res < 0) {
         return -1;
       }
@@ -115,7 +144,11 @@ protected:
 
     if (requestType == REQUEST_DEVICETOHOST_CLASS_INTERFACE) {
       if (request == HID_GET_REPORT) {
-        // TODO: HID_GetReport();
+        uint8_t report[5];
+        const auto size = forceFeedback ? forceFeedback->getReport(setup.wValueL, report) : 0;
+        if (size) {
+          USB_SendControl(0, report, size);
+        }
         return true;
       }
       if (request == HID_GET_PROTOCOL) {
@@ -138,14 +171,13 @@ protected:
         idle = setup.wValueL;
         return true;
       }
-      if (request == HID_SET_REPORT) {
-        // uint8_t reportID = setup.wValueL;
-        // uint16_t length = setup.wLength;
-        // uint8_t data[length];
-        // Make sure to not read more data than USB_EP_SIZE.
-        // You can read multiple times through a loop.
-        // The first byte (may!) contain the reportID on a multreport.
-        // USB_RecvControl(data, length);
+      if (request == HID_SET_REPORT && forceFeedback) {
+        // Force feedback reports are short, the first byte is the report ID.
+        uint8_t report[16];
+        const auto size = min(setup.wLength, sizeof(report));
+        USB_RecvControl(report, size);
+        forceFeedback->setReport(report, size, millis());
+        return true;
       }
     }
 
@@ -156,6 +188,8 @@ private:
   uint8_t epType[1]{EP_TYPE_INTERRUPT_IN};
   HIDSubDescriptor *rootNode{nullptr};
   uint16_t descriptorSize{0};
+  ForceFeedback *forceFeedback{nullptr};
+  bool announced{false};
   uint8_t protocol{HID_REPORT_PROTOCOL};
   uint8_t idle{1};
 };

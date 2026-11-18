@@ -18,6 +18,8 @@
 
 #include <Arduino.h>
 
+class ForceFeedback;
+
 /// Base class for all joysticks.
 class Joystick {
 public:
@@ -40,6 +42,9 @@ public:
 
     /// Has HAT.
     bool hasHat;
+
+    /// Is a steering wheel, reported as automobile simulation device.
+    bool isWheel;
   };
 
   /// Joystick state.
@@ -84,6 +89,13 @@ public:
 
   /// Gets the Description of the Joystick.
   virtual const Description &getDescription() const = 0;
+
+  /// Gets the force feedback of the joystick.
+  ///
+  /// @returns nullptr if the joystick has no force feedback
+  virtual ForceFeedback *getForceFeedback() {
+    return nullptr;
+  }
 
   Joystick() = default;
   virtual ~Joystick() = default;

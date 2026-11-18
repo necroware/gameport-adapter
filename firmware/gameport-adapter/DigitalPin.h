@@ -62,8 +62,10 @@ public:
   }
 
   /// Sets output to the given value.
+  ///
+  /// Branch free, so it takes the same time for both values (bit banging).
   void set(bool value) const {
-    value ? setHigh() : setLow();
+    m_output = (m_output & ~m_pin.mask) | (m_pin.mask & -uint8_t(value));
   }
 
   /// Toggles the output.
